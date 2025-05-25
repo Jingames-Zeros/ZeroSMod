@@ -2,6 +2,7 @@ package com.jingames.zeros.guis;
 
 import com.jingames.zeros.GenericGuiApi;
 import com.jingames.zeros.callbacks.GuiContextManager;
+import com.jingames.zeros.callbacks.IAnvilGuiCallbacks;
 import com.jingames.zeros.callbacks.IChestGuiCallbacks;
 import com.jingames.zeros.callbacks.IGuiContextProvider;
 import com.jingames.zeros.network.SyncGuiTitlePacket;
@@ -30,6 +31,8 @@ public class GUIScheduler {
 
     if (ctx instanceof IChestGuiCallbacks chest) {
       GenericGuiApi.network.sendTo(new SyncGuiTitlePacket(request.x, chest.getGuiTitle(request.player)), (EntityPlayerMP) request.player);
+    } else if (ctx instanceof IAnvilGuiCallbacks anvil) {
+      GenericGuiApi.network.sendTo(new SyncGuiTitlePacket(request.x, anvil.getGuiTitle(request.player)), (EntityPlayerMP) request.player);
     }
 
     this.pendingOpens.add(request);

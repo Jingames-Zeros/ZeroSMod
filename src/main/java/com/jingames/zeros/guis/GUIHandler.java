@@ -6,6 +6,7 @@ import com.jingames.zeros.callbacks.IAnvilGuiCallbacks;
 import com.jingames.zeros.callbacks.IChestGuiCallbacks;
 import com.jingames.zeros.callbacks.IGuiContextProvider;
 import com.jingames.zeros.guis.clientside.ClientGuiDataCache;
+import com.jingames.zeros.guis.clientside.CustomAnvilGUI;
 import com.jingames.zeros.guis.clientside.CustomChestGUI;
 import com.jingames.zeros.guis.serverside.CustomAnvilContainer;
 import com.jingames.zeros.guis.serverside.GUIContainer;
@@ -53,7 +54,7 @@ public class GUIHandler implements IGuiHandler {
       InventoryBasic dummy = new InventoryBasic(title, true, z * 9);
       return new CustomChestGUI(player.inventory, dummy);
     } else if (ID == GenericGuiApi.GENERIC_ANVIL_GUI) {
-      return new CustomAnvilContainer(player.inventory, world, 0, 0, 0, player, null);
+      return new CustomAnvilGUI(player.inventory, world, 0, 0, 0, player, title);
     }
     return null;
   }
