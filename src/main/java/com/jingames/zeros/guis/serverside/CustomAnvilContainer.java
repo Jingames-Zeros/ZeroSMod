@@ -20,9 +20,11 @@ public class CustomAnvilContainer extends ContainerRepair {
   private final String initialMessage;
   private String newTxtName;
   private final IAnvilGuiCallbacks callbacks;
+  private final InventoryPlayer plyInv;
 
   public CustomAnvilContainer(InventoryPlayer playerInventory, World world, int x, int y, int z, EntityPlayer player, IAnvilGuiCallbacks callbacks) {
     super(playerInventory, world, x, y, z, player);
+    this.plyInv = playerInventory;
     this.callbacks = callbacks;
     this.initialMessage = callbacks != null ? callbacks.getInitialMessage(player) : "";
     this.newTxtName = this.initialMessage;
@@ -109,6 +111,7 @@ public class CustomAnvilContainer extends ContainerRepair {
 
   @Override
   public ItemStack slotClick(int slotID, int dragType, int clickType, EntityPlayer player) {
+    if (slotID >= 0 && slotID < this.inventorySlots.size() && this.getSlot(slotID).inventory.equals(this.plyInv)) return null;
     if (slotID == 2 && !player.worldObj.isRemote && this.callbacks != null) {
       String process = this.newTxtName == null ? "" : this.newTxtName.trim();
       if (process.isEmpty()) {
