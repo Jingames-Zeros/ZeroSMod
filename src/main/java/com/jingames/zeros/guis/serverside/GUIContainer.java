@@ -65,7 +65,7 @@ public class GUIContainer extends Container {
   @Override
   public ItemStack slotClick(int slotId, int clickData, int clickType, EntityPlayer player) {
     if (slotId >= 0 && slotId < inv.getSizeInventory()) {
-      if (!this.isEditable || this.getSlot(slotId).inventory == this.ply.inventory) return null;
+      if (!this.isEditable || slotId >= this.numRows * 9) return null;
       if (!this.ply.worldObj.isRemote && this.callbacks != null) {
         this.callbacks.onSlotClick(this.ply, slotId, this.inv.getStackInSlot(slotId), this, clickData, clickType);
       }
