@@ -38,5 +38,5 @@ dependencies {
     devOnlyNonPublishable(rfg.deobf("curse.maven:jingames-dragon-block-c-497518:4523119"))
     devOnlyNonPublishable(rfg.deobf("curse.maven:jingames-jbra-client-497511:4505635"))
 
-    implementation(rfg.deobf(name: "CustomNPC-Plus-1.9.3"))
+    implementation(rfg.deobf("curse.maven:customnpcplus-480951:6596623"))
 }
