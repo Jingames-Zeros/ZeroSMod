@@ -20,8 +20,8 @@ import cpw.mods.fml.relauncher.Side;
 @Mod(modid = GenericGuiApi.MODID, version = GenericGuiApi.VERSION, acceptableRemoteVersions = "*")
 public class GenericGuiApi {
 
-	public static final String MODID = "Generic GUI API";
-	public static final String VERSION = "0.1.0";
+	public static final String MODID = "genericguiapi";
+	public static final String VERSION = "0.2.0";
 	public static SimpleNetworkWrapper network;
 
 	@Instance(MODID)
