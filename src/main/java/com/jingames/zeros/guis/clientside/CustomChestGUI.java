@@ -10,7 +10,8 @@ import org.lwjgl.opengl.GL11;
 
 public class CustomChestGUI extends GuiContainer {
 
-  private static final ResourceLocation CHEST_GUI_TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
+  private static final ResourceLocation CHEST_GUI_TEXTURE = new ResourceLocation(
+      "genericguiapi", "textures/gui/container/generic_54-6.png");
   private IInventory upInv;
   private InventoryPlayer plyInv;
   private int numRows;
@@ -30,10 +31,10 @@ public class CustomChestGUI extends GuiContainer {
   protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
     String customInventoryTitle = this.upInv.hasCustomInventoryName() ?
         this.upInv.getInventoryName() : "Fallback Title";
-    this.fontRendererObj.drawString(customInventoryTitle, 8, 6, 4210752);
+    this.fontRendererObj.drawString(customInventoryTitle, 8, 6, 16755200);
     this.fontRendererObj.drawString(
         this.plyInv.hasCustomInventoryName() ? this.plyInv.getInventoryName() :
-            I18n.format("container.inventory"), 8, this.ySize - 96 + 2, 4210752);
+            I18n.format("container.inventory"), 8, this.ySize - 96 + 2, 16755200);
   }
 
   @Override

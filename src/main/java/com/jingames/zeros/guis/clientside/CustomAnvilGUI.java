@@ -21,7 +21,8 @@ import org.lwjgl.opengl.GL11;
 
 public class CustomAnvilGUI extends GuiContainer implements ICrafting {
 
-  private static final ResourceLocation anvilResource = new ResourceLocation("textures/gui/container/anvil.png");
+  private static final ResourceLocation anvilResource = new ResourceLocation("minecraft",
+      "textures/gui/container/anvil.png");
   private CustomAnvilContainer customAnvil;
   private GuiTextField itemName;
   private String title;
