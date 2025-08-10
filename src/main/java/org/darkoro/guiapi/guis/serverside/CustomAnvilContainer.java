@@ -1,7 +1,7 @@
-package com.jingames.zeros.guis.serverside;
+package org.darkoro.guiapi.guis.serverside;
 
-import com.jingames.zeros.callbacks.GuiContextManager;
-import com.jingames.zeros.callbacks.IAnvilGuiCallbacks;
+import org.darkoro.guiapi.callbacks.GuiContextManager;
+import org.darkoro.guiapi.callbacks.IAnvilGuiCallbacks;
 import java.util.function.Function;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;

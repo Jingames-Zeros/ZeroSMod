@@ -1,6 +1,6 @@
-package com.jingames.zeros.network;
+package org.darkoro.guiapi.network;
 
-import com.jingames.zeros.guis.clientside.ClientGuiDataCache;
+import org.darkoro.guiapi.guis.clientside.ClientGuiDataCache;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;

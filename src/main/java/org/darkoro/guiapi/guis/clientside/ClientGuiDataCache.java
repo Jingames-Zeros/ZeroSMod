@@ -1,4 +1,4 @@
-package com.jingames.zeros.guis.clientside;
+package org.darkoro.guiapi.guis.clientside;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

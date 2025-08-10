@@ -1,15 +1,15 @@
-package com.jingames.zeros.guis;
+package org.darkoro.guiapi.guis;
 
-import com.jingames.zeros.GenericGuiApi;
-import com.jingames.zeros.callbacks.GuiContextManager;
-import com.jingames.zeros.callbacks.IAnvilGuiCallbacks;
-import com.jingames.zeros.callbacks.IChestGuiCallbacks;
-import com.jingames.zeros.callbacks.IGuiContextProvider;
-import com.jingames.zeros.guis.clientside.ClientGuiDataCache;
-import com.jingames.zeros.guis.clientside.CustomAnvilGUI;
-import com.jingames.zeros.guis.clientside.CustomChestGUI;
-import com.jingames.zeros.guis.serverside.CustomAnvilContainer;
-import com.jingames.zeros.guis.serverside.GUIContainer;
+import org.darkoro.guiapi.GenericGuiApi;
+import org.darkoro.guiapi.callbacks.GuiContextManager;
+import org.darkoro.guiapi.callbacks.IAnvilGuiCallbacks;
+import org.darkoro.guiapi.callbacks.IChestGuiCallbacks;
+import org.darkoro.guiapi.callbacks.IGuiContextProvider;
+import org.darkoro.guiapi.guis.clientside.ClientGuiDataCache;
+import org.darkoro.guiapi.guis.clientside.CustomAnvilGUI;
+import org.darkoro.guiapi.guis.clientside.CustomChestGUI;
+import org.darkoro.guiapi.guis.serverside.CustomAnvilContainer;
+import org.darkoro.guiapi.guis.serverside.GUIContainer;
 import cpw.mods.fml.common.network.IGuiHandler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryBasic;

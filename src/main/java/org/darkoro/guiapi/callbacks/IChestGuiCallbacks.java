@@ -1,6 +1,6 @@
-package com.jingames.zeros.callbacks;
+package org.darkoro.guiapi.callbacks;
 
-import com.jingames.zeros.guis.serverside.GUIContainer;
+import org.darkoro.guiapi.guis.serverside.GUIContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.ItemStack;

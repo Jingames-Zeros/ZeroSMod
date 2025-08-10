@@ -1,4 +1,4 @@
-package com.jingames.zeros.callbacks;
+package org.darkoro.guiapi.callbacks;
 
 public interface IGuiContextProvider {
 

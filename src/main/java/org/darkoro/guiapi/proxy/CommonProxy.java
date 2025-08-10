@@ -1,6 +1,6 @@
-package com.jingames.zeros.proxy;
+package org.darkoro.guiapi.proxy;
 
-import com.jingames.zeros.guis.GUIHandler;
+import org.darkoro.guiapi.guis.GUIHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;

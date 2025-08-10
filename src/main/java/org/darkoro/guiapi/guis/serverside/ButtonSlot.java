@@ -1,4 +1,4 @@
-package com.jingames.zeros.guis.serverside;
+package org.darkoro.guiapi.guis.serverside;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;

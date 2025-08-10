@@ -1,11 +1,11 @@
-package com.jingames.zeros.guis;
+package org.darkoro.guiapi.guis;
 
-import com.jingames.zeros.GenericGuiApi;
-import com.jingames.zeros.callbacks.GuiContextManager;
-import com.jingames.zeros.callbacks.IAnvilGuiCallbacks;
-import com.jingames.zeros.callbacks.IChestGuiCallbacks;
-import com.jingames.zeros.callbacks.IGuiContextProvider;
-import com.jingames.zeros.network.SyncGuiTitlePacket;
+import org.darkoro.guiapi.GenericGuiApi;
+import org.darkoro.guiapi.callbacks.GuiContextManager;
+import org.darkoro.guiapi.callbacks.IAnvilGuiCallbacks;
+import org.darkoro.guiapi.callbacks.IChestGuiCallbacks;
+import org.darkoro.guiapi.callbacks.IGuiContextProvider;
+import org.darkoro.guiapi.network.SyncGuiTitlePacket;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;

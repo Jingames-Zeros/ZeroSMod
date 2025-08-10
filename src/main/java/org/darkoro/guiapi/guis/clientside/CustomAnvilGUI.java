@@ -1,6 +1,6 @@
-package com.jingames.zeros.guis.clientside;
+package org.darkoro.guiapi.guis.clientside;
 
-import com.jingames.zeros.guis.serverside.CustomAnvilContainer;
+import org.darkoro.guiapi.guis.serverside.CustomAnvilContainer;
 import io.netty.buffer.Unpooled;
 import java.nio.charset.StandardCharsets;
 import java.util.List;

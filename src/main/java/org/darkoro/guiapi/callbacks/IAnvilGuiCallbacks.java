@@ -1,4 +1,4 @@
-package com.jingames.zeros.callbacks;
+package org.darkoro.guiapi.callbacks;
 
 import java.util.function.Function;
 import net.minecraft.entity.player.EntityPlayer;

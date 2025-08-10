@@ -1,4 +1,4 @@
-package com.jingames.zeros.guis;
+package org.darkoro.guiapi.guis;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;

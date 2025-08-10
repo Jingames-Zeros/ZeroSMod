@@ -1,4 +1,4 @@
-package com.jingames.zeros.network;
+package org.darkoro.guiapi.network;
 
 import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;

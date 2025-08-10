@@ -1,10 +1,10 @@
-package com.jingames.zeros;
+package org.darkoro.guiapi;
 
-import com.jingames.zeros.network.SyncGuiTitlePacket;
-import com.jingames.zeros.network.SyncGuiTitlePacketHandler;
-import com.jingames.zeros.proxy.CommonProxy;
-import com.jingames.zeros.guis.GUIHandler;
-import com.jingames.zeros.guis.GUIScheduler;
+import org.darkoro.guiapi.network.SyncGuiTitlePacket;
+import org.darkoro.guiapi.network.SyncGuiTitlePacketHandler;
+import org.darkoro.guiapi.proxy.CommonProxy;
+import org.darkoro.guiapi.guis.GUIHandler;
+import org.darkoro.guiapi.guis.GUIScheduler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -27,7 +27,7 @@ public class GenericGuiApi {
 	@Instance(MODID)
 	public static GenericGuiApi instance;
 
-	@SidedProxy(clientSide = "com.jingames.zeros.proxy.CommonProxy", serverSide = "com.jingames.zeros.proxy.CommonProxy")
+	@SidedProxy(clientSide = "org.darkoro.guiapi.proxy.CommonProxy", serverSide = "org.darkoro.guiapi.proxy.CommonProxy")
 	public static CommonProxy proxy;
 
 	public static int GENERIC_CHEST_GUI = 1;
