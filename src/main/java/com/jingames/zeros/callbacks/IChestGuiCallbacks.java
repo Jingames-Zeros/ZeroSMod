@@ -12,5 +12,7 @@ public interface IChestGuiCallbacks extends IGuiContextProvider {
   void populateSlots(EntityPlayer ply, InventoryBasic inv);
   void onSlotClick(EntityPlayer ply, int slotIndex, ItemStack item, GUIContainer container, int mouseButton, int clickType);
   boolean isEditable(EntityPlayer ply);
+  default boolean isInventory(EntityPlayer ply) { return false; }
+  default void onGuiClosed(EntityPlayer ply) {}
 
 }
