@@ -112,4 +112,6 @@ public class GUIContainer extends Container {
     return this.inv;
   }
 
+  public IChestGuiCallbacks getCallbacks() { return this.callbacks; }
+
 }
