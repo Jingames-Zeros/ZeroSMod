@@ -1,5 +1,6 @@
 package org.darkoro.guiapi;
 
+import net.minecraft.world.biome.BiomeGenBase;
 import org.darkoro.guiapi.network.SyncGuiTitlePacket;
 import org.darkoro.guiapi.network.SyncGuiTitlePacketHandler;
 import org.darkoro.guiapi.proxy.CommonProxy;
@@ -16,12 +17,13 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
+import org.darkoro.guiapi.world.SpiritGardenBiome;
 
 @Mod(modid = GenericGuiApi.MODID, version = GenericGuiApi.VERSION, acceptableRemoteVersions = "*")
 public class GenericGuiApi {
 
 	public static final String MODID = "genericguiapi";
-	public static final String VERSION = "0.3.1";
+	public static final String VERSION = "0.4.0";
 	public static SimpleNetworkWrapper network;
 
 	@Instance(MODID)
@@ -32,6 +34,8 @@ public class GenericGuiApi {
 
 	public static int GENERIC_CHEST_GUI = 1;
 	public static int GENERIC_ANVIL_GUI = 2;
+
+	public static BiomeGenBase SPIRIT_GARDEN_BIOME;
 
 	@EventHandler
 	public void fmlLifeCycleEvent(FMLPreInitializationEvent event) {
