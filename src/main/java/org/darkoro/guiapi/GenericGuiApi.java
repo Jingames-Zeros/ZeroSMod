@@ -23,7 +23,7 @@ import org.darkoro.guiapi.world.SpiritGardenBiome;
 public class GenericGuiApi {
 
 	public static final String MODID = "genericguiapi";
-	public static final String VERSION = "0.4.0";
+	public static final String VERSION = "0.5.0";
 	public static SimpleNetworkWrapper network;
 
 	@Instance(MODID)
