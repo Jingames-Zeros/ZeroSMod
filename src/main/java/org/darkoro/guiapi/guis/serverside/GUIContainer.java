@@ -23,15 +23,15 @@ public class GUIContainer extends Container {
     this.inv = inv;
     this.ply = plyInv.player;
     this.numRows = inv.getSizeInventory() / 9;
-    this.isEditable = this.callbacks == null || callbacks.isEditable(ply);
-    this.isInventory = this.callbacks == null || callbacks.isInventory(ply);
+    this.isEditable = this.callbacks != null && callbacks.isEditable(ply);
+    this.isInventory = this.callbacks != null && callbacks.isInventory(ply);
 
     inv.openInventory();
 
     for (int row = 0; row < numRows; row++) {
       for (int col = 0; col < 9; col++) {
         int slotIndex = col + row * 9;
-        this.addSlotToContainer(new ButtonSlot(inv, slotIndex, 8 + col * 18, 18 + row * 18, this.isInventory()));
+        this.addSlotToContainer(new ButtonSlot(inv, slotIndex, 8 + col * 18, 18 + row * 18, this.isInventory));
       }
     }
 
@@ -58,7 +58,7 @@ public class GUIContainer extends Container {
    */
   @Override
   public ItemStack transferStackInSlot(EntityPlayer player, int index) {
-    if (!this.isEditable() || !this.isInventory()) return null;
+    if (!this.isEditable || !this.isInventory) return null;
     Slot slot = this.inventorySlots.get(index);
     if (slot == null || !slot.getHasStack()) return null;
     ItemStack stack = slot.getStack();
@@ -70,6 +70,8 @@ public class GUIContainer extends Container {
     }
     if (stack.stackSize == 0) slot.putStack(null);
     else slot.onSlotChanged();
+    if (this.callbacks != null && !this.ply.worldObj.isRemote)
+      this.callbacks.onSlotClick(this.ply, index, stackCopy, this, 0, 0);
     return stackCopy;
   }
 
@@ -78,16 +80,21 @@ public class GUIContainer extends Container {
    */
   @Override
   public ItemStack slotClick(int slotId, int clickData, int clickType, EntityPlayer player) {
-    if ((!this.isEditable() && !this.isInventory()) ||
-        (this.isEditable() && !this.isInventory() && (slotId < 0 || slotId >= inv.getSizeInventory()))) return null;
-    if (this.isInventory()) {
-      ItemStack result = super.slotClick(slotId, clickData, clickType, player);
-      if (this.callbacks != null && !this.ply.worldObj.isRemote)
-        this.callbacks.onSlotClick(this.ply, slotId, this.inv.getStackInSlot(slotId), this, clickData, clickType);
-      return result;
+    if (slotId >= this.inv.getSizeInventory()) {
+      return super.slotClick(slotId, clickData, clickType, player);
     }
-    if (this.isEditable() && !this.ply.worldObj.isRemote && this.callbacks != null) {
-      this.callbacks.onSlotClick(this.ply, slotId, this.inv.getStackInSlot(slotId), this, clickData, clickType);
+
+    if (this.isInventory && this.isEditable) {
+      ItemStack result = super.slotClick(slotId, clickData, clickType, player);
+      if (this.callbacks != null && !this.ply.worldObj.isRemote) {
+        this.callbacks.onSlotClick(this.ply, slotId, result, this, clickData, clickType);
+      }
+      return result;
+    } else if (this.isEditable) {
+      if (this.callbacks != null && !this.ply.worldObj.isRemote) {
+        this.callbacks.onSlotClick(this.ply, slotId, this.inv.getStackInSlot(slotId), this, clickData, clickType);
+      }
+      return null;
     }
     return null;
   }
@@ -98,14 +105,6 @@ public class GUIContainer extends Container {
     if (this.inv != null) this.inv.closeInventory();
     if (this.callbacks != null && !this.ply.worldObj.isRemote) this.callbacks.onGuiClosed(this.ply);
     GuiContextManager.clearContext(player, this.callbacks);
-  }
-
-  public boolean isEditable() {
-    return this.isEditable;
-  }
-
-  public boolean isInventory() {
-    return this.isInventory;
   }
 
   public IInventory getInv() {
