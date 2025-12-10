@@ -10,7 +10,7 @@ public class SpiritGardenBiome extends BiomeGenBase {
   public SpiritGardenBiome(int biomeId) {
     super(biomeId);
     this.setBiomeName("Spirit Garden");
-    this.waterColorMultiplier = 0xDBA4FC;
+    this.waterColorMultiplier = 0xF56C62;
     this.topBlock = Blocks.grass;
     this.fillerBlock = Blocks.obsidian;
     this.spawnableCreatureList.clear();
