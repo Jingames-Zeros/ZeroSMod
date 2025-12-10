@@ -10,16 +10,16 @@ public class SpiritGardenBiome extends BiomeGenBase {
   public SpiritGardenBiome(int biomeId) {
     super(biomeId);
     this.setBiomeName("Spirit Garden");
-    this.waterColorMultiplier = 0x48006E;
+    this.waterColorMultiplier = 0xDBA4FC;
     this.topBlock = Blocks.grass;
     this.fillerBlock = Blocks.obsidian;
     this.spawnableCreatureList.clear();
     this.spawnableMonsterList.clear();
   }
 
-  @Override @SideOnly(Side.CLIENT) public int getBiomeGrassColor(int x, int y, int z) { return 0xC71585; }
-  @Override @SideOnly(Side.CLIENT) public int getBiomeFoliageColor(int x, int y, int z) { return 0xC71585; }
-  @Override @SideOnly(Side.CLIENT) public int getSkyColorByTemp(float currentTemperature) { return 0xFF991C; }
-  @Override @SideOnly(Side.CLIENT) public int getModdedBiomeGrassColor(int original) { return 0xC71585; }
-  @Override @SideOnly(Side.CLIENT) public int getModdedBiomeFoliageColor(int original) { return 0xC71585; }
+  @Override @SideOnly(Side.CLIENT) public int getBiomeGrassColor(int x, int y, int z) { return 0x3BAD59; }
+  @Override @SideOnly(Side.CLIENT) public int getBiomeFoliageColor(int x, int y, int z) { return 0x228F3F; }
+  @Override @SideOnly(Side.CLIENT) public int getSkyColorByTemp(float currentTemperature) { return 0x5A30B8; }
+  @Override @SideOnly(Side.CLIENT) public int getModdedBiomeGrassColor(int original) { return 0x3BAD59; }
+  @Override @SideOnly(Side.CLIENT) public int getModdedBiomeFoliageColor(int original) { return 0x228f3f; }
 }
