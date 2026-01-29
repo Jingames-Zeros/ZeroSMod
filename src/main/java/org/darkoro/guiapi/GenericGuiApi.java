@@ -1,6 +1,11 @@
 package org.darkoro.guiapi;
 
 import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.block.Block;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import org.darkoro.guiapi.network.SyncGuiTitlePacket;
 import org.darkoro.guiapi.network.SyncGuiTitlePacketHandler;
 import org.darkoro.guiapi.proxy.CommonProxy;
@@ -17,7 +22,6 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
-import org.darkoro.guiapi.world.*;
 
 @Mod(modid = GenericGuiApi.MODID, version = GenericGuiApi.VERSION, acceptableRemoteVersions = "*")
 public class GenericGuiApi {
@@ -35,12 +39,27 @@ public class GenericGuiApi {
 	public static int GENERIC_CHEST_GUI = 1;
 	public static int GENERIC_ANVIL_GUI = 2;
 
+	// Spirit Garden
 	public static BiomeGenBase SPIRIT_GARDEN_BIOME;
+	public static Fluid SPIRIT_WATER_FLUID;
+	public static Block SPIRIT_WATER_BLOCK;
+
+	// Vakron
 	public static BiomeGenBase VAKRON_BIOME;
+
+	//Generic Biomes
 	public static BiomeGenBase ZS_BIOME_1;
 	public static BiomeGenBase ZS_BIOME_2;
 	public static BiomeGenBase ZS_BIOME_3;
 	public static BiomeGenBase ZS_BIOME_4;
+
+	// Creative Tab
+	public static final CreativeTabs GENERIC_GUI_TAB = new CreativeTabs("genericguiapi") {
+		@Override
+		public Item getTabIconItem() {
+			return Item.getItemFromBlock(Blocks.chest);
+		}
+	};
 
 	@EventHandler
 	public void fmlLifeCycleEvent(FMLPreInitializationEvent event) {
