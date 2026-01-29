@@ -17,7 +17,7 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
-import org.darkoro.guiapi.world.SpiritGardenBiome;
+import org.darkoro.guiapi.world.*;
 
 @Mod(modid = GenericGuiApi.MODID, version = GenericGuiApi.VERSION, acceptableRemoteVersions = "*")
 public class GenericGuiApi {
@@ -36,6 +36,11 @@ public class GenericGuiApi {
 	public static int GENERIC_ANVIL_GUI = 2;
 
 	public static BiomeGenBase SPIRIT_GARDEN_BIOME;
+	public static BiomeGenBase VAKRON_BIOME;
+	public static BiomeGenBase ZS_BIOME_1;
+	public static BiomeGenBase ZS_BIOME_2;
+	public static BiomeGenBase ZS_BIOME_3;
+	public static BiomeGenBase ZS_BIOME_4;
 
 	@EventHandler
 	public void fmlLifeCycleEvent(FMLPreInitializationEvent event) {
