@@ -1,8 +1,6 @@
 package org.darkoro.guiapi;
 
 import net.minecraft.world.biome.BiomeGenBase;
-import net.minecraft.block.Block;
-import net.minecraftforge.fluids.Fluid;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
@@ -27,7 +25,7 @@ import cpw.mods.fml.relauncher.Side;
 public class GenericGuiApi {
 
 	public static final String MODID = "genericguiapi";
-	public static final String VERSION = "0.5.1";
+	public static final String VERSION = "0.6.0";
 	public static SimpleNetworkWrapper network;
 
 	@Instance(MODID)
@@ -41,8 +39,6 @@ public class GenericGuiApi {
 
 	// Spirit Garden
 	public static BiomeGenBase SPIRIT_GARDEN_BIOME;
-	public static Fluid SPIRIT_WATER_FLUID;
-	public static Block SPIRIT_WATER_BLOCK;
 
 	// Vakron
 	public static BiomeGenBase VAKRON_BIOME;
@@ -55,8 +51,7 @@ public class GenericGuiApi {
 
 	// Creative Tab
 	public static final CreativeTabs GENERIC_GUI_TAB = new CreativeTabs("genericguiapi") {
-		@Override
-		public Item getTabIconItem() {
+		@Override public Item getTabIconItem() {
 			return Item.getItemFromBlock(Blocks.chest);
 		}
 	};
