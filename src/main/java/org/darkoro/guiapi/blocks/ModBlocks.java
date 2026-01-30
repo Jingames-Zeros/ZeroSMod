@@ -13,15 +13,25 @@ public class ModBlocks {
     public static Block COLORLESS_WATER_BLOCK;
 
     public static void registerAll() {
-        SPIRIT_WATER_FLUID = new Fluid("spirit_water");
-        COLORLESS_WATER_FLUID = new Fluid("colorless_water");
+
+        SPIRIT_WATER_FLUID = FluidRegistry.getFluid("spirit_water");
+        if (SPIRIT_WATER_FLUID == null) {
+            SPIRIT_WATER_FLUID = new Fluid("spirit_water");
+            FluidRegistry.registerFluid(SPIRIT_WATER_FLUID);
+        }
 
         SPIRIT_WATER_BLOCK = new BlockSpiritWater(SPIRIT_WATER_FLUID);
-        COLORLESS_WATER_BLOCK = new BlockColorlessWater(COLORLESS_WATER_FLUID);
-
-        FluidRegistry.registerFluid(SPIRIT_WATER_FLUID);
-        FluidRegistry.registerFluid(COLORLESS_WATER_FLUID);
         GameRegistry.registerBlock(SPIRIT_WATER_BLOCK, "spirit_water");
+        SPIRIT_WATER_FLUID.setBlock(SPIRIT_WATER_BLOCK);
+
+        COLORLESS_WATER_FLUID = FluidRegistry.getFluid("colorless_water");
+        if (COLORLESS_WATER_FLUID == null) {
+            COLORLESS_WATER_FLUID = new Fluid("colorless_water");
+            FluidRegistry.registerFluid(COLORLESS_WATER_FLUID);
+        }
+
+        COLORLESS_WATER_BLOCK = new BlockColorlessWater(COLORLESS_WATER_FLUID);
         GameRegistry.registerBlock(COLORLESS_WATER_BLOCK, "colorless_water");
+        COLORLESS_WATER_FLUID.setBlock(COLORLESS_WATER_BLOCK);
     }
 }

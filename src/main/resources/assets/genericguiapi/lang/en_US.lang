@@ -1,2 +1,3 @@
-itemGroup.genericguiapi = Generic GUI API
-tile.spirit_water.name = Spirit Water
+itemGroup.genericguiapi=Generic GUI API
+tile.spirit_water.name=Spirit Water
+tile.colorless_water.name=Colorless Water
