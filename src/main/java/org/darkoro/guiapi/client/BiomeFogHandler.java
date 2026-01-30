@@ -28,8 +28,8 @@ public class BiomeFogHandler {
             rgb = 0x6A44BF;
         } else if (biome == GenericGuiApi.VAKRON_BIOME) {
             rgb = 0x2A2A2A;
-        } else if (biome == GenericGuiApi.ZS_BIOME_1) {
-            rgb = 0xFFFFF9;
+        } else if (biome == GenericGuiApi.DRAGON_REALM) {
+            rgb = 0xFDDC5C;
         } else {
             return;
         }

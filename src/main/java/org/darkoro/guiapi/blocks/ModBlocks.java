@@ -12,6 +12,9 @@ public class ModBlocks {
     public static Fluid COLORLESS_WATER_FLUID;
     public static Block COLORLESS_WATER_BLOCK;
 
+    public static Fluid DRAGON_WATER_FLUID;
+    public static Block DRAGON_WATER_BLOCK;
+
     public static void registerAll() {
     // Forge is silly
         SPIRIT_WATER_FLUID = FluidRegistry.getFluid("spirit_water");
@@ -33,5 +36,15 @@ public class ModBlocks {
         COLORLESS_WATER_BLOCK = new BlockColorlessWater(COLORLESS_WATER_FLUID);
         GameRegistry.registerBlock(COLORLESS_WATER_BLOCK, "colorless_water");
         COLORLESS_WATER_FLUID.setBlock(COLORLESS_WATER_BLOCK);
+
+        DRAGON_WATER_FLUID = FluidRegistry.getFluid("dragon_water");
+        if (DRAGON_WATER_FLUID == null) {
+            DRAGON_WATER_FLUID = new Fluid("dragon_water");
+            FluidRegistry.registerFluid(DRAGON_WATER_FLUID);
+        }
+
+        DRAGON_WATER_BLOCK = new BlockDragonWater(DRAGON_WATER_FLUID);
+        GameRegistry.registerBlock(DRAGON_WATER_BLOCK, "dragon_water");
+        DRAGON_WATER_FLUID.setBlock(DRAGON_WATER_BLOCK);
     }
 }

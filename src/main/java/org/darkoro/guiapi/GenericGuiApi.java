@@ -43,8 +43,10 @@ public class GenericGuiApi {
 	// Vakron
 	public static BiomeGenBase VAKRON_BIOME;
 
+    // Dragon Realm
+    public static BiomeGenBase DRAGON_REALM;
+
 	//Generic Biomes
-	public static BiomeGenBase ZS_BIOME_1;
 	public static BiomeGenBase ZS_BIOME_2;
 	public static BiomeGenBase ZS_BIOME_3;
 	public static BiomeGenBase ZS_BIOME_4;
@@ -74,5 +76,4 @@ public class GenericGuiApi {
 	public void serverStarting(FMLServerStartingEvent event) {
 		proxy.serverStarting(event);
 	}
-
 }
