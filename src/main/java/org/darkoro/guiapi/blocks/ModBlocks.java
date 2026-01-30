@@ -13,7 +13,7 @@ public class ModBlocks {
     public static Block COLORLESS_WATER_BLOCK;
 
     public static void registerAll() {
-
+    // Forge is sily
         SPIRIT_WATER_FLUID = FluidRegistry.getFluid("spirit_water");
         if (SPIRIT_WATER_FLUID == null) {
             SPIRIT_WATER_FLUID = new Fluid("spirit_water");
