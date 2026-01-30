@@ -5,6 +5,9 @@ import org.darkoro.guiapi.guis.GUIHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.relauncher.Side;
+import net.minecraftforge.common.MinecraftForge;
 import org.darkoro.guiapi.world.*;
 import org.darkoro.guiapi.blocks.ModBlocks;
 
@@ -25,7 +28,17 @@ public class CommonProxy {
     ModBlocks.registerAll();
   }
 
-  public void init(FMLInitializationEvent event) {}
+  public void init(FMLInitializationEvent event) {
+    if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
+      try {
+        Class clazz = Class.forName("org.darkoro.guiapi.client.BiomeFogHandler");
+        Object handler = clazz.newInstance();
+        MinecraftForge.EVENT_BUS.register(handler);
+      } catch (Throwable t) {
+        t.printStackTrace();
+      }
+    }
+  }
 
   public void serverStarting(FMLServerStartingEvent event) {}
 
