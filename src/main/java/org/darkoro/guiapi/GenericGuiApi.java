@@ -25,7 +25,7 @@ import cpw.mods.fml.relauncher.Side;
 public class GenericGuiApi {
 
 	public static final String MODID = "genericguiapi";
-	public static final String VERSION = "0.6.1";
+	public static final String VERSION = "0.6.0";
 	public static SimpleNetworkWrapper network;
 
 	@Instance(MODID)
