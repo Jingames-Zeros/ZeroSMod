@@ -38,7 +38,7 @@ public class BiomeFogHandler {
         float g = ((rgb >> 8) & 0xFF) / 255.0F;
         float b = (rgb & 0xFF) / 255.0F;
 
-        float maxStrength = 0.65F;
+        float maxStrength = 0.70F;
 
         float lookY = (float) Math.abs(event.entity.getLookVec().yCoord);
         float horizonFactor = 0.9F + (0.75F * lookY);
