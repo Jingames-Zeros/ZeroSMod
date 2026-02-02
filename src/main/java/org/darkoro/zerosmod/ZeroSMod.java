@@ -4,11 +4,13 @@ import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
+import net.minecraft.block.Block;
 import org.darkoro.zerosmod.network.SyncGuiTitlePacket;
 import org.darkoro.zerosmod.network.SyncGuiTitlePacketHandler;
 import org.darkoro.zerosmod.proxy.CommonProxy;
 import org.darkoro.zerosmod.guis.GUIHandler;
 import org.darkoro.zerosmod.guis.GUIScheduler;
+import org.darkoro.zerosmod.blocks.ModBlocks;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -20,12 +22,14 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.common.event.FMLMissingMappingsEvent;
+import cpw.mods.fml.common.registry.GameRegistry;
 
 @Mod(modid = ZeroSMod.MODID, version = ZeroSMod.VERSION, acceptableRemoteVersions = "*")
 public class ZeroSMod {
 
 	public static final String MODID = "zerosmod";
-	public static final String VERSION = "0.6.0";
+	public static final String VERSION = "1.0.0";
 	public static SimpleNetworkWrapper network;
 
 	@Instance(MODID)
@@ -75,5 +79,20 @@ public class ZeroSMod {
 	@EventHandler
 	public void serverStarting(FMLServerStartingEvent event) {
 		proxy.serverStarting(event);
+	}
+
+	@EventHandler
+	public void missingMappings(FMLMissingMappingsEvent event) {
+		for (FMLMissingMappingsEvent.MissingMapping mapping : event.getAll()) {
+			if (mapping.type == GameRegistry.Type.BLOCK) {
+				if ("genericguiapi:spirit_water".equals(mapping.name)) {
+					mapping.remap(ModBlocks.SPIRIT_WATER_BLOCK);
+				} else if ("genericguiapi:colorless_water".equals(mapping.name)) {
+					mapping.remap(ModBlocks.COLORLESS_WATER_BLOCK);
+				} else if ("genericguiapi:dragon_water".equals(mapping.name)) {
+					mapping.remap(ModBlocks.DRAGON_WATER_BLOCK);
+				}
+			}
+		}
 	}
 }
