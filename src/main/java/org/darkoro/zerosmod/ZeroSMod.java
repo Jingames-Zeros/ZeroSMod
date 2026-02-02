@@ -84,6 +84,8 @@ public class ZeroSMod {
 	@EventHandler
 	public void missingMappings(FMLMissingMappingsEvent event) {
 		for (FMLMissingMappingsEvent.MissingMapping mapping : event.getAll()) {
+
+			// --- BLOCKS ---
 			if (mapping.type == GameRegistry.Type.BLOCK) {
 				if ("genericguiapi:spirit_water".equals(mapping.name)) {
 					mapping.remap(ModBlocks.SPIRIT_WATER_BLOCK);
@@ -91,6 +93,16 @@ public class ZeroSMod {
 					mapping.remap(ModBlocks.COLORLESS_WATER_BLOCK);
 				} else if ("genericguiapi:dragon_water".equals(mapping.name)) {
 					mapping.remap(ModBlocks.DRAGON_WATER_BLOCK);
+				}
+			}
+			// --- ITEMS (ItemBlocks) ---
+			else if (mapping.type == GameRegistry.Type.ITEM) {
+				if ("genericguiapi:spirit_water".equals(mapping.name)) {
+					mapping.remap(Item.getItemFromBlock(ModBlocks.SPIRIT_WATER_BLOCK));
+				} else if ("genericguiapi:colorless_water".equals(mapping.name)) {
+					mapping.remap(Item.getItemFromBlock(ModBlocks.COLORLESS_WATER_BLOCK));
+				} else if ("genericguiapi:dragon_water".equals(mapping.name)) {
+					mapping.remap(Item.getItemFromBlock(ModBlocks.DRAGON_WATER_BLOCK));
 				}
 			}
 		}
