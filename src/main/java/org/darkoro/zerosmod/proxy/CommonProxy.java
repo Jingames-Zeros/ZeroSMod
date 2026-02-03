@@ -1,20 +1,21 @@
 package org.darkoro.zerosmod.proxy;
 
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import org.darkoro.zerosmod.ZeroSMod;
-import org.darkoro.zerosmod.guis.GUIHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraftforge.common.MinecraftForge;
+import org.darkoro.zerosmod.network.NetworkHandler;
 import org.darkoro.zerosmod.world.*;
 import org.darkoro.zerosmod.blocks.ModBlocks;
 
 public class CommonProxy {
 
   public void preInit(FMLPreInitializationEvent event) {
-    GUIHandler.LOGGER = event.getModLog();
+    ZeroSMod.LOGGER = event.getModLog();
 
     // Biomes
     ZeroSMod.SPIRIT_GARDEN_BIOME = new SpiritGardenBiome(80);
@@ -26,6 +27,7 @@ public class CommonProxy {
 
     // Blocks & Fluids
     ModBlocks.registerAll();
+    NetworkHandler.init();
   }
 
   public void init(FMLInitializationEvent event) {
@@ -40,6 +42,7 @@ public class CommonProxy {
     }
   }
 
+  public void postInit(FMLPostInitializationEvent event) {}
   public void serverStarting(FMLServerStartingEvent event) {}
 
 }

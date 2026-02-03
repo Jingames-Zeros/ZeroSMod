@@ -14,11 +14,9 @@ import cpw.mods.fml.common.network.IGuiHandler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.world.World;
-import org.apache.logging.log4j.Logger;
 
 public class GUIHandler implements IGuiHandler {
 
-  public static Logger LOGGER;
   public static final int DELAY_TICKS = 2;
 
   @Override
@@ -26,7 +24,7 @@ public class GUIHandler implements IGuiHandler {
     IGuiContextProvider contextProvider = GuiContextManager.getContext(player, x);
 
     if (contextProvider == null) {
-      LOGGER.error("No context provider found for player '{}', ID '{}'", player.getCommandSenderName(), x);
+      ZeroSMod.LOGGER.error("No context provider found for player '{}', ID '{}'", player.getCommandSenderName(), x);
       return null;
     }
 

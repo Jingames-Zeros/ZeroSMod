@@ -15,6 +15,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.world.biome.BiomeGenBase;
+import org.apache.logging.log4j.Logger;
 import org.darkoro.zerosmod.guis.GUIHandler;
 import org.darkoro.zerosmod.guis.GUIScheduler;
 import org.darkoro.zerosmod.network.SyncGuiTitlePacket;
@@ -24,6 +25,8 @@ import org.darkoro.zerosmod.proxy.CommonProxy;
 @Mod(modid = ZeroSMod.MODID, version = ZeroSMod.VERSION, acceptableRemoteVersions = "*")
 public class ZeroSMod {
 
+	public static Logger LOGGER;
+
 	public static final String MODID = "zerosmod";
 	public static final String VERSION = "1.0.0";
 	public static SimpleNetworkWrapper network;
@@ -31,7 +34,7 @@ public class ZeroSMod {
 	@Instance(MODID)
 	public static ZeroSMod instance;
 
-	@SidedProxy(clientSide = "org.darkoro.zerosmod.proxy.CommonProxy", serverSide = "org.darkoro.zerosmod.proxy.CommonProxy")
+	@SidedProxy(clientSide = "org.darkoro.zerosmod.proxy.ClientProxy", serverSide = "org.darkoro.zerosmod.proxy.ServerProxy")
 	public static CommonProxy proxy;
 
 	public static int GENERIC_CHEST_GUI = 1;
