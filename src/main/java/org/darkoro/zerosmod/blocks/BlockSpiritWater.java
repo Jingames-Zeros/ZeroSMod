@@ -18,16 +18,16 @@ public class BlockSpiritWater extends BlockFluidClassic {
     super(fluid, Material.water);
     setBlockName("spirit_water");
     setLightOpacity(3);
-    setCreativeTab(ZeroSMod.Zero_S_Mod_TAB);
+    setCreativeTab(ZeroSMod.ZeroSModTab);
   }
 
   @Override @SideOnly(Side.CLIENT) public void registerBlockIcons(IIconRegister register) {
     stillIcon = register.registerIcon("zerosmod:spirit_water_still");
     flowIcon = register.registerIcon("zerosmod:spirit_water_flow");
 
-    Fluid f = getFluid();
-    if (f != null) {
-      f.setIcons(stillIcon, flowIcon);
+    Fluid fluid = getFluid();
+    if (fluid != null) {
+      fluid.setIcons(stillIcon, flowIcon);
     }
   }
 

@@ -11,27 +11,28 @@ import org.darkoro.zerosmod.ZeroSMod;
 
 public class BlockDragonWater extends BlockFluidClassic {
 
-    @SideOnly(Side.CLIENT) private IIcon stillIcon;
-    @SideOnly(Side.CLIENT) private IIcon flowIcon;
+  @SideOnly(Side.CLIENT) private IIcon stillIcon;
+  @SideOnly(Side.CLIENT) private IIcon flowIcon;
 
-    public BlockDragonWater(Fluid fluid) {
-        super(fluid, Material.water);
-        setBlockName("dragon_water");
-        setLightOpacity(3);
-        setCreativeTab(ZeroSMod.Zero_S_Mod_TAB);
+  public BlockDragonWater(Fluid fluid) {
+    super(fluid, Material.water);
+    setBlockName("dragon_water");
+    setLightOpacity(3);
+    setCreativeTab(ZeroSMod.ZeroSModTab);
+  }
+
+  @Override @SideOnly(Side.CLIENT) public void registerBlockIcons(IIconRegister register) {
+    stillIcon = register.registerIcon(
+        "zerosmod:dragon_water_still"); // Update texture opacity please
+    flowIcon = register.registerIcon("zerosmod:dragon_water_flow"); // Update texture opacity please
+
+    Fluid fluid = getFluid();
+    if (fluid != null) {
+      fluid.setIcons(stillIcon, flowIcon);
     }
+  }
 
-    @Override @SideOnly(Side.CLIENT) public void registerBlockIcons(IIconRegister register) {
-        stillIcon = register.registerIcon("zerosmod:dragon_water_still"); // Update texture opacity please
-        flowIcon = register.registerIcon("zerosmod:dragon_water_flow"); // Update texture opacity please
-
-        Fluid f = getFluid();
-        if (f != null) {
-            f.setIcons(stillIcon, flowIcon);
-        }
-    }
-
-    @Override @SideOnly(Side.CLIENT) public IIcon getIcon(int side, int meta) {
-        return (side == 0 || side == 1) ? stillIcon : flowIcon;
-    }
+  @Override @SideOnly(Side.CLIENT) public IIcon getIcon(int side, int meta) {
+    return (side == 0 || side == 1) ? stillIcon : flowIcon;
+  }
 }
