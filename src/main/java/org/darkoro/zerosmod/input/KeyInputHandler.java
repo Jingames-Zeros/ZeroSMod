@@ -3,10 +3,10 @@ package org.darkoro.zerosmod.input;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.InputEvent.KeyInputEvent;
 import net.minecraft.client.Minecraft;
-import org.darkoro.zskeybinds.network.ChargeKeyPacket;
-import org.darkoro.zskeybinds.network.NetworkHandler;
-import org.darkoro.zskeybinds.network.OpenSpcGuiPacket;
-import org.darkoro.zskeybinds.network.OpenTournamentGuiPacket;
+import org.darkoro.zerosmod.network.ChargeKeyPacket;
+import org.darkoro.zerosmod.network.NetworkHandler;
+import org.darkoro.zerosmod.network.OpenSpcGuiPacket;
+import org.darkoro.zerosmod.network.OpenTournamentGuiPacket;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
@@ -15,8 +15,7 @@ public class KeyInputHandler {
   private final Minecraft mc = Minecraft.getMinecraft();
   private boolean lastChargeHeld = false;
 
-  @SubscribeEvent
-  public void onKeyInput(KeyInputEvent event) {
+  @SubscribeEvent public void onKeyInput(KeyInputEvent event) {
     if (mc.currentScreen != null) return;
     boolean spcGuiPressed = KeybindHandler.spcGui.isPressed();
     boolean tournamentGuiPressed = KeybindHandler.tournamentGui.isPressed();
