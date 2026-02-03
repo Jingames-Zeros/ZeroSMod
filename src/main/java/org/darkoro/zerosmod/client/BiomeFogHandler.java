@@ -8,45 +8,40 @@ import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import org.darkoro.zerosmod.ZeroSMod;
 
-@SideOnly(Side.CLIENT)
-public class BiomeFogHandler {
-    @SubscribeEvent
-    public void onFogColors(EntityViewRenderEvent.FogColors event) {
-        Minecraft mc = Minecraft.getMinecraft();
-        if(mc == null || mc.theWorld == null || mc.thePlayer == null || event.entity == null) {
-            return;
-        }
-
-        int x = (int) Math.floor(mc.thePlayer.posX);
-        int z = (int) Math.floor(mc.thePlayer.posZ);
-
-        BiomeGenBase biome = mc.theWorld.getBiomeGenForCoords(x, z);
-
-        int rgb;
-
-        if (biome == ZeroSMod.SPIRIT_GARDEN_BIOME) {
-            rgb = 0x6A44BF;
-        } else if (biome == ZeroSMod.VAKRON_BIOME) {
-            rgb = 0x2A2A2A;
-        } else if (biome == ZeroSMod.DRAGON_REALM) {
-            rgb = 0xFDDC5C;
-        } else {
-            return;
-        }
-
-        float r = ((rgb >> 16) & 0xFF) / 255.0F;
-        float g = ((rgb >> 8) & 0xFF) / 255.0F;
-        float b = (rgb & 0xFF) / 255.0F;
-
-        float maxStrength = 0.70F;
-
-        float lookY = (float) Math.abs(event.entity.getLookVec().yCoord);
-        float horizonFactor = 0.9F + (0.75F * lookY);
-
-        float strength = maxStrength * horizonFactor;
-
-        event.red   = (event.red   * (1.0F - strength)) + (r * strength);
-        event.green = (event.green * (1.0F - strength)) + (g * strength);
-        event.blue  = (event.blue  * (1.0F - strength)) + (b * strength);
+@SideOnly(Side.CLIENT) public class BiomeFogHandler {
+  @SubscribeEvent public void onFogColors(EntityViewRenderEvent.FogColors event) {
+    Minecraft mc = Minecraft.getMinecraft();
+    if (mc == null || mc.theWorld == null || mc.thePlayer == null || event.entity == null) {
+      return;
     }
+
+    int x = (int) Math.floor(mc.thePlayer.posX);
+    int z = (int) Math.floor(mc.thePlayer.posZ);
+
+    BiomeGenBase biome = mc.theWorld.getBiomeGenForCoords(x, z);
+    int rgb = fogColorForBiome(biome);
+    if (rgb == -1) return;
+
+    float r = ((rgb >> 16) & 0xFF) / 255.0F;
+    float g = ((rgb >> 8) & 0xFF) / 255.0F;
+    float b = (rgb & 0xFF) / 255.0F;
+
+    float maxStrength = 0.70F;
+
+    float lookY = (float) Math.abs(event.entity.getLookVec().yCoord);
+    float horizonFactor = 0.9F + (0.75F * lookY);
+
+    float strength = maxStrength * horizonFactor;
+
+    event.red = (event.red * (1.0F - strength)) + (r * strength);
+    event.green = (event.green * (1.0F - strength)) + (g * strength);
+    event.blue = (event.blue * (1.0F - strength)) + (b * strength);
+  }
+
+  private static int fogColorForBiome(BiomeGenBase biome) {
+    if (biome == ZeroSMod.SPIRIT_GARDEN_BIOME) return 0x6A44BF;
+    if (biome == ZeroSMod.VAKRON_BIOME) return 0x2A2A2A;
+    if (biome == ZeroSMod.DRAGON_REALM) return 0xFDDC5C;
+    return -1;
+  }
 }
