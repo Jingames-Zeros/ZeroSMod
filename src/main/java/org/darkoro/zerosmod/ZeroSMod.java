@@ -1,29 +1,29 @@
 package org.darkoro.zerosmod;
 
-import net.minecraft.world.biome.BiomeGenBase;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
-import net.minecraft.block.Block;
-import org.darkoro.zerosmod.network.SyncGuiTitlePacket;
-import org.darkoro.zerosmod.network.SyncGuiTitlePacketHandler;
-import org.darkoro.zerosmod.proxy.CommonProxy;
-import org.darkoro.zerosmod.guis.GUIHandler;
-import org.darkoro.zerosmod.guis.GUIScheduler;
-import org.darkoro.zerosmod.blocks.ModBlocks;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLMissingMappingsEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.common.event.FMLMissingMappingsEvent;
-import cpw.mods.fml.common.registry.GameRegistry;
+import java.util.Map;
+import net.minecraft.block.Block;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
+import net.minecraft.world.biome.BiomeGenBase;
+import org.darkoro.zerosmod.blocks.ModBlocks;
+import org.darkoro.zerosmod.guis.GUIHandler;
+import org.darkoro.zerosmod.guis.GUIScheduler;
+import org.darkoro.zerosmod.network.SyncGuiTitlePacket;
+import org.darkoro.zerosmod.network.SyncGuiTitlePacketHandler;
+import org.darkoro.zerosmod.proxy.CommonProxy;
 
 @Mod(modid = ZeroSMod.MODID, version = ZeroSMod.VERSION, acceptableRemoteVersions = "*")
 public class ZeroSMod {
@@ -56,54 +56,41 @@ public class ZeroSMod {
 	public static BiomeGenBase ZS_BIOME_4;
 
 	// Creative Tab
-	public static final CreativeTabs Zero_S_Mod_TAB = new CreativeTabs("zerosmod") {
+	public static final CreativeTabs ZeroSModTab = new CreativeTabs("zerosmod") {
 		@Override public Item getTabIconItem() {
 			return Item.getItemFromBlock(Blocks.chest);
 		}
 	};
 
-	@EventHandler
-	public void fmlLifeCycleEvent(FMLPreInitializationEvent event) {
+	@EventHandler public void fmlLifeCycleEvent(FMLPreInitializationEvent event) {
 		network = NetworkRegistry.INSTANCE.newSimpleChannel("ZeroSMod_Chan");
 		network.registerMessage(SyncGuiTitlePacketHandler.class, SyncGuiTitlePacket.class, 0, Side.CLIENT);
 		proxy.preInit(event);
 	}
 
-	@EventHandler
-	public void fmlLifeCycleEvent(FMLInitializationEvent event) {
+	@EventHandler public void fmlLifeCycleEvent(FMLInitializationEvent event) {
 		NetworkRegistry.INSTANCE.registerGuiHandler(this, new GUIHandler());
 		FMLCommonHandler.instance().bus().register(GUIScheduler.INSTANCE);
 		proxy.init(event);
 	}
 
-	@EventHandler
-	public void serverStarting(FMLServerStartingEvent event) {
+	@EventHandler public void serverStarting(FMLServerStartingEvent event) {
 		proxy.serverStarting(event);
 	}
 
-	@EventHandler
-	public void missingMappings(FMLMissingMappingsEvent event) {
-		for (FMLMissingMappingsEvent.MissingMapping mapping : event.getAll()) {
+	@EventHandler public void missingMappings(FMLMissingMappingsEvent event) {
+		var remaps = Map.of(
+			"zerosmod:spirit_water",    ModBlocks.SPIRIT_WATER_BLOCK,
+			"zerosmod:colorless_water", ModBlocks.COLORLESS_WATER_BLOCK,
+			"zerosmod:dragon_water",    ModBlocks.DRAGON_WATER_BLOCK
+		);
 
-			// --- BLOCKS ---
-			if (mapping.type == GameRegistry.Type.BLOCK) {
-				if ("genericguiapi:spirit_water".equals(mapping.name)) {
-					mapping.remap(ModBlocks.SPIRIT_WATER_BLOCK);
-				} else if ("genericguiapi:colorless_water".equals(mapping.name)) {
-					mapping.remap(ModBlocks.COLORLESS_WATER_BLOCK);
-				} else if ("genericguiapi:dragon_water".equals(mapping.name)) {
-					mapping.remap(ModBlocks.DRAGON_WATER_BLOCK);
-				}
-			}
-			// --- ITEMS (ItemBlocks) ---
-			else if (mapping.type == GameRegistry.Type.ITEM) {
-				if ("genericguiapi:spirit_water".equals(mapping.name)) {
-					mapping.remap(Item.getItemFromBlock(ModBlocks.SPIRIT_WATER_BLOCK));
-				} else if ("genericguiapi:colorless_water".equals(mapping.name)) {
-					mapping.remap(Item.getItemFromBlock(ModBlocks.COLORLESS_WATER_BLOCK));
-				} else if ("genericguiapi:dragon_water".equals(mapping.name)) {
-					mapping.remap(Item.getItemFromBlock(ModBlocks.DRAGON_WATER_BLOCK));
-				}
+		for (var mapping : event.getAll()) {
+			Block block = remaps.get(mapping.name);
+			if (block == null) continue;
+			switch (mapping.type) {
+				case BLOCK -> mapping.remap(block);
+				case ITEM  -> mapping.remap(Item.getItemFromBlock(block));
 			}
 		}
 	}
