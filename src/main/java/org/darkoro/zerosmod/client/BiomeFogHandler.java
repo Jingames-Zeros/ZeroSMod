@@ -53,7 +53,7 @@ import org.darkoro.zerosmod.config.ModConfig;
     } else if (biome == ZeroSMod.ZS_BIOME_2) {
       rgb = ModConfig.ZS_BIOME_2.fogColor;
       maxStrength = (ModConfig.ZS_BIOME_2.fogMaxStrength >= 0.0F)
-          ? ModConfig.DRAGON_REALM.fogMaxStrength
+          ? ModConfig.ZS_BIOME_2.fogMaxStrength
           : DEFAULT_ZS_BIOME_2_STRENGTH;
 
     }  else if (biome == ZeroSMod.ZS_BIOME_3) {

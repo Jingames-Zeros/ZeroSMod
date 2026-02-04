@@ -85,7 +85,7 @@ public final class ModConfig {
     );
 
     // -----------------
-    // ZS Biome 1 (83)
+    // ZS Biome 2 (83)
     // -----------------
     loadBiomeVisuals(
         ZS_BIOME_2,
@@ -100,7 +100,7 @@ public final class ModConfig {
     );
 
     // -----------------
-    // ZS Biome 1 (83)
+    // ZS Biome 3 (84)
     // -----------------
     loadBiomeVisuals(
         ZS_BIOME_3,
@@ -115,7 +115,7 @@ public final class ModConfig {
     );
 
     // -----------------
-    // ZS Biome 1 (83)
+    // ZS Biome 4 (85)
     // -----------------
     loadBiomeVisuals(
         ZS_BIOME_4,
