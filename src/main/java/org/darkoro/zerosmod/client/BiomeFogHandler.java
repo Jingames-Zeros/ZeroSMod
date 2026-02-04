@@ -15,9 +15,9 @@ import org.darkoro.zerosmod.config.ModConfig;
   private static final float DEFAULT_SPIRIT_MAX_STRENGTH = 0.7F;
   private static final float DEFAULT_VAKRON_MAX_STRENGTH = 0.7F;
   private static final float DEFAULT_DRAGON_MAX_STRENGTH = 0.7F;
-  private static final float DEFAULT_ZS_BIOME_2_STRENGTH = 0.0F;
-  private static final float DEFAULT_ZS_BIOME_3_STRENGTH = 0.0F;
-  private static final float DEFAULT_ZS_BIOME_4_STRENGTH = 0.0F;
+  private static final float DEFAULT_ZS_BIOME_2_STRENGTH = 0.7F;
+  private static final float DEFAULT_ZS_BIOME_3_STRENGTH = 0.7F;
+  private static final float DEFAULT_ZS_BIOME_4_STRENGTH = 0.7F;
 
   @SubscribeEvent
   public void onFogColors(EntityViewRenderEvent.FogColors event) {
