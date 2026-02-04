@@ -17,9 +17,9 @@ public final class ModConfig {
   public static final BiomeVisuals SPIRIT_GARDEN = new BiomeVisuals("Spirit Garden", 80);
   public static final BiomeVisuals VAKRON       = new BiomeVisuals("Vakron", 81);
   public static final BiomeVisuals DRAGON_REALM = new BiomeVisuals("Dragon Realm", 82);
-  public static final BiomeVisuals ZS_BIOME_2 = new BiomeVisuals("Zs Biome 1", 83);
-  public static final BiomeVisuals ZS_BIOME_3 = new BiomeVisuals("Zs Biome 2", 84);
-  public static final BiomeVisuals ZS_BIOME_4 = new BiomeVisuals("Zs Biome 3", 85);
+  public static final BiomeVisuals ZS_BIOME_2 = new BiomeVisuals("Zs Biome 2", 83);
+  public static final BiomeVisuals ZS_BIOME_3 = new BiomeVisuals("Zs Biome 3", 84);
+  public static final BiomeVisuals ZS_BIOME_4 = new BiomeVisuals("Zs Biome 4", 85);
 
   // Call once in mod preInit BEFORE biomes are instantiated.
   public static void load(FMLPreInitializationEvent event) {
