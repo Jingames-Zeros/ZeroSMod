@@ -7,7 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import org.darkoro.zerosmod.ZeroSMod;
-import org.darkoro.zerosmod.config.ModConfig;
+import org.darkoro.zerosmod.config.BiomeConfig;
 
 @SideOnly(Side.CLIENT) public class BiomeFogHandler {
 
@@ -33,39 +33,39 @@ import org.darkoro.zerosmod.config.ModConfig;
     float maxStrength;
 
     if (biome == ZeroSMod.SPIRIT_GARDEN_BIOME) {
-      rgb = ModConfig.SPIRIT_GARDEN.fogColor;
-      maxStrength = (ModConfig.SPIRIT_GARDEN.fogMaxStrength >= 0.0F)
-          ? ModConfig.SPIRIT_GARDEN.fogMaxStrength
+      rgb = BiomeConfig.SPIRIT_GARDEN.fogColor;
+      maxStrength = (BiomeConfig.SPIRIT_GARDEN.fogMaxStrength >= 0.0F)
+          ? BiomeConfig.SPIRIT_GARDEN.fogMaxStrength
           : DEFAULT_SPIRIT_MAX_STRENGTH;
 
     } else if (biome == ZeroSMod.VAKRON_BIOME) {
-      rgb = ModConfig.VAKRON.fogColor;
-      maxStrength = (ModConfig.VAKRON.fogMaxStrength >= 0.0F)
-          ? ModConfig.VAKRON.fogMaxStrength
+      rgb = BiomeConfig.VAKRON.fogColor;
+      maxStrength = (BiomeConfig.VAKRON.fogMaxStrength >= 0.0F)
+          ? BiomeConfig.VAKRON.fogMaxStrength
           : DEFAULT_VAKRON_MAX_STRENGTH;
 
     } else if (biome == ZeroSMod.DRAGON_REALM) {
-      rgb = ModConfig.DRAGON_REALM.fogColor;
-      maxStrength = (ModConfig.DRAGON_REALM.fogMaxStrength >= 0.0F)
-          ? ModConfig.DRAGON_REALM.fogMaxStrength
+      rgb = BiomeConfig.DRAGON_REALM.fogColor;
+      maxStrength = (BiomeConfig.DRAGON_REALM.fogMaxStrength >= 0.0F)
+          ? BiomeConfig.DRAGON_REALM.fogMaxStrength
           : DEFAULT_DRAGON_MAX_STRENGTH;
 
     } else if (biome == ZeroSMod.ZS_BIOME_2) {
-      rgb = ModConfig.ZS_BIOME_2.fogColor;
-      maxStrength = (ModConfig.ZS_BIOME_2.fogMaxStrength >= 0.0F)
-          ? ModConfig.ZS_BIOME_2.fogMaxStrength
+      rgb = BiomeConfig.ZS_BIOME_2.fogColor;
+      maxStrength = (BiomeConfig.ZS_BIOME_2.fogMaxStrength >= 0.0F)
+          ? BiomeConfig.ZS_BIOME_2.fogMaxStrength
           : DEFAULT_ZS_BIOME_2_STRENGTH;
 
     }  else if (biome == ZeroSMod.ZS_BIOME_3) {
-      rgb = ModConfig.ZS_BIOME_3.fogColor;
-      maxStrength = (ModConfig.ZS_BIOME_3.fogMaxStrength >= 0.0F)
-          ? ModConfig.ZS_BIOME_3.fogMaxStrength
+      rgb = BiomeConfig.ZS_BIOME_3.fogColor;
+      maxStrength = (BiomeConfig.ZS_BIOME_3.fogMaxStrength >= 0.0F)
+          ? BiomeConfig.ZS_BIOME_3.fogMaxStrength
           : DEFAULT_ZS_BIOME_3_STRENGTH;
 
     } else if (biome == ZeroSMod.ZS_BIOME_4) {
-      rgb = ModConfig.ZS_BIOME_4.fogColor;
-      maxStrength = (ModConfig.ZS_BIOME_4.fogMaxStrength >= 0.0F)
-          ? ModConfig.ZS_BIOME_4.fogMaxStrength
+      rgb = BiomeConfig.ZS_BIOME_4.fogColor;
+      maxStrength = (BiomeConfig.ZS_BIOME_4.fogMaxStrength >= 0.0F)
+          ? BiomeConfig.ZS_BIOME_4.fogMaxStrength
           : DEFAULT_ZS_BIOME_4_STRENGTH;
     }
     else {

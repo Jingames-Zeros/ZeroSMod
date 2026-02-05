@@ -5,12 +5,12 @@ import net.minecraftforge.common.config.Configuration;
 
 import java.io.File;
 
-public final class ModConfig {
+public final class BiomeConfig {
 
-  private ModConfig() {}
+  private BiomeConfig() {}
 
   // Folder + files (server_root/config/zerosmod/*.cfg)
-  private static File modConfigDir;
+  private static File biomeConfigDir;
   private static Configuration biomesConfig;
 
   // Forge Config pisses me off ong
@@ -30,14 +30,14 @@ public final class ModConfig {
     File rootConfigDir = event.getModConfigurationDirectory();
 
     // config/zerosmod/
-    modConfigDir = new File(rootConfigDir, "zerosmod");
-    if (!modConfigDir.exists()) {
+    biomeConfigDir = new File(rootConfigDir, "zerosmod");
+    if (!biomeConfigDir.exists()) {
       //noinspection ResultOfMethodCallIgnored
-      modConfigDir.mkdirs();
+      biomeConfigDir.mkdirs();
     }
 
     // config/zerosmod/biomes.cfg
-    File biomesFile = new File(modConfigDir, "biomes.cfg");
+    File biomesFile = new File(biomeConfigDir, "biomes.cfg");
     biomesConfig = new Configuration(biomesFile);
 
     biomesConfig.load();

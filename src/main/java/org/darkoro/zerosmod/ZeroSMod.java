@@ -16,7 +16,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.world.biome.BiomeGenBase;
 import org.apache.logging.log4j.Logger;
-import org.darkoro.zerosmod.config.ModConfig;
+import org.darkoro.zerosmod.config.BiomeConfig;
 import org.darkoro.zerosmod.guis.GUIHandler;
 import org.darkoro.zerosmod.guis.GUIScheduler;
 import org.darkoro.zerosmod.network.SyncGuiTitlePacket;
@@ -63,7 +63,7 @@ public class ZeroSMod {
 	};
 
 	@EventHandler public void fmlLifeCycleEvent(FMLPreInitializationEvent event) {
-		ModConfig.load(event);
+		BiomeConfig.load(event);
 		network = NetworkRegistry.INSTANCE.newSimpleChannel("ZeroSMod_Chan");
 		network.registerMessage(SyncGuiTitlePacketHandler.class, SyncGuiTitlePacket.class, 0, Side.CLIENT);
 		proxy.preInit(event);
