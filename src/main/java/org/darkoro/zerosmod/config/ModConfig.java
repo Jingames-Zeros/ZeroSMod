@@ -15,7 +15,7 @@ public final class ModConfig {
 
   // Ugly config fix
   private static String toKey(String displayName) {
-    return displayName.toLowerCase().replace(' ', '_');
+    return displayName.toUpperCase();
   }
 
   // Biome visuals (IDs are NOT configurable, only visuals are.)
@@ -167,7 +167,7 @@ public final class ModConfig {
       int defaultFoliage,
       int defaultWater
   ) {
-    String cat = "Biome - " + toKey(displayName) + " (" + biomeId + ")";
+    String cat = "Biome - " + toKey(out.getLabel()) + " (" + biomeId + ")";
 
     out.biomeName = biomesConfig.getString(
         "Biome Name",
