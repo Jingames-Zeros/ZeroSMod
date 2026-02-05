@@ -13,6 +13,11 @@ public final class ModConfig {
   private static File modConfigDir;
   private static Configuration biomesConfig;
 
+  // Ugly config fix
+  private static String toKey(String displayName) {
+    return displayName.toLowerCase().replace(' ', '_');
+  }
+
   // Biome visuals (IDs are NOT configurable, only visuals are.)
   public static final BiomeVisuals SPIRIT_GARDEN = new BiomeVisuals("Spirit Garden", 80);
   public static final BiomeVisuals VAKRON       = new BiomeVisuals("Vakron", 81);
@@ -39,6 +44,23 @@ public final class ModConfig {
 
     biomesConfig.load();
 
+    biomesConfig.addCustomCategoryComment(Configuration.CATEGORY_GENERAL,
+        "====================================================\n" +
+            " ZeroSMod - Biome Visuals Config (biomes.cfg)\n" +
+            "====================================================\n" +
+            "\n" +
+            "This file controls biome VISUALS only (client-side rendering).\n" +
+            "Changes take effect after a restart.\n" +
+            "\n" +
+            "IMPORTANT:\n" +
+            "- Sky Color is the top half of the sky while Fog is the lower half.\n" +
+            "- Fog Strength: -1 uses the mod default.\n" +
+            "- High fog strength will drastically change the look of the sky.\n" +
+            "\n" +
+            "Hex format: 0xRRGGBB, #RRGGBB, or RRGGBB\n" +
+            "====================================================\n"
+    );
+
     // -----------------
     // Spirit Garden (80)
     // -----------------
@@ -46,12 +68,12 @@ public final class ModConfig {
         SPIRIT_GARDEN,
         "Spirit Garden",
         80,
-        0xFF991C, // sky default
-        0x48006E, // fog default
+        0x5A30B8, // sky default
+        0x6A44BF, // fog default
         -1.0F,    // fog strength default: -1 = use default
         0xC71585, // grass default
         0xC71585, // foliage default
-        0x48006E  // water overlay default
+        0xF56C62  // water overlay default
     );
 
     // -----------------
@@ -61,12 +83,12 @@ public final class ModConfig {
         VAKRON,
         "Vakron",
         81,
-        0xFF991C, // sky default
+        0x7C0A02, // sky default
         0x2A2A2A, // fog default
         -1.0F,    // fog strength default: -1 = use default
-        0xC71585, // grass default
-        0xC71585, // foliage default
-        0x48006E  // water overlay default
+        0xCD1C18, // grass default
+        0x960019, // foliage default
+        0x960019  // water overlay default
     );
 
     // -----------------
@@ -76,12 +98,12 @@ public final class ModConfig {
         DRAGON_REALM,
         "Dragon Realm",
         82,
-        0xFF991C, // sky default
-        0xFFFFF9, // fog default
+        0xFFD235, // sky default
+        0xFDDC5C, // fog default
         -1.0F,    // fog strength default: -1 = use default
-        0xC71585, // grass default
-        0xC71585, // foliage default
-        0x48006E  // water overlay default
+        0xFDDC5C, // grass default
+        0xD3AF37, // foliage default
+        0xFFC300  // water overlay default
     );
 
     // -----------------
@@ -145,39 +167,32 @@ public final class ModConfig {
       int defaultFoliage,
       int defaultWater
   ) {
-    String cat = "Biome - " + displayName + " (" + biomeId + ")";
+    String cat = toKey(displayName);
 
     biomesConfig.addCustomCategoryComment(cat,
-        "------\n" +
-            displayName + " (" + biomeId + ")\n" +
-            "------\n\n" +
-            "Sky color adjusts slightly by time of day; the target color is for 12:00.\n\n" +
-            "Fog color is the lower half of the horizon down into the void.\n" +
-            "Fog Strength adjusts how the fog and horizon line blend.\n" +
-            "NOTE: HIGH STRENGTH WILL DRASTICALLY AFFECT HOW THE ENTIRE SKY LOOKS.\n" +
-            "Message Trent on Discord for any questions.\n\n" +
-            "Set Fog Strength to -1 to use the code default.\n"
+        "\n" +
+            "Biome Adjustment \n"
     );
 
     out.biomeName = biomesConfig.getString(
         "Biome Name",
         cat,
         displayName,
-        "Biome display name."
+        "Biome display name"
     );
 
     out.skyColor = getHexInt(
         "Sky Color",
         cat,
         defaultSky,
-        "Sky color hex (RRGGBB). Examples: 0xFF991C, #FF991C, FF991C"
+        "Sky color hex"
     );
 
     out.fogColor = getHexInt(
         "Fog Color",
         cat,
         defaultFog,
-        "Fog color hex (RRGGBB)."
+        "Fog color hex"
     );
 
     out.fogMaxStrength = biomesConfig.getFloat(
@@ -186,28 +201,28 @@ public final class ModConfig {
         defaultFogStrength,
         -1.0F,
         1.0F,
-        "Fog maxStrength. -1 = use code default."
+        "Fog maxStrength"
     );
 
     out.grassColor = getHexInt(
         "Grass Color",
         cat,
         defaultGrass,
-        "Grass color hex (RRGGBB). Used for both getBiomeGrassColor and getModdedBiomeGrassColor."
+        "Grass color hex"
     );
 
     out.foliageColor = getHexInt(
         "Foliage Color",
         cat,
         defaultFoliage,
-        "Foliage color hex (RRGGBB). Used for both getBiomeFoliageColor and getModdedBiomeFoliageColor."
+        "Foliage color hex"
     );
 
     out.waterColor = getHexInt(
         "Water Color",
         cat,
         defaultWater,
-        "Water overlay color hex (RRGGBB). This is an overlay tint, not a real water texture."
+        "Water overlay color hex. This is an overlay tint, not a real water texture."
     );
   }
 
@@ -241,7 +256,6 @@ public final class ModConfig {
     public String biomeName;
     public int skyColor;
     public int fogColor;
-    /** -1 means "use mod default". */
     public float fogMaxStrength;
     public int grassColor;
     public int foliageColor;
