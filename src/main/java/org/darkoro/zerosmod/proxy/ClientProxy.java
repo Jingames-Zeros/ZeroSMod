@@ -27,7 +27,7 @@ public class ClientProxy extends CommonProxy {
 
   @Override
   public void postInit(FMLPostInitializationEvent event) {
-    String defaultFile = "/assets/spiritcontrol/lang/%s.lang";
+    String defaultFile = "/assets/zerosmod/lang/%s.lang";
     List<String> langs = Arrays.asList(
         "de_DE", "en_AU", "en_CA", "en_GB", "en_US", "es_AR", "es_ES", "es_MX",
         "fr_FR", "it_IT", "pl_PL", "pt_BR");
