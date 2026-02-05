@@ -167,12 +167,7 @@ public final class ModConfig {
       int defaultFoliage,
       int defaultWater
   ) {
-    String cat = toKey(displayName);
-
-    biomesConfig.addCustomCategoryComment(cat,
-        "\n" +
-            "Biome Adjustment \n"
-    );
+    String cat = "Biome - " + toKey(displayName) + " (" + biomeId + ")";
 
     out.biomeName = biomesConfig.getString(
         "Biome Name",
