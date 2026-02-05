@@ -82,7 +82,7 @@ import org.darkoro.zerosmod.config.ModConfig;
 
     float strength = maxStrength * horizonFactor;
     if (strength < 0.0F) strength = 0.0F;
-    if (strength > 1.0F) strength = 1.0F;
+    if (strength > 20.0F) strength = 20.0F;
 
     event.red   = (event.red   * (1.0F - strength)) + (r * strength);
     event.green = (event.green * (1.0F - strength)) + (g * strength);

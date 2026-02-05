@@ -13,10 +13,8 @@ public final class ModConfig {
   private static File modConfigDir;
   private static Configuration biomesConfig;
 
-  // Ugly config fix
-  private static String toKey(String displayName) {
-    return displayName.toUpperCase();
-  }
+  // Forge Config pisses me off ong
+  private static final String HEADER_CAT = "_README".toUpperCase();
 
   // Biome visuals (IDs are NOT configurable, only visuals are.)
   public static final BiomeVisuals SPIRIT_GARDEN = new BiomeVisuals("Spirit Garden", 80);
@@ -44,7 +42,7 @@ public final class ModConfig {
 
     biomesConfig.load();
 
-    biomesConfig.addCustomCategoryComment(Configuration.CATEGORY_GENERAL,
+    biomesConfig.addCustomCategoryComment(HEADER_CAT,
         "====================================================\n" +
             " ZeroSMod - Biome Visuals Config (biomes.cfg)\n" +
             "====================================================\n" +
@@ -71,8 +69,8 @@ public final class ModConfig {
         0x5A30B8, // sky default
         0x6A44BF, // fog default
         -1.0F,    // fog strength default: -1 = use default
-        0xC71585, // grass default
-        0xC71585, // foliage default
+        0x3BAD59, // grass default
+        0x228F3F, // foliage default
         0xF56C62  // water overlay default
     );
 
@@ -167,7 +165,7 @@ public final class ModConfig {
       int defaultFoliage,
       int defaultWater
   ) {
-    String cat = "Biome - " + toKey(out.getLabel()) + " (" + biomeId + ")";
+    String cat = "Biome - " + out.getLabel().toUpperCase() + " (" + biomeId + ")";
 
     out.biomeName = biomesConfig.getString(
         "Biome Name",
@@ -195,7 +193,7 @@ public final class ModConfig {
         cat,
         defaultFogStrength,
         -1.0F,
-        1.0F,
+        20.0F,
         "Fog maxStrength"
     );
 
