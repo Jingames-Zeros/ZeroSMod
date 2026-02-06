@@ -54,6 +54,12 @@ public class ZeroSMod {
 	public static BiomeGenBase ZS_BIOME_2;
 	public static BiomeGenBase ZS_BIOME_3;
 	public static BiomeGenBase ZS_BIOME_4;
+  public static BiomeGenBase ZS_BIOME_5;
+  public static BiomeGenBase ZS_BIOME_6;
+  public static BiomeGenBase ZS_BIOME_7;
+  public static BiomeGenBase ZS_BIOME_8;
+  public static BiomeGenBase ZS_BIOME_9;
+  public static BiomeGenBase ZS_BIOME_10;
 
 	// Creative Tab
 	public static final CreativeTabs ZeroSModTab = new CreativeTabs("zerosmod") {

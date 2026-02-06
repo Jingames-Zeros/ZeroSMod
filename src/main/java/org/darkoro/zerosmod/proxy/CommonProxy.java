@@ -24,6 +24,12 @@ public class CommonProxy {
     ZeroSMod.ZS_BIOME_2 = new ZSBiome2(83);
     ZeroSMod.ZS_BIOME_3 = new ZSBiome3(84);
     ZeroSMod.ZS_BIOME_4 = new ZSBiome4(85);
+    ZeroSMod.ZS_BIOME_5 = new ZSBiome5(86);
+    ZeroSMod.ZS_BIOME_6 = new ZSBiome6(87);
+    ZeroSMod.ZS_BIOME_7 = new ZSBiome7(88);
+    ZeroSMod.ZS_BIOME_8 = new ZSBiome8(89);
+    ZeroSMod.ZS_BIOME_9 = new ZSBiome9(90);
+    ZeroSMod.ZS_BIOME_10 = new ZSBiome10(91);
 
     // Blocks & Fluids
     ModBlocks.registerAll();

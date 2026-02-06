@@ -23,6 +23,12 @@ public final class BiomeConfig {
   public static final BiomeVisuals ZS_BIOME_2 = new BiomeVisuals("Zs Biome 2", 83);
   public static final BiomeVisuals ZS_BIOME_3 = new BiomeVisuals("Zs Biome 3", 84);
   public static final BiomeVisuals ZS_BIOME_4 = new BiomeVisuals("Zs Biome 4", 85);
+  public static final BiomeVisuals ZS_BIOME_5 = new BiomeVisuals("Zs Biome 5", 86);
+  public static final BiomeVisuals ZS_BIOME_6 = new BiomeVisuals("Zs Biome 6", 87);
+  public static final BiomeVisuals ZS_BIOME_7 = new BiomeVisuals("Zs Biome 7", 88);
+  public static final BiomeVisuals ZS_BIOME_8 = new BiomeVisuals("Zs Biome 8", 89);
+  public static final BiomeVisuals ZS_BIOME_9 = new BiomeVisuals("Zs Biome 9", 90);
+  public static final BiomeVisuals ZS_BIOME_10 = new BiomeVisuals("Zs Biome 10", 91);
 
   // Call once in mod preInit BEFORE biomes are instantiated.
   public static void load(FMLPreInitializationEvent event) {
@@ -141,6 +147,96 @@ public final class BiomeConfig {
         ZS_BIOME_4,
         "ZS Biome 4",
         85,
+        0xFFFFF9, // sky default
+        0xFFFFF9, // fog default
+        -1.0F,    // fog strength default: -1 = use default
+        0xFFFFF9, // grass default
+        0xFFFFF9, // foliage default
+        0xFFFFF9  // water overlay default
+    );
+
+    // -----------------
+    // ZS Biome 5 (86)
+    // -----------------
+    loadBiomeVisuals(
+        ZS_BIOME_5,
+        "ZS Biome 5",
+        86,
+        0xFFFFF9, // sky default
+        0xFFFFF9, // fog default
+        -1.0F,    // fog strength default: -1 = use default
+        0xFFFFF9, // grass default
+        0xFFFFF9, // foliage default
+        0xFFFFF9  // water overlay default
+    );
+
+    // -----------------
+    // ZS Biome 6 (87)
+    // -----------------
+    loadBiomeVisuals(
+        ZS_BIOME_6,
+        "ZS Biome 6",
+        87,
+        0xFFFFF9, // sky default
+        0xFFFFF9, // fog default
+        -1.0F,    // fog strength default: -1 = use default
+        0xFFFFF9, // grass default
+        0xFFFFF9, // foliage default
+        0xFFFFF9  // water overlay default
+    );
+
+    // -----------------
+    // ZS Biome 7 (88)
+    // -----------------
+    loadBiomeVisuals(
+        ZS_BIOME_4,
+        "ZS Biome 7",
+        88,
+        0xFFFFF9, // sky default
+        0xFFFFF9, // fog default
+        -1.0F,    // fog strength default: -1 = use default
+        0xFFFFF9, // grass default
+        0xFFFFF9, // foliage default
+        0xFFFFF9  // water overlay default
+    );
+
+    // -----------------
+    // ZS Biome 8 (89)
+    // -----------------
+    loadBiomeVisuals(
+        ZS_BIOME_8,
+        "ZS Biome 8",
+        89,
+        0xFFFFF9, // sky default
+        0xFFFFF9, // fog default
+        -1.0F,    // fog strength default: -1 = use default
+        0xFFFFF9, // grass default
+        0xFFFFF9, // foliage default
+        0xFFFFF9  // water overlay default
+    );
+
+    // -----------------
+    // ZS Biome 9 (90)
+    // -----------------
+    loadBiomeVisuals(
+        ZS_BIOME_9,
+        "ZS Biome 9",
+        90,
+        0xFFFFF9, // sky default
+        0xFFFFF9, // fog default
+        -1.0F,    // fog strength default: -1 = use default
+        0xFFFFF9, // grass default
+        0xFFFFF9, // foliage default
+        0xFFFFF9  // water overlay default
+    );
+
+    // -----------------
+    // ZS Biome 10 (91)
+    // -----------------
+    loadBiomeVisuals(
+        ZS_BIOME_10,
+        "ZS Biome 10",
+        91,
         0xFFFFF9, // sky default
         0xFFFFF9, // fog default
         -1.0F,    // fog strength default: -1 = use default
