@@ -19,6 +19,8 @@ import org.apache.logging.log4j.Logger;
 import org.darkoro.zerosmod.config.ConfigHandler;
 import org.darkoro.zerosmod.guis.GUIHandler;
 import org.darkoro.zerosmod.guis.GUIScheduler;
+import org.darkoro.zerosmod.network.SyncBiomeVisualsPacket;
+import org.darkoro.zerosmod.network.SyncBiomeVisualsPacketHandler;
 import org.darkoro.zerosmod.network.SyncGuiTitlePacket;
 import org.darkoro.zerosmod.network.SyncGuiTitlePacketHandler;
 import org.darkoro.zerosmod.proxy.CommonProxy;
@@ -72,6 +74,7 @@ public class ZeroSMod {
 		ConfigHandler.loadAll(event);
 		network = NetworkRegistry.INSTANCE.newSimpleChannel("ZeroSMod_Chan");
 		network.registerMessage(SyncGuiTitlePacketHandler.class, SyncGuiTitlePacket.class, 0, Side.CLIENT);
+		network.registerMessage(SyncBiomeVisualsPacketHandler.class, SyncBiomeVisualsPacket.class, 1, Side.CLIENT);
 		proxy.preInit(event);
 	}
 

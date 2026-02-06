@@ -30,6 +30,23 @@ public final class BiomeConfig {
   public static final BiomeVisuals ZS_BIOME_9 = new BiomeVisuals("Zs Biome 9", 90);
   public static final BiomeVisuals ZS_BIOME_10 = new BiomeVisuals("Zs Biome 10", 91);
 
+  public static BiomeVisuals getVisualsById(int biomeId) {
+    if (biomeId == SPIRIT_GARDEN.getId()) return SPIRIT_GARDEN;
+    if (biomeId == VAKRON.getId()) return VAKRON;
+    if (biomeId == DRAGON_REALM.getId()) return DRAGON_REALM;
+    if (biomeId == ZS_BIOME_2.getId()) return ZS_BIOME_2;
+    if (biomeId == ZS_BIOME_3.getId()) return ZS_BIOME_3;
+    if (biomeId == ZS_BIOME_4.getId()) return ZS_BIOME_4;
+    if (biomeId == ZS_BIOME_5.getId()) return ZS_BIOME_5;
+    if (biomeId == ZS_BIOME_6.getId()) return ZS_BIOME_6;
+    if (biomeId == ZS_BIOME_7.getId()) return ZS_BIOME_7;
+    if (biomeId == ZS_BIOME_8.getId()) return ZS_BIOME_8;
+    if (biomeId == ZS_BIOME_9.getId()) return ZS_BIOME_9;
+    if (biomeId == ZS_BIOME_10.getId()) return ZS_BIOME_10;
+
+    return null;
+  }
+
   // Call once in mod preInit BEFORE biomes are instantiated.
   public static void load(FMLPreInitializationEvent event) {
     // config/
