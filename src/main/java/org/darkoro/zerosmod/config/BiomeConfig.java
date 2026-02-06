@@ -206,7 +206,7 @@ public final class BiomeConfig {
     // ZS Biome 7 (88)
     // -----------------
     loadBiomeVisuals(
-        ZS_BIOME_4,
+        ZS_BIOME_7,
         "ZS Biome 7",
         88,
         0xFFFFF9, // sky default
