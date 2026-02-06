@@ -63,6 +63,14 @@ public final class BiomeConfig {
     File biomesFile = new File(biomeConfigDir, "biomes.cfg");
     biomesConfig = new Configuration(biomesFile);
 
+    reload();
+  }
+
+  public static void reload() {
+    if (biomesConfig == null) {
+      return;
+    }
+
     biomesConfig.load();
 
     biomesConfig.addCustomCategoryComment(HEADER_CAT,
@@ -336,11 +344,11 @@ public final class BiomeConfig {
     String defaultStr = toHex6(defaultRgb);
     String raw = biomesConfig.getString(key, cat, defaultStr, comment);
     Integer parsed = parseHexColor(raw);
-    return parsed != null ? parsed : (defaultRgb & 0xFFFFFF);
+    return parsed != null ? parsed : (defaultRgb);
   }
 
   private static String toHex6(int rgb) {
-    return String.format("0x%06X", (rgb & 0xFFFFFF));
+    return String.format("0x%06X", (rgb &0xFFFFFF));
   }
 
   /** Accepts "0xRRGGBB", "#RRGGBB", or "RRGGBB". Returns null if invalid. */

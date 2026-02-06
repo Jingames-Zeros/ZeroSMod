@@ -8,6 +8,7 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraftforge.common.MinecraftForge;
+import org.darkoro.zerosmod.command.CommandZSMod;
 import org.darkoro.zerosmod.network.NetworkHandler;
 import org.darkoro.zerosmod.world.*;
 import org.darkoro.zerosmod.blocks.ModBlocks;
@@ -49,6 +50,7 @@ public class CommonProxy {
   }
 
   public void postInit(FMLPostInitializationEvent event) {}
-  public void serverStarting(FMLServerStartingEvent event) {}
-
+  public void serverStarting(FMLServerStartingEvent event) {
+    event.registerServerCommand(new CommandZSMod());
+  }
 }
