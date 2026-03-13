@@ -27,7 +27,8 @@ public class DelayedGUI {
    */
   public final int x;
   /**
-   * Y coordinate of the player, unused for the GUIs
+   * The texture ID for the GUI background. Use 0 for the default texture,
+   * or a custom ID registered via {@link GuiTextureRegistry}.
    */
   public final int y;
   /**

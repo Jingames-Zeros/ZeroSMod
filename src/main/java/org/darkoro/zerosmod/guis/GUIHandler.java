@@ -50,9 +50,9 @@ public class GUIHandler implements IGuiHandler {
 
     if (ID == ZeroSMod.GENERIC_CHEST_GUI) {
       InventoryBasic dummy = new InventoryBasic(title, true, z * 9);
-      return new CustomChestGUI(player.inventory, dummy);
+      return new CustomChestGUI(player.inventory, dummy, y);
     } else if (ID == ZeroSMod.GENERIC_ANVIL_GUI) {
-      return new CustomAnvilGUI(player.inventory, world, 0, 0, 0, player, title);
+      return new CustomAnvilGUI(player.inventory, world, 0, 0, 0, player, title, y);
     }
     return null;
   }

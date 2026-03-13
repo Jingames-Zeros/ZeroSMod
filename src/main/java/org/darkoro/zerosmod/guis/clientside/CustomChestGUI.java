@@ -1,5 +1,6 @@
 package org.darkoro.zerosmod.guis.clientside;
 
+import org.darkoro.zerosmod.guis.GuiTextureRegistry;
 import org.darkoro.zerosmod.guis.serverside.GUIContainer;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.resources.I18n;
@@ -10,18 +11,18 @@ import org.lwjgl.opengl.GL11;
 
 public class CustomChestGUI extends GuiContainer {
 
-  private static final ResourceLocation CHEST_GUI_TEXTURE = new ResourceLocation(
-      "zerosmod", "textures/gui/container/generic_54-6.png");
+  private final ResourceLocation guiTexture;
   private IInventory upInv;
   private InventoryPlayer plyInv;
   private int numRows;
 
 
-  public CustomChestGUI(InventoryPlayer playerInv, IInventory inv) {
+  public CustomChestGUI(InventoryPlayer playerInv, IInventory inv, int textureId) {
     super(new GUIContainer(playerInv, inv, null));
     this.upInv = inv;
     this.plyInv = playerInv;
     this.numRows = inv.getSizeInventory() / 9;
+    this.guiTexture = GuiTextureRegistry.getChestTexture(textureId);
 
     this.xSize = 176;
     this.ySize = 114 + this.numRows * 18;
@@ -40,7 +41,7 @@ public class CustomChestGUI extends GuiContainer {
   @Override
   protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
     GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-    this.mc.getTextureManager().bindTexture(CHEST_GUI_TEXTURE);
+    this.mc.getTextureManager().bindTexture(this.guiTexture);
 
     int guiLeft = (this.width - this.xSize) / 2;
     int guiTop = (this.height - this.ySize) / 2;

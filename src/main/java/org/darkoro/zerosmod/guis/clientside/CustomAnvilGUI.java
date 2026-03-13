@@ -1,5 +1,6 @@
 package org.darkoro.zerosmod.guis.clientside;
 
+import org.darkoro.zerosmod.guis.GuiTextureRegistry;
 import org.darkoro.zerosmod.guis.serverside.CustomAnvilContainer;
 import io.netty.buffer.Unpooled;
 import java.nio.charset.StandardCharsets;
@@ -21,15 +22,15 @@ import org.lwjgl.opengl.GL11;
 
 public class CustomAnvilGUI extends GuiContainer implements ICrafting {
 
-  private static final ResourceLocation anvilResource = new ResourceLocation("minecraft",
-      "textures/gui/container/anvil.png");
+  private final ResourceLocation guiTexture;
   private CustomAnvilContainer customAnvil;
   private GuiTextField itemName;
   private String title;
 
-  public CustomAnvilGUI(InventoryPlayer plyInv, World world, int x, int y, int z, EntityPlayer player, String title) {
+  public CustomAnvilGUI(InventoryPlayer plyInv, World world, int x, int y, int z, EntityPlayer player, String title, int textureId) {
     super(new CustomAnvilContainer(plyInv, world, x, y, z, player, null));
     this.customAnvil = (CustomAnvilContainer) this.inventorySlots;
+    this.guiTexture = GuiTextureRegistry.getAnvilTexture(textureId);
     this.xSize = 176;
     this.ySize = 166;
     this.title = title == null || title.trim().isEmpty() ? I18n.format("container.repair") : title;
@@ -71,7 +72,7 @@ public class CustomAnvilGUI extends GuiContainer implements ICrafting {
   @Override
   protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
     GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-    this.mc.getTextureManager().bindTexture(anvilResource);
+    this.mc.getTextureManager().bindTexture(this.guiTexture);
 
     int guiLeft = (this.width - this.xSize) / 2;
     int guiTop = (this.height - this.ySize) / 2;
