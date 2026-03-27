@@ -18,7 +18,8 @@ public class ClientEventHandler {
 
   @SubscribeEvent
   public void onRenderPre(RenderGameOverlayEvent.Pre event){
-    //things to do
+    if (event.type != RenderGameOverlayEvent.ElementType.ALL) return;
+
     Minecraft mc = Minecraft.getMinecraft();
     Entity e = mc.renderViewEntity;
     if (e instanceof EntityPlayer) {
