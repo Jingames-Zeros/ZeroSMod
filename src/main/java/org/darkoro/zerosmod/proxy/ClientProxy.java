@@ -7,11 +7,23 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import java.util.Arrays;
 import java.util.List;
+import net.minecraftforge.common.MinecraftForge;
+import org.darkoro.guiapi.guis.clientside.ClientEventHandler;
+import org.darkoro.guiapi.guis.clientside.Spirit.SpiritOverlay;
 import org.darkoro.zerosmod.ZeroSMod;
+import org.darkoro.zerosmod.client.ClientCache;
+import org.darkoro.zerosmod.config.SpiritConfig;
 import org.darkoro.zerosmod.input.KeyInputHandler;
 import org.darkoro.zerosmod.input.KeybindHandler;
 
 public class ClientProxy extends CommonProxy {
+
+  public static void eventsInit(){
+    ClientEventHandler handler = new ClientEventHandler();
+    FMLCommonHandler.instance().bus().register(handler);
+    MinecraftForge.EVENT_BUS.register(handler);
+
+  }
 
   @Override
   public void preInit(FMLPreInitializationEvent event) {
@@ -23,6 +35,8 @@ public class ClientProxy extends CommonProxy {
     super.init(event);
     KeybindHandler.init();
     FMLCommonHandler.instance().bus().register(new KeyInputHandler());
+
+    eventsInit();
   }
 
   @Override
@@ -35,6 +49,14 @@ public class ClientProxy extends CommonProxy {
       LanguageRegistry.instance().loadLocalization(String.format(defaultFile, lang), lang, false);
       ZeroSMod.LOGGER.info("Loaded language {}", lang);
     }
+    ClientCache.spiritbar = new SpiritOverlay();
+
   }
 
+  public static SpiritConfig getSpiritSettings (){
+    return ClientCache.spiritConfig;
+  }
+  public static void openHealthMenu(){
+    ClientCache.isSpiritHudOpen = true;
+  }
 }

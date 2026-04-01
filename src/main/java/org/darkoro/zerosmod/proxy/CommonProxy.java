@@ -6,7 +6,9 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.relauncher.Side;
+import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
+import org.darkoro.guiapi.guis.clientside.Spirit.ClientSpiritHudCommand;
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.blocks.ModBlocks;
 import org.darkoro.zerosmod.command.CommandZSMod;
@@ -48,11 +50,13 @@ public class CommonProxy {
         t.printStackTrace();
       }
     }
+    ClientCommandHandler.instance.registerCommand(new ClientSpiritHudCommand());
   }
 
   public void postInit(FMLPostInitializationEvent event) {}
 
   public void serverStarting(FMLServerStartingEvent event) {
     event.registerServerCommand(new CommandZSMod());
+
   }
 }
