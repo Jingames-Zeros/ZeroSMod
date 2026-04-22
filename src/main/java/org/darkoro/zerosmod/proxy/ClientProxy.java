@@ -12,6 +12,7 @@ import org.darkoro.guiapi.guis.clientside.ClientEventHandler;
 import org.darkoro.guiapi.guis.clientside.Spirit.SpiritOverlay;
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.client.ClientCache;
+import org.darkoro.zerosmod.client.JRMCoreRacePatch;
 import org.darkoro.zerosmod.config.SpiritConfig;
 import org.darkoro.zerosmod.input.KeyInputHandler;
 import org.darkoro.zerosmod.input.KeybindHandler;
@@ -41,6 +42,7 @@ public class ClientProxy extends CommonProxy {
 
   @Override
   public void postInit(FMLPostInitializationEvent event) {
+    JRMCoreRacePatch.apply();
     String defaultFile = "/assets/zerosmod/lang/%s.lang";
     List<String> langs = Arrays.asList(
         "de_DE", "en_AU", "en_CA", "en_GB", "en_US", "es_AR", "es_ES", "es_MX",

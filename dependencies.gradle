@@ -39,4 +39,5 @@ dependencies {
     devOnlyNonPublishable(rfg.deobf("curse.maven:jingames-jbra-client-497511:4505635"))
 
     implementation(rfg.deobf("curse.maven:customnpcplus-480951:7074823"))
+    implementation (rfg.deobf("curse.maven:cnpc-dbc-addon-1107628:7753144"))
 }
