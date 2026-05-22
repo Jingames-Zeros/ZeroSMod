@@ -4,10 +4,12 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.config.BiomeConfig;
+import org.darkoro.zerosmod.event.SaiyanMasteryMergeEvent;
 import org.darkoro.zerosmod.network.BiomeVisualSyncUtil;
 
 public class CommandZSMod extends CommandBase {
@@ -19,7 +21,7 @@ public class CommandZSMod extends CommandBase {
 
   @Override
   public String getCommandUsage(ICommandSender sender) {
-    return "/zsmod biomesync";
+    return "/zsmod biomesync | /zsmod saiyanmerge [player]";
   }
 
   @Override
@@ -45,6 +47,15 @@ public class CommandZSMod extends CommandBase {
 
       int players = MinecraftServer.getServer().getConfigurationManager().playerEntityList.size();
       sender.addChatMessage(new ChatComponentText("[ZeroSMod] Biome visuals reloaded and synced to " + players + " player(s)."));
+      return;
+    }
+
+    if ("saiyanmerge".equalsIgnoreCase(sub)) {
+      EntityPlayerMP player = args.length > 1
+          ? getPlayer(sender, args[1])
+          : getCommandSenderAsPlayer(sender);
+      String result = SaiyanMasteryMergeEvent.forceMerge(player);
+      sender.addChatMessage(new ChatComponentText("[ZeroSMod] Saiyan merge for " + player.getCommandSenderName() + ": " + result));
       return;
     }
 

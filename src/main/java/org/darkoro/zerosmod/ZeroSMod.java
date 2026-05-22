@@ -6,7 +6,6 @@ import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
@@ -88,11 +87,4 @@ public class ZeroSMod {
 	@EventHandler public void serverStarting(FMLServerStartingEvent event) {
 		proxy.serverStarting(event);
 	}
-
-	@EventHandler
-	public void postInity(FMLPostInitializationEvent event){
-		proxy.postInit(event);
-	}
-
-
 }
