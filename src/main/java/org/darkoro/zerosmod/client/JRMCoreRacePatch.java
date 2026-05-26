@@ -3,8 +3,8 @@ package org.darkoro.zerosmod.client;
 import JinRyuu.JRMCore.JRMCoreH;
 
 /**
- * Runtime GUI-side JRMCore race patching.
- * Does not remove backend race IDs; only changes what the GUI allows/displays.
+ * Runtime JRMCore race-name patching.
+ * Does not remove backend race IDs; only changes what GUIs/profile summaries display.
  */
 public final class JRMCoreRacePatch {
 

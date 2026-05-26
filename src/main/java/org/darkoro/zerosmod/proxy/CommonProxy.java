@@ -10,6 +10,7 @@ import net.minecraftforge.common.MinecraftForge;
 import noppes.npcs.scripted.NpcAPI;
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.blocks.ModBlocks;
+import org.darkoro.zerosmod.client.JRMCoreRacePatch;
 import org.darkoro.zerosmod.command.CommandZSMod;
 import org.darkoro.zerosmod.config.BiomeConfig;
 import org.darkoro.zerosmod.event.SaiyanMasteryMergeEvent;
@@ -59,7 +60,9 @@ public class CommonProxy {
     }
   }
 
-  public void postInit(FMLPostInitializationEvent event) {}
+  public void postInit(FMLPostInitializationEvent event) {
+    JRMCoreRacePatch.apply();
+  }
 
   public void serverStarting(FMLServerStartingEvent event) {
     event.registerServerCommand(new CommandZSMod());
