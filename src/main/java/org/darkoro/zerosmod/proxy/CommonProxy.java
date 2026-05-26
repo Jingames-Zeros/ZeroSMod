@@ -45,7 +45,7 @@ public class CommonProxy {
     FMLCommonHandler.instance().bus().register(saiyanMasteryMergeEvent);
     NpcAPI.EVENT_BUS.register(saiyanMasteryMergeEvent);
     if (ZeroSMod.LOGGER != null) {
-      ZeroSMod.LOGGER.warn("Registered Saiyan mastery merge handler on FML and CNPC event buses.");
+      ZeroSMod.LOGGER.info("Registered Saiyan mastery merge handler on FML and CNPC event buses.");
     }
 
     if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
