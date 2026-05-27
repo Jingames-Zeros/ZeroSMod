@@ -15,11 +15,13 @@ import cpw.mods.fml.relauncher.Side;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.BiomeGenBase;
 import org.apache.logging.log4j.Logger;
 import org.darkoro.zerosmod.config.ConfigHandler;
 import org.darkoro.zerosmod.guis.GUIHandler;
 import org.darkoro.zerosmod.guis.GUIScheduler;
+import org.darkoro.zerosmod.guis.GuiTextureRegistry;
 import org.darkoro.zerosmod.network.SyncBiomeVisualsPacket;
 import org.darkoro.zerosmod.network.SyncBiomeVisualsPacketHandler;
 import org.darkoro.zerosmod.network.SyncGuiTitlePacket;
@@ -50,8 +52,8 @@ public class ZeroSMod {
 	// Vakron
 	public static BiomeGenBase VAKRON_BIOME;
 
-    // Dragon Realm
-    public static BiomeGenBase DRAGON_REALM;
+	// Dragon Realm
+	public static BiomeGenBase DRAGON_REALM;
 
 	//Generic Biomes
 	public static BiomeGenBase ZS_BIOME_2;
@@ -81,6 +83,7 @@ public class ZeroSMod {
 
 	@EventHandler public void fmlLifeCycleEvent(FMLInitializationEvent event) {
 		NetworkRegistry.INSTANCE.registerGuiHandler(this, new GUIHandler());
+		GuiTextureRegistry.registerChestTexture(5000000, new ResourceLocation("zerosmod", "textures/gui/container/spcGUI.png"));
 		FMLCommonHandler.instance().bus().register(GUIScheduler.INSTANCE);
 		proxy.init(event);
 	}
