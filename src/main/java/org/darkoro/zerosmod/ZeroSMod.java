@@ -26,6 +26,10 @@ import org.darkoro.zerosmod.network.SyncBiomeVisualsPacket;
 import org.darkoro.zerosmod.network.SyncBiomeVisualsPacketHandler;
 import org.darkoro.zerosmod.network.SyncGuiTitlePacket;
 import org.darkoro.zerosmod.network.SyncGuiTitlePacketHandler;
+import org.darkoro.zerosmod.network.RequestZSTabDataPacket;
+import org.darkoro.zerosmod.network.RequestZSTabDataPacketHandler;
+import org.darkoro.zerosmod.network.SyncZSTabDataPacket;
+import org.darkoro.zerosmod.network.SyncZSTabDataPacketHandler;
 import org.darkoro.zerosmod.proxy.CommonProxy;
 
 @Mod(modid = ZeroSMod.MODID, version = ZeroSMod.VERSION, acceptableRemoteVersions = "*")
@@ -78,6 +82,8 @@ public class ZeroSMod {
 		network = NetworkRegistry.INSTANCE.newSimpleChannel("ZeroSMod_Chan");
 		network.registerMessage(SyncGuiTitlePacketHandler.class, SyncGuiTitlePacket.class, 0, Side.CLIENT);
 		network.registerMessage(SyncBiomeVisualsPacketHandler.class, SyncBiomeVisualsPacket.class, 1, Side.CLIENT);
+		network.registerMessage(RequestZSTabDataPacketHandler.class, RequestZSTabDataPacket.class, 2, Side.SERVER);
+		network.registerMessage(SyncZSTabDataPacketHandler.class, SyncZSTabDataPacket.class, 3, Side.CLIENT);
 		proxy.preInit(event);
 	}
 
