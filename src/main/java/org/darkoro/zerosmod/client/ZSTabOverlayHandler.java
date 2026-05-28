@@ -146,14 +146,14 @@ public class ZSTabOverlayHandler extends Gui {
     drawFormatted(font, raceText(data.raceName), x + 3, y + row++ * ROW_HEIGHT + 1, width - 6, TEXT_COLOR);
     drawFormatted(font, classText(data.className), x + 3, y + row++ * ROW_HEIGHT + 1, width - 6, TEXT_COLOR);
     row++;
-    drawFormatted(font, formText(data.currentForm), x + 3, y + row++ * ROW_HEIGHT + 1, width - 6, TEXT_COLOR);
+    drawFormatted(font, formText(data.raceName, data.currentForm), x + 3, y + row++ * ROW_HEIGHT + 1, width - 6, TEXT_COLOR);
     row++;
     drawStat(font, "STR", data.str, EnumChatFormatting.RED, x, y + row++ * ROW_HEIGHT, width);
-    drawStat(font, "DEX", data.dex, EnumChatFormatting.GOLD, x, y + row++ * ROW_HEIGHT, width);
+    drawStat(font, "DEX", data.dex, EnumChatFormatting.BLUE, x, y + row++ * ROW_HEIGHT, width);
     drawStat(font, "CON", data.con, EnumChatFormatting.GREEN, x, y + row++ * ROW_HEIGHT, width);
-    drawStat(font, "WIL", data.wil, EnumChatFormatting.AQUA, x, y + row++ * ROW_HEIGHT, width);
+    drawStat(font, "WIL", data.wil, EnumChatFormatting.GOLD, x, y + row++ * ROW_HEIGHT, width);
     drawStat(font, "MND", data.mnd, EnumChatFormatting.LIGHT_PURPLE, x, y + row++ * ROW_HEIGHT, width);
-    drawStat(font, "SPI", data.spi, EnumChatFormatting.BLUE, x, y + row++ * ROW_HEIGHT, width);
+    drawStat(font, "SPI", data.spi, EnumChatFormatting.AQUA, x, y + row++ * ROW_HEIGHT, width);
     row++;
     drawFormatted(font, EnumChatFormatting.GOLD + "" + EnumChatFormatting.BOLD + "Level: "
         + EnumChatFormatting.RESET + EnumChatFormatting.WHITE + formatNumber(data.level),
@@ -199,19 +199,25 @@ public class ZSTabOverlayHandler extends Gui {
   private String classText(String className) {
     EnumChatFormatting color = EnumChatFormatting.WHITE;
     String normalized = clean(className).toLowerCase();
+    String displayName = className;
     if ("warrior".equals(normalized)) {
       color = EnumChatFormatting.RED;
     } else if ("martialartist".equals(normalized) || "martial artist".equals(normalized)) {
       color = EnumChatFormatting.GOLD;
+      displayName = "Martial Artist";
     } else if ("spiritualist".equals(normalized)) {
       color = EnumChatFormatting.AQUA;
     }
 
-    return color + "" + EnumChatFormatting.BOLD + className;
+    return color + "" + EnumChatFormatting.BOLD + displayName;
   }
 
-  private String formText(String formName) {
+  private String formText(String raceName, String formName) {
     String clean = clean(formName);
+    if ("arcosian".equalsIgnoreCase(clean(raceName)) && "form0".equalsIgnoreCase(clean)) {
+      return EnumChatFormatting.AQUA + "Minimal";
+    }
+
     if ("base".equalsIgnoreCase(clean)) {
       return EnumChatFormatting.AQUA + clean;
     }
