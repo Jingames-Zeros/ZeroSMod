@@ -13,6 +13,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.config.BiomeConfig;
+import org.darkoro.zerosmod.config.PathConfig;
 import org.darkoro.zerosmod.event.SaiyanMasteryMergeEvent;
 import org.darkoro.zerosmod.network.BiomeVisualSyncUtil;
 
@@ -36,7 +37,7 @@ public class CommandZSMod extends CommandBase {
 
   public CommandZSMod() {
     registerSubCommand(new HelpSubCommand());
-    registerSubCommand(new BiomeSyncSubCommand());
+    registerSubCommand(new ReloadSubCommand());
     registerSubCommand(new SaiyanMergeSubCommand());
   }
 
@@ -47,7 +48,7 @@ public class CommandZSMod extends CommandBase {
 
   @Override
   public String getCommandUsage(ICommandSender sender) {
-    return "/zsmod [help|biomesync|saiyanmerge]";
+    return "/zsmod [help|reload|saiyanmerge]";
   }
 
   @Override
@@ -241,10 +242,10 @@ public class CommandZSMod extends CommandBase {
     }
   }
 
-  private class BiomeSyncSubCommand extends ZSSubCommand {
+  private class ReloadSubCommand extends ZSSubCommand {
 
-    private BiomeSyncSubCommand() {
-      super("biomesync", "/zsmod biomesync", "Reloads biome visual config and syncs it to online players.", 2);
+    private ReloadSubCommand() {
+      super("reload", "/zsmod reload", "Reloads ZeroSMod configs and syncs clients.", 2);
     }
 
     @Override
@@ -253,6 +254,7 @@ public class CommandZSMod extends CommandBase {
         throw new WrongUsageException(getUsage());
       }
 
+      PathConfig.reload();
       BiomeConfig.reload();
 
       IMessage pkt = BiomeVisualSyncUtil.buildFullPacket();
@@ -260,7 +262,7 @@ public class CommandZSMod extends CommandBase {
 
       int players = MinecraftServer.getServer().getConfigurationManager().playerEntityList.size();
       sender.addChatMessage(new ChatComponentText(
-          PREFIX + EnumChatFormatting.GRAY + "Biome visuals reloaded and synced to " + players + " player(s)."));
+          PREFIX + EnumChatFormatting.GRAY + "ZeroSMod configs reloaded and synced to " + players + " player(s)."));
     }
   }
 

@@ -32,13 +32,17 @@ import org.darkoro.zerosmod.network.SyncZSTabDataPacket;
 import org.darkoro.zerosmod.network.SyncZSTabDataPacketHandler;
 import org.darkoro.zerosmod.proxy.CommonProxy;
 
-@Mod(modid = ZeroSMod.MODID, version = ZeroSMod.VERSION, acceptableRemoteVersions = "*")
+@Mod(modid = ZeroSMod.MODID, version = ZeroSMod.VERSION, acceptableRemoteVersions = ZeroSMod.ACCEPTABLE_REMOTE_VERSIONS)
 public class ZeroSMod {
 
 	public static Logger LOGGER;
 
 	public static final String MODID = "zerosmod";
-	public static final String VERSION = "1.2.2";
+	// Bump VERSION only when clients must update. Forge uses this for the client/server mod handshake.
+	public static final String VERSION = "1.2.4";
+	public static final String ACCEPTABLE_REMOTE_VERSIONS = "[" + VERSION + "]";
+	// Bump this for server-only emergency builds that should still allow clients on VERSION.
+	public static final String SERVER_BUILD_VERSION = "1.2.4";
 	public static SimpleNetworkWrapper network;
 
 	@Instance(MODID)

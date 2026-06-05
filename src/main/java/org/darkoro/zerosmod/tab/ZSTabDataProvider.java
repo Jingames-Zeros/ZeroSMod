@@ -2,11 +2,19 @@ package org.darkoro.zerosmod.tab;
 
 import JinRyuu.JRMCore.JRMCoreH;
 import kamkeel.npcdbc.api.form.IForm;
+import kamkeel.npcdbc.controllers.FormController;
+import kamkeel.npcdbc.data.PlayerDBCInfo;
 import kamkeel.npcdbc.data.dbcdata.DBCData;
+import kamkeel.npcdbc.util.PlayerDataUtil;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.controllers.data.PlayerData;
+import org.darkoro.zerosmod.config.PathConfig;
 import org.darkoro.zerosmod.network.SyncZSTabDataPacket;
 
 public final class ZSTabDataProvider {
@@ -33,9 +41,10 @@ public final class ZSTabDataProvider {
   public static SyncZSTabDataPacket buildPacket(EntityPlayerMP player) {
     SyncZSTabDataPacket packet = new SyncZSTabDataPacket();
     packet.playerName = player.getCommandSenderName();
+    DBCData data = null;
 
     try {
-      DBCData data = DBCData.get(player);
+      data = DBCData.get(player);
       packet.className = nameFromArray(JRMCoreH.ClassesDBC, data.Class, "Unknown");
       packet.raceName = getRaceName(data);
       packet.currentForm = getCurrentFormName(data);
@@ -57,6 +66,7 @@ public final class ZSTabDataProvider {
     packet.super1 = getSpcValue(player, "super1", SUPER_1_KEYS);
     packet.super2 = getSpcValue(player, "super2", SUPER_2_KEYS);
     packet.ultimate = getSpcValue(player, "ultimate", ULTIMATE_KEYS);
+    packet.currentPath = PathConfig.getPathForForms(getUnlockedFormNames(player, data, packet.currentForm));
     packet.spiritPercent = getLiveSpiritPercent(player);
     packet.spcArmed = getLiveSpcArmed(player);
     packet.spcUnlocked = getLiveSpcUnlocked(player);
@@ -96,6 +106,40 @@ public final class ZSTabDataProvider {
     } catch (Throwable ignored) {}
 
     return "Base";
+  }
+
+  private static Collection<String> getUnlockedFormNames(EntityPlayerMP player, DBCData data, String currentForm) {
+    List<String> formNames = new ArrayList<String>();
+
+    try {
+      PlayerDBCInfo playerDBCInfo = PlayerDataUtil.getDBCInfo(player);
+      if (playerDBCInfo != null) {
+        for (Integer formId : playerDBCInfo.unlockedForms) {
+          IForm form = FormController.getInstance().get(formId);
+          if (form != null) {
+            addIfPresent(formNames, form.getName());
+            addIfPresent(formNames, form.getMenuName());
+          }
+        }
+      }
+    } catch (Throwable ignored) {}
+
+    try {
+      if (data != null) {
+        for (Map.Entry<Integer, String> entry : data.getUnlockedDBCFormsMap().entrySet()) {
+          addIfPresent(formNames, entry.getValue());
+        }
+      }
+    } catch (Throwable ignored) {}
+
+    addIfPresent(formNames, currentForm);
+    return formNames;
+  }
+
+  private static void addIfPresent(List<String> values, String value) {
+    if (value != null && value.trim().length() > 0) {
+      values.add(value);
+    }
   }
 
   private static String nameFromArray(String[] values, int index, String fallback) {

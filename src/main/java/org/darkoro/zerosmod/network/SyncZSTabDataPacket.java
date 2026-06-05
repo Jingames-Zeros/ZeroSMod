@@ -10,6 +10,7 @@ public class SyncZSTabDataPacket implements IMessage {
   public String className = "Unknown";
   public String raceName = "Unknown";
   public String currentForm = "Base";
+  public String currentPath = "";
   public int str;
   public int dex;
   public int con;
@@ -49,6 +50,7 @@ public class SyncZSTabDataPacket implements IMessage {
     spcArmed = buf.readableBytes() >= 1 ? buf.readBoolean() : true;
     spcUnlocked = buf.readableBytes() >= 1 ? buf.readBoolean() : true;
     tp = buf.readableBytes() >= 4 ? buf.readInt() : 0;
+    currentPath = buf.readableBytes() > 0 ? read(buf) : "";
   }
 
   @Override
@@ -72,6 +74,7 @@ public class SyncZSTabDataPacket implements IMessage {
     buf.writeBoolean(spcArmed);
     buf.writeBoolean(spcUnlocked);
     buf.writeInt(tp);
+    write(buf, currentPath);
   }
 
   private static String read(ByteBuf buf) {

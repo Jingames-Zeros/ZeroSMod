@@ -9,5 +9,6 @@ public final class ConfigHandler {
   public static void loadAll(FMLPreInitializationEvent event) {
 
     BiomeConfig.load(event);
+    PathConfig.load(event);
   }
 }

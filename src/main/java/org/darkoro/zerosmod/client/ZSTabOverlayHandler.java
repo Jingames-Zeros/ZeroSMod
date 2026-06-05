@@ -23,13 +23,10 @@ import org.lwjgl.opengl.GL11;
 public class ZSTabOverlayHandler extends Gui {
 
   private static final int ROW_HEIGHT = 9;
-  private static final int MIN_PLAYER_ROWS = 15;
+  private static final int MIN_PLAYER_ROWS = 16;
   private static final int MAX_PLAYER_ROWS = 40;
   private static final int HEADER_COLOR = 0xFFFFFF;
   private static final int TEXT_COLOR = 0xE8E8E8;
-  private static final int SPC_COLOR = 0x00D8FF;
-  private static final int SUPER_COLOR = 0xB64CFF;
-  private static final int ULTIMATE_COLOR = 0xFFE600;
   private static final int SPC_GAUGE_SEGMENTS = 40;
   private static final int SPC_COLUMN_MIN_WIDTH = 122;
 
@@ -161,6 +158,7 @@ public class ZSTabOverlayHandler extends Gui {
     drawFormatted(font, classText(data.className), x + 3, y + row++ * ROW_HEIGHT + 1, width - 6, TEXT_COLOR);
     row++;
     drawFormatted(font, formText(data.raceName, data.currentForm), x + 3, y + row++ * ROW_HEIGHT + 1, width - 6, TEXT_COLOR);
+    drawFormatted(font, pathText(data.currentPath), x + 3, y + row++ * ROW_HEIGHT + 1, width - 6, TEXT_COLOR);
     row++;
     drawStatText(font, "TP", formatCompactNumber(data.tp), EnumChatFormatting.DARK_AQUA, x, y + row++ * ROW_HEIGHT, width);
     drawStat(font, "STR", data.str, EnumChatFormatting.RED, x, y + row++ * ROW_HEIGHT, width);
@@ -182,15 +180,15 @@ public class ZSTabOverlayHandler extends Gui {
       return;
     }
 
-    drawSpcAbility(font, data.passive, x + 3, y + 1, width - 6, SPC_COLOR);
-    drawSpcAbility(font, data.super1, x + 3, y + ROW_HEIGHT * 3 + 1, width - 6, SUPER_COLOR);
-    drawSpcAbility(font, data.super2, x + 3, y + ROW_HEIGHT * 4 + 1, width - 6, ULTIMATE_COLOR);
-    drawSpcAbility(font, data.ultimate, x + 3, y + ROW_HEIGHT * 7 + 1, width - 6, 0x009CFF);
+    drawSpcAbility(font, data.passive, x + 3, y + 1, width - 6);
+    drawSpcAbility(font, data.super1, x + 3, y + ROW_HEIGHT * 3 + 1, width - 6);
+    drawSpcAbility(font, data.super2, x + 3, y + ROW_HEIGHT * 4 + 1, width - 6);
+    drawSpcAbility(font, data.ultimate, x + 3, y + ROW_HEIGHT * 7 + 1, width - 6);
     drawSpcGauge(font, data.spiritPercent, x + 3, y + ROW_HEIGHT * 9 + 1);
   }
 
-  private void drawSpcAbility(FontRenderer font, String value, int x, int y, int width, int fallbackColor) {
-    int color = "none".equalsIgnoreCase(clean(value)) ? 0x555555 : fallbackColor;
+  private void drawSpcAbility(FontRenderer font, String value, int x, int y, int width) {
+    int color = "none".equalsIgnoreCase(clean(value)) ? 0x555555 : TEXT_COLOR;
     drawString(font, trim(font, value, width), x, y, color);
   }
 
@@ -278,6 +276,16 @@ public class ZSTabOverlayHandler extends Gui {
     }
 
     return formName;
+  }
+
+  private String pathText(String pathName) {
+    String clean = clean(pathName);
+    if (clean.length() == 0) {
+      pathName = EnumChatFormatting.WHITE + "None";
+    }
+
+    return EnumChatFormatting.GRAY + "" + EnumChatFormatting.BOLD + "Path: "
+        + EnumChatFormatting.RESET + pathName;
   }
 
   private void drawColumnGrid(int x, int y, int width, int rows) {
