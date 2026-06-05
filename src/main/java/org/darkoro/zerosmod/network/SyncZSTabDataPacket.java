@@ -21,6 +21,7 @@ public class SyncZSTabDataPacket implements IMessage {
   public String super1 = "None";
   public String super2 = "None";
   public String ultimate = "None";
+  public int spiritPercent = -1;
 
   public SyncZSTabDataPacket() {}
 
@@ -41,6 +42,7 @@ public class SyncZSTabDataPacket implements IMessage {
     super1 = read(buf);
     super2 = read(buf);
     ultimate = read(buf);
+    spiritPercent = buf.readableBytes() >= 4 ? buf.readInt() : -1;
   }
 
   @Override
@@ -60,6 +62,7 @@ public class SyncZSTabDataPacket implements IMessage {
     write(buf, super1);
     write(buf, super2);
     write(buf, ultimate);
+    buf.writeInt(spiritPercent);
   }
 
   private static String read(ByteBuf buf) {

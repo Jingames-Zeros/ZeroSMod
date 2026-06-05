@@ -29,6 +29,8 @@ public class ZSTabOverlayHandler extends Gui {
   private static final int SPC_COLOR = 0x00D8FF;
   private static final int SUPER_COLOR = 0xB64CFF;
   private static final int ULTIMATE_COLOR = 0xFFE600;
+  private static final int SPC_GAUGE_SEGMENTS = 40;
+  private static final int SPC_COLUMN_MIN_WIDTH = 122;
 
   private long lastRequestMillis;
 
@@ -105,8 +107,8 @@ public class ZSTabOverlayHandler extends Gui {
     int nameWidth = Math.max(110, Math.min(120, maxWidth / 4));
     int statsWidth = Math.max(101, Math.min(118, maxWidth / 4 + 6));
     int spcWidth = maxWidth - nameWidth - nameWidth - statsWidth;
-    if (spcWidth < 118) {
-      spcWidth = 118;
+    if (spcWidth < SPC_COLUMN_MIN_WIDTH) {
+      spcWidth = SPC_COLUMN_MIN_WIDTH;
       int remaining = maxWidth - statsWidth - spcWidth;
       nameWidth = Math.max(105, remaining / 2);
     }
@@ -165,11 +167,41 @@ public class ZSTabOverlayHandler extends Gui {
     drawSpcAbility(font, data.super1, x + 3, y + ROW_HEIGHT * 3 + 1, width - 6, SUPER_COLOR);
     drawSpcAbility(font, data.super2, x + 3, y + ROW_HEIGHT * 4 + 1, width - 6, ULTIMATE_COLOR);
     drawSpcAbility(font, data.ultimate, x + 3, y + ROW_HEIGHT * 7 + 1, width - 6, 0x009CFF);
+    drawSpcGauge(font, data.spiritPercent, x + 3, y + ROW_HEIGHT * 9 + 1);
   }
 
   private void drawSpcAbility(FontRenderer font, String value, int x, int y, int width, int fallbackColor) {
     int color = "none".equalsIgnoreCase(clean(value)) ? 0x555555 : fallbackColor;
     drawString(font, trim(font, value, width), x, y, color);
+  }
+
+  private void drawSpcGauge(FontRenderer font, int percent, int x, int y) {
+    drawString(font, buildSpcGauge(percent), x, y, TEXT_COLOR);
+  }
+
+  private String buildSpcGauge(int percent) {
+    int clampedPercent = percent < 0 ? 0 : Math.max(0, Math.min(100, percent));
+    int filledSegments = clampedPercent * SPC_GAUGE_SEGMENTS / 100;
+    StringBuilder gauge = new StringBuilder();
+    gauge.append(EnumChatFormatting.BLUE).append("[");
+    for (int i = 0; i < SPC_GAUGE_SEGMENTS; i++) {
+      gauge.append(i < filledSegments ? EnumChatFormatting.AQUA : EnumChatFormatting.GRAY).append("|");
+    }
+    gauge.append(EnumChatFormatting.BLUE).append("] ");
+    gauge.append(formatSpcGaugePercent(percent, clampedPercent));
+    return gauge.toString();
+  }
+
+  private String formatSpcGaugePercent(int percent, int clampedPercent) {
+    if (percent < 0) {
+      return EnumChatFormatting.RESET + "" + EnumChatFormatting.GRAY + "--%";
+    }
+
+    if (clampedPercent == 0) {
+      return EnumChatFormatting.RESET + "" + EnumChatFormatting.GRAY + "0%";
+    }
+
+    return EnumChatFormatting.RESET + "" + EnumChatFormatting.AQUA + clampedPercent + "%";
   }
 
   private void drawStat(FontRenderer font, String label, int value, EnumChatFormatting color, int x, int y, int width) {

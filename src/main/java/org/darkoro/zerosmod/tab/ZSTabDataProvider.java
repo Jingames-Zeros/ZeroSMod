@@ -56,6 +56,7 @@ public final class ZSTabDataProvider {
     packet.super1 = getSpcValue(player, "super1", SUPER_1_KEYS);
     packet.super2 = getSpcValue(player, "super2", SUPER_2_KEYS);
     packet.ultimate = getSpcValue(player, "ultimate", ULTIMATE_KEYS);
+    packet.spiritPercent = getLiveSpiritPercent(player);
     return packet;
   }
 
@@ -144,6 +145,36 @@ public final class ZSTabDataProvider {
     } catch (Throwable ignored) {
       return "";
     }
+  }
+
+  private static int getLiveSpiritPercent(EntityPlayerMP player) {
+    try {
+      Object scPlayer = player.getExtendedProperties("spiritcontrol");
+      if (scPlayer == null) {
+        return -1;
+      }
+
+      double spirit = invokeDouble(scPlayer, "getSpirit");
+      double maxSpirit = invokeDouble(scPlayer, "getMaxSpirit");
+      if (maxSpirit <= 0.0D) {
+        return -1;
+      }
+
+      double percent = Math.floor(spirit / maxSpirit * 100.0D);
+      if (Double.isNaN(percent) || Double.isInfinite(percent)) {
+        return -1;
+      }
+
+      return Math.max(0, Math.min(100, (int) percent));
+    } catch (Throwable ignored) {
+      return -1;
+    }
+  }
+
+  private static double invokeDouble(Object target, String methodName) throws Exception {
+    Method method = target.getClass().getMethod(methodName);
+    Object value = method.invoke(target);
+    return value instanceof Number ? ((Number) value).doubleValue() : 0.0D;
   }
 
   private static String getAbilityName(Object ability) {
