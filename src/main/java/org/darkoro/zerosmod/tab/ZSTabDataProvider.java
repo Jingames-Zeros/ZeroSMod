@@ -46,6 +46,7 @@ public final class ZSTabDataProvider {
       packet.mnd = data.MND;
       packet.spi = data.SPI;
       packet.level = data.getPlayerLevel();
+      packet.tp = data.TP;
     } catch (Throwable ignored) {
       packet.className = "Unknown";
       packet.raceName = "Unknown";
@@ -57,6 +58,8 @@ public final class ZSTabDataProvider {
     packet.super2 = getSpcValue(player, "super2", SUPER_2_KEYS);
     packet.ultimate = getSpcValue(player, "ultimate", ULTIMATE_KEYS);
     packet.spiritPercent = getLiveSpiritPercent(player);
+    packet.spcArmed = getLiveSpcArmed(player);
+    packet.spcUnlocked = getLiveSpcUnlocked(player);
     return packet;
   }
 
@@ -168,6 +171,36 @@ public final class ZSTabDataProvider {
       return Math.max(0, Math.min(100, (int) percent));
     } catch (Throwable ignored) {
       return -1;
+    }
+  }
+
+  private static boolean getLiveSpcArmed(EntityPlayerMP player) {
+    try {
+      Object scPlayer = player.getExtendedProperties("spiritcontrol");
+      if (scPlayer == null) {
+        return true;
+      }
+
+      Method isArmed = scPlayer.getClass().getMethod("isArmed");
+      Object value = isArmed.invoke(scPlayer);
+      return !(value instanceof Boolean) || (Boolean) value;
+    } catch (Throwable ignored) {
+      return true;
+    }
+  }
+
+  private static boolean getLiveSpcUnlocked(EntityPlayerMP player) {
+    try {
+      Object scPlayer = player.getExtendedProperties("spiritcontrol");
+      if (scPlayer == null) {
+        return false;
+      }
+
+      Method hasUnlockedSpiritControl = scPlayer.getClass().getMethod("hasUnlockedSpiritControl");
+      Object value = hasUnlockedSpiritControl.invoke(scPlayer);
+      return value instanceof Boolean && (Boolean) value;
+    } catch (Throwable ignored) {
+      return false;
     }
   }
 

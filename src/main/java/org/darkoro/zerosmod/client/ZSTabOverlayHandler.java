@@ -4,6 +4,7 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import java.util.List;
+import java.util.Locale;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
@@ -22,7 +23,7 @@ import org.lwjgl.opengl.GL11;
 public class ZSTabOverlayHandler extends Gui {
 
   private static final int ROW_HEIGHT = 9;
-  private static final int MIN_PLAYER_ROWS = 14;
+  private static final int MIN_PLAYER_ROWS = 15;
   private static final int MAX_PLAYER_ROWS = 40;
   private static final int HEADER_COLOR = 0xFFFFFF;
   private static final int TEXT_COLOR = 0xE8E8E8;
@@ -66,10 +67,11 @@ public class ZSTabOverlayHandler extends Gui {
     List<GuiPlayerInfo> players = (List<GuiPlayerInfo>) handler.playerInfoList;
     FontRenderer font = mc.fontRenderer;
     SyncZSTabDataPacket data = ClientZSTabDataCache.getLatest();
+    boolean showSpc = data.spcUnlocked;
 
     int rows = Math.max(MIN_PLAYER_ROWS, Math.min(MAX_PLAYER_ROWS, (players.size() + 1) / 2));
-    int[] widths = getColumnWidths(screenWidth);
-    int panelWidth = widths[0] + widths[1] + widths[2] + widths[3];
+    int[] widths = getColumnWidths(screenWidth, showSpc);
+    int panelWidth = widths[0] + widths[1] + widths[2] + (showSpc ? widths[3] : 0);
     int left = (screenWidth - panelWidth) / 2;
     int top = 18;
     int height = (rows + 1) * ROW_HEIGHT;
@@ -86,14 +88,20 @@ public class ZSTabOverlayHandler extends Gui {
     drawColumnGrid(x0, top, widths[0], rows);
     drawColumnGrid(x1, top, widths[1], rows);
     drawColumnGrid(x2, top, widths[2], rows);
-    drawColumnGrid(x3, top, widths[3], rows);
+    if (showSpc) {
+      drawColumnGrid(x3, top, widths[3], rows);
+    }
 
     drawCentered(font, EnumChatFormatting.BLUE + "" + EnumChatFormatting.BOLD + "Stats", x2, top + 1, widths[2], HEADER_COLOR);
-    drawCentered(font, EnumChatFormatting.DARK_AQUA + "" + EnumChatFormatting.BOLD + "Spirit Control", x3, top + 1, widths[3], HEADER_COLOR);
+    if (showSpc) {
+      drawCentered(font, EnumChatFormatting.DARK_AQUA + "" + EnumChatFormatting.BOLD + "Spirit Control", x3, top + 1, widths[3], HEADER_COLOR);
+    }
 
     drawPlayers(mc, font, players, x0, x1, top + ROW_HEIGHT, widths[0], widths[1], rows);
     drawStats(font, data, x2, top + ROW_HEIGHT, widths[2]);
-    drawSpiritControl(font, data, x3, top + ROW_HEIGHT, widths[3]);
+    if (showSpc) {
+      drawSpiritControl(font, data, x3, top + ROW_HEIGHT, widths[3]);
+    }
 
     if (!ClientZSTabDataCache.hasFreshData()) {
       drawString(font, "Loading...", x2 + 3, top + height - ROW_HEIGHT + 1, 0xAAAAAA);
@@ -102,10 +110,14 @@ public class ZSTabOverlayHandler extends Gui {
     GL11.glPopMatrix();
   }
 
-  private int[] getColumnWidths(int screenWidth) {
+  private int[] getColumnWidths(int screenWidth, boolean showSpc) {
     int maxWidth = Math.min(screenWidth - 28, 468);
     int nameWidth = Math.max(110, Math.min(120, maxWidth / 4));
     int statsWidth = Math.max(101, Math.min(118, maxWidth / 4 + 6));
+    if (!showSpc) {
+      return new int[] {nameWidth, nameWidth, statsWidth, 0};
+    }
+
     int spcWidth = maxWidth - nameWidth - nameWidth - statsWidth;
     if (spcWidth < SPC_COLUMN_MIN_WIDTH) {
       spcWidth = SPC_COLUMN_MIN_WIDTH;
@@ -150,6 +162,7 @@ public class ZSTabOverlayHandler extends Gui {
     row++;
     drawFormatted(font, formText(data.raceName, data.currentForm), x + 3, y + row++ * ROW_HEIGHT + 1, width - 6, TEXT_COLOR);
     row++;
+    drawStatText(font, "TP", formatCompactNumber(data.tp), EnumChatFormatting.DARK_AQUA, x, y + row++ * ROW_HEIGHT, width);
     drawStat(font, "STR", data.str, EnumChatFormatting.RED, x, y + row++ * ROW_HEIGHT, width);
     drawStat(font, "DEX", data.dex, EnumChatFormatting.BLUE, x, y + row++ * ROW_HEIGHT, width);
     drawStat(font, "CON", data.con, EnumChatFormatting.GREEN, x, y + row++ * ROW_HEIGHT, width);
@@ -163,6 +176,12 @@ public class ZSTabOverlayHandler extends Gui {
   }
 
   private void drawSpiritControl(FontRenderer font, SyncZSTabDataPacket data, int x, int y, int width) {
+    if (!data.spcArmed) {
+      drawCentered(font, EnumChatFormatting.RED + "" + EnumChatFormatting.BOLD + "Disarmed",
+          x, y + ROW_HEIGHT + 1, width, TEXT_COLOR);
+      return;
+    }
+
     drawSpcAbility(font, data.passive, x + 3, y + 1, width - 6, SPC_COLOR);
     drawSpcAbility(font, data.super1, x + 3, y + ROW_HEIGHT * 3 + 1, width - 6, SUPER_COLOR);
     drawSpcAbility(font, data.super2, x + 3, y + ROW_HEIGHT * 4 + 1, width - 6, ULTIMATE_COLOR);
@@ -205,8 +224,12 @@ public class ZSTabOverlayHandler extends Gui {
   }
 
   private void drawStat(FontRenderer font, String label, int value, EnumChatFormatting color, int x, int y, int width) {
+    drawStatText(font, label, formatNumber(value), color, x, y, width);
+  }
+
+  private void drawStatText(FontRenderer font, String label, String value, EnumChatFormatting color, int x, int y, int width) {
     String statLabel = color + "" + EnumChatFormatting.BOLD + label + ": ";
-    String statValue = EnumChatFormatting.RESET + "" + EnumChatFormatting.WHITE + formatNumber(value);
+    String statValue = EnumChatFormatting.RESET + "" + EnumChatFormatting.WHITE + value;
     drawFormatted(font, statLabel + statValue, x + 3, y + 1, width - 6, TEXT_COLOR);
   }
 
@@ -320,6 +343,31 @@ public class ZSTabOverlayHandler extends Gui {
 
   private String formatNumber(int value) {
     return String.format("%,d", value);
+  }
+
+  private String formatCompactNumber(int value) {
+    long longValue = value;
+    long abs = Math.abs(longValue);
+    if (abs < 10000L) {
+      return formatNumber(value);
+    }
+
+    long[] thresholds = {999500000000L, 999500000L, 999500L, 10000L};
+    long[] units = {1000000000000L, 1000000000L, 1000000L, 1000L};
+    String[] suffixes = {"T", "B", "M", "k"};
+    for (int i = 0; i < units.length; i++) {
+      if (abs >= thresholds[i]) {
+        double scaled = longValue / (double) units[i];
+        String pattern = Math.abs(scaled) < 10.0D && scaled != Math.rint(scaled) ? "%.1f" : "%.0f";
+        String formatted = String.format(Locale.ROOT, pattern, scaled);
+        if (formatted.endsWith(".0")) {
+          formatted = formatted.substring(0, formatted.length() - 2);
+        }
+        return formatted + suffixes[i];
+      }
+    }
+
+    return formatNumber(value);
   }
 
 }

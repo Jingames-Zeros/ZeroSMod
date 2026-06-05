@@ -17,11 +17,14 @@ public class SyncZSTabDataPacket implements IMessage {
   public int mnd;
   public int spi;
   public int level;
+  public int tp;
   public String passive = "None";
   public String super1 = "None";
   public String super2 = "None";
   public String ultimate = "None";
   public int spiritPercent = -1;
+  public boolean spcArmed = true;
+  public boolean spcUnlocked;
 
   public SyncZSTabDataPacket() {}
 
@@ -43,6 +46,9 @@ public class SyncZSTabDataPacket implements IMessage {
     super2 = read(buf);
     ultimate = read(buf);
     spiritPercent = buf.readableBytes() >= 4 ? buf.readInt() : -1;
+    spcArmed = buf.readableBytes() >= 1 ? buf.readBoolean() : true;
+    spcUnlocked = buf.readableBytes() >= 1 ? buf.readBoolean() : true;
+    tp = buf.readableBytes() >= 4 ? buf.readInt() : 0;
   }
 
   @Override
@@ -63,6 +69,9 @@ public class SyncZSTabDataPacket implements IMessage {
     write(buf, super2);
     write(buf, ultimate);
     buf.writeInt(spiritPercent);
+    buf.writeBoolean(spcArmed);
+    buf.writeBoolean(spcUnlocked);
+    buf.writeInt(tp);
   }
 
   private static String read(ByteBuf buf) {
