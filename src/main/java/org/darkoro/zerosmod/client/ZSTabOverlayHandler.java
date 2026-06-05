@@ -161,10 +161,10 @@ public class ZSTabOverlayHandler extends Gui {
     drawFormatted(font, pathText(data.currentPath), x + 3, y + row++ * ROW_HEIGHT + 1, width - 6, TEXT_COLOR);
     row++;
     drawStatText(font, "TP", formatCompactNumber(data.tp), EnumChatFormatting.DARK_AQUA, x, y + row++ * ROW_HEIGHT, width);
-    drawStat(font, "STR", data.str, EnumChatFormatting.RED, x, y + row++ * ROW_HEIGHT, width);
-    drawStat(font, "DEX", data.dex, EnumChatFormatting.BLUE, x, y + row++ * ROW_HEIGHT, width);
+    drawStat(font, "STR", data.str, data.strMulti, EnumChatFormatting.RED, x, y + row++ * ROW_HEIGHT, width);
+    drawStat(font, "DEX", data.dex, data.dexMulti, EnumChatFormatting.BLUE, x, y + row++ * ROW_HEIGHT, width);
     drawStat(font, "CON", data.con, EnumChatFormatting.GREEN, x, y + row++ * ROW_HEIGHT, width);
-    drawStat(font, "WIL", data.wil, EnumChatFormatting.GOLD, x, y + row++ * ROW_HEIGHT, width);
+    drawStat(font, "WIL", data.wil, data.wilMulti, EnumChatFormatting.GOLD, x, y + row++ * ROW_HEIGHT, width);
     drawStat(font, "MND", data.mnd, EnumChatFormatting.LIGHT_PURPLE, x, y + row++ * ROW_HEIGHT, width);
     drawStat(font, "SPI", data.spi, EnumChatFormatting.AQUA, x, y + row++ * ROW_HEIGHT, width);
     row++;
@@ -223,6 +223,10 @@ public class ZSTabOverlayHandler extends Gui {
 
   private void drawStat(FontRenderer font, String label, int value, EnumChatFormatting color, int x, int y, int width) {
     drawStatText(font, label, formatNumber(value), color, x, y, width);
+  }
+
+  private void drawStat(FontRenderer font, String label, int value, float multiplier, EnumChatFormatting color, int x, int y, int width) {
+    drawStatText(font, label, formatNumber(value) + formatMultiplier(multiplier), color, x, y, width);
   }
 
   private void drawStatText(FontRenderer font, String label, String value, EnumChatFormatting color, int x, int y, int width) {
@@ -351,6 +355,15 @@ public class ZSTabOverlayHandler extends Gui {
 
   private String formatNumber(int value) {
     return String.format("%,d", value);
+  }
+
+  private String formatMultiplier(float multiplier) {
+    if (multiplier <= 1.001F) {
+      return "";
+    }
+
+    String formatted = String.format(Locale.ROOT, "%.1f", multiplier);
+    return EnumChatFormatting.GRAY + " x" + formatted;
   }
 
   private String formatCompactNumber(int value) {

@@ -2,6 +2,7 @@ package org.darkoro.zerosmod.tab;
 
 import JinRyuu.JRMCore.JRMCoreH;
 import kamkeel.npcdbc.api.form.IForm;
+import kamkeel.npcdbc.constants.DBCAttribute;
 import kamkeel.npcdbc.controllers.FormController;
 import kamkeel.npcdbc.data.PlayerDBCInfo;
 import kamkeel.npcdbc.data.dbcdata.DBCData;
@@ -56,6 +57,9 @@ public final class ZSTabDataProvider {
       packet.spi = data.SPI;
       packet.level = data.getPlayerLevel();
       packet.tp = data.TP;
+      packet.strMulti = getAttributeMultiplier(data, DBCAttribute.Strength, data.STR);
+      packet.dexMulti = getAttributeMultiplier(data, DBCAttribute.Dexterity, data.DEX);
+      packet.wilMulti = getAttributeMultiplier(data, DBCAttribute.Willpower, data.WIL);
     } catch (Throwable ignored) {
       packet.className = "Unknown";
       packet.raceName = "Unknown";
@@ -106,6 +110,18 @@ public final class ZSTabDataProvider {
     } catch (Throwable ignored) {}
 
     return "Base";
+  }
+
+  private static float getAttributeMultiplier(DBCData data, int attribute, int baseValue) {
+    if (data == null || baseValue <= 0) {
+      return 1.0F;
+    }
+
+    try {
+      return Math.max(1.0F, data.stats.getFullAttribute(attribute) / (float) baseValue);
+    } catch (Throwable ignored) {
+      return 1.0F;
+    }
   }
 
   private static Collection<String> getUnlockedFormNames(EntityPlayerMP player, DBCData data, String currentForm) {

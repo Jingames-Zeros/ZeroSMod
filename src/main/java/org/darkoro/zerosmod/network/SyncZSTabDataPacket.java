@@ -19,6 +19,9 @@ public class SyncZSTabDataPacket implements IMessage {
   public int spi;
   public int level;
   public int tp;
+  public float strMulti = 1.0F;
+  public float dexMulti = 1.0F;
+  public float wilMulti = 1.0F;
   public String passive = "None";
   public String super1 = "None";
   public String super2 = "None";
@@ -51,6 +54,9 @@ public class SyncZSTabDataPacket implements IMessage {
     spcUnlocked = buf.readableBytes() >= 1 ? buf.readBoolean() : true;
     tp = buf.readableBytes() >= 4 ? buf.readInt() : 0;
     currentPath = buf.readableBytes() > 0 ? read(buf) : "";
+    strMulti = buf.readableBytes() >= 4 ? buf.readFloat() : 1.0F;
+    dexMulti = buf.readableBytes() >= 4 ? buf.readFloat() : 1.0F;
+    wilMulti = buf.readableBytes() >= 4 ? buf.readFloat() : 1.0F;
   }
 
   @Override
@@ -75,6 +81,9 @@ public class SyncZSTabDataPacket implements IMessage {
     buf.writeBoolean(spcUnlocked);
     buf.writeInt(tp);
     write(buf, currentPath);
+    buf.writeFloat(strMulti);
+    buf.writeFloat(dexMulti);
+    buf.writeFloat(wilMulti);
   }
 
   private static String read(ByteBuf buf) {
