@@ -30,7 +30,8 @@ public class GUIScheduler {
     IGuiContextProvider ctx = GuiContextManager.getContext(request.player, request.x);
 
     if (ctx instanceof IChestGuiCallbacks chest) {
-      ZeroSMod.network.sendTo(new SyncGuiTitlePacket(request.x, chest.getGuiTitle(request.player)), (EntityPlayerMP) request.player);
+      ZeroSMod.network.sendTo(new SyncGuiTitlePacket(request.x, chest.getGuiTitle(request.player),
+          chest.isEditable(request.player), chest.isInventory(request.player)), (EntityPlayerMP) request.player);
     } else if (ctx instanceof IAnvilGuiCallbacks anvil) {
       ZeroSMod.network.sendTo(new SyncGuiTitlePacket(request.x, anvil.getGuiTitle(request.player)), (EntityPlayerMP) request.player);
     }

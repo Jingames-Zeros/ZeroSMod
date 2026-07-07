@@ -4,6 +4,7 @@ import org.darkoro.zerosmod.callbacks.GuiContextManager;
 import org.darkoro.zerosmod.callbacks.IAnvilGuiCallbacks;
 import java.util.function.Function;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.ContainerRepair;
@@ -112,29 +113,38 @@ public class CustomAnvilContainer extends ContainerRepair {
   @Override
   public ItemStack slotClick(int slotID, int dragType, int clickType, EntityPlayer player) {
     if (slotID >= 0 && slotID < this.inventorySlots.size() && this.getSlot(slotID).inventory == this.plyInv) return null;
-    if (slotID == 2 && !player.worldObj.isRemote && this.callbacks != null) {
-      String process = this.newTxtName == null ? "" : this.newTxtName.trim();
-      if (process.isEmpty()) {
-        player.addChatMessage(new ChatComponentTranslation(EnumChatFormatting.YELLOW + "Please enter a value."));
-        return null;
-      }
-
-      if (process.equals(this.initialMessage.trim())) {
-        player.addChatMessage(new ChatComponentTranslation(EnumChatFormatting.YELLOW + "Value has not been changed."));
-        return null;
-      }
-
-      Function<String, String> validator = this.callbacks.getInputValidator(player);
-      String err = validator != null ? validator.apply(process) : "No validator provided.";
-
-      if (err == null) {
-        this.callbacks.getOutputHandler(player).apply(process);
-      } else {
-        player.addChatMessage(new ChatComponentTranslation(EnumChatFormatting.DARK_RED + err));
+    if (slotID == 2) {
+      // Both sides must return null, otherwise server and client result prediction changes and we blow up
+      if (!player.worldObj.isRemote && this.callbacks != null) {
+        handleConfirmClick(player);
+        this.detectAndSendChanges();
+        if (player instanceof EntityPlayerMP mp) mp.updateHeldItem();
       }
       return null;
     }
     return super.slotClick(slotID, dragType, clickType, player);
+  }
+
+  private void handleConfirmClick(EntityPlayer player) {
+    String process = this.newTxtName == null ? "" : this.newTxtName.trim();
+    if (process.isEmpty()) {
+      player.addChatMessage(new ChatComponentTranslation(EnumChatFormatting.YELLOW + "Please enter a value."));
+      return;
+    }
+
+    if (process.equals(this.initialMessage.trim())) {
+      player.addChatMessage(new ChatComponentTranslation(EnumChatFormatting.YELLOW + "Value has not been changed."));
+      return;
+    }
+
+    Function<String, String> validator = this.callbacks.getInputValidator(player);
+    String err = validator != null ? validator.apply(process) : "No validator provided.";
+
+    if (err == null) {
+      this.callbacks.getOutputHandler(player).apply(process);
+    } else {
+      player.addChatMessage(new ChatComponentTranslation(EnumChatFormatting.DARK_RED + err));
+    }
   }
 
 

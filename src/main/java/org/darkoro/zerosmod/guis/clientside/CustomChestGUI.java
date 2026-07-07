@@ -18,7 +18,12 @@ public class CustomChestGUI extends GuiContainer {
 
 
   public CustomChestGUI(InventoryPlayer playerInv, IInventory inv, int textureId) {
-    super(new GUIContainer(playerInv, inv, null));
+    this(playerInv, inv, textureId, false, false);
+  }
+
+  public CustomChestGUI(InventoryPlayer playerInv, IInventory inv, int textureId,
+                        boolean isEditable, boolean isInventory) {
+    super(new GUIContainer(playerInv, inv, null, isEditable, isInventory));
     this.upInv = inv;
     this.plyInv = playerInv;
     this.numRows = inv.getSizeInventory() / 9;

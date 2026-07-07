@@ -9,7 +9,8 @@ public class SyncGuiTitlePacketHandler implements IMessageHandler<SyncGuiTitlePa
 
   @Override
   public IMessage onMessage(SyncGuiTitlePacket message, MessageContext ctx) {
-    ClientGuiDataCache.storeTitle(message.ctxId, message.title);
+    ClientGuiDataCache.store(message.ctxId,
+        new ClientGuiDataCache.GuiData(message.title, message.isEditable, message.isInventory));
     return null;
   }
 

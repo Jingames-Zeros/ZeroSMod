@@ -3,6 +3,7 @@ package org.darkoro.zerosmod.guis.serverside;
 import org.darkoro.zerosmod.callbacks.GuiContextManager;
 import org.darkoro.zerosmod.callbacks.IChestGuiCallbacks;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
@@ -19,12 +20,23 @@ public class GUIContainer extends Container {
   private final IChestGuiCallbacks callbacks;
 
   public GUIContainer(InventoryPlayer plyInv, IInventory inv, IChestGuiCallbacks callbacks) {
+    this(plyInv, inv, callbacks,
+        callbacks != null && callbacks.isEditable(plyInv.player),
+        callbacks != null && callbacks.isInventory(plyInv.player));
+  }
+
+  /**
+   * Flag-override constructor - client-side container has no callbacks, so  flags must be passed in
+   * explicitly (synced from server) — otherwise client and server predict clicks differently
+   */
+  public GUIContainer(InventoryPlayer plyInv, IInventory inv, IChestGuiCallbacks callbacks,
+                      boolean isEditable, boolean isInventory) {
     this.callbacks = callbacks;
     this.inv = inv;
     this.ply = plyInv.player;
     this.numRows = inv.getSizeInventory() / 9;
-    this.isEditable = this.callbacks != null && callbacks.isEditable(ply);
-    this.isInventory = this.callbacks != null && callbacks.isInventory(ply);
+    this.isEditable = isEditable;
+    this.isInventory = isInventory;
 
     inv.openInventory();
 
@@ -80,21 +92,30 @@ public class GUIContainer extends Container {
    */
   @Override
   public ItemStack slotClick(int slotId, int clickData, int clickType, EntityPlayer player) {
-    if (slotId >= this.inv.getSizeInventory()) {
-      return super.slotClick(slotId, clickData, clickType, player);
-    }
+    boolean isCustomSlot = slotId >= 0 && slotId < this.inv.getSizeInventory();
+    boolean serverSide = !player.worldObj.isRemote;
 
     if (this.isInventory && this.isEditable) {
       ItemStack result = super.slotClick(slotId, clickData, clickType, player);
-      if (this.callbacks != null && !this.ply.worldObj.isRemote) {
+      // slotId -999 covers drag-end (mode 5) and click-outside-drop, both of which
+      // mutate the custom inventory / cursor and must reach the callback.
+      if (serverSide && this.callbacks != null && (isCustomSlot || slotId == -999)) {
         this.callbacks.onSlotClick(this.ply, slotId, result, this, clickData, clickType);
+        this.detectAndSendChanges();
+        if (player instanceof EntityPlayerMP mp) mp.updateHeldItem();
       }
       return result;
-    } else if (this.isEditable) {
-      if (this.callbacks != null && !this.ply.worldObj.isRemote) {
-        this.callbacks.onSlotClick(this.ply, slotId, this.inv.getStackInSlot(slotId), this, clickData, clickType);
-      }
-      return null;
+    }
+
+    // GUI mode; window is blocked for all item movement - null returned on both sides for sync
+    // Callbacks only fire on normal or shift clicks - drag etc. might blow up
+    if (isCustomSlot && this.isEditable && serverSide && this.callbacks != null
+        && (clickType == 0 || clickType == 1)) {
+      this.callbacks.onSlotClick(this.ply, slotId, this.inv.getStackInSlot(slotId), this, clickData, clickType);
+    }
+    if (serverSide && player instanceof EntityPlayerMP mp) {
+      this.detectAndSendChanges();
+      mp.updateHeldItem();
     }
     return null;
   }

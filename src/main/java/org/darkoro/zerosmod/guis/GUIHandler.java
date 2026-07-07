@@ -42,15 +42,21 @@ public class GUIHandler implements IGuiHandler {
 
   @Override
   public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
+    // Flags default to false/false - GUI is safer than broken inventory
     String title = "Loading...";
-    if (ClientGuiDataCache.getTitle(x) != null) {
-      title = ClientGuiDataCache.getTitle(x);
-      ClientGuiDataCache.removeTitle(x);
+    boolean isEditable = false;
+    boolean isInventory = false;
+    ClientGuiDataCache.GuiData data = ClientGuiDataCache.get(x);
+    if (data != null) {
+      title = data.title;
+      isEditable = data.isEditable;
+      isInventory = data.isInventory;
+      ClientGuiDataCache.remove(x);
     }
 
     if (ID == ZeroSMod.GENERIC_CHEST_GUI) {
       InventoryBasic dummy = new InventoryBasic(title, true, z * 9);
-      return new CustomChestGUI(player.inventory, dummy, y);
+      return new CustomChestGUI(player.inventory, dummy, y, isEditable, isInventory);
     } else if (ID == ZeroSMod.GENERIC_ANVIL_GUI) {
       return new CustomAnvilGUI(player.inventory, world, 0, 0, 0, player, title, y);
     }
