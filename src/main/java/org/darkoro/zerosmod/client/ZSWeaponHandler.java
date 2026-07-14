@@ -3,16 +3,21 @@ package org.darkoro.zerosmod.client;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
-import noppes.npcs.api.overlay.ICustomOverlayComponent;
 import noppes.npcs.api.overlay.IOverlayLine;
 import noppes.npcs.scripted.entity.ScriptPlayer;
 import noppes.npcs.scripted.overlay.ScriptOverlay;
+
+/**
+ * TODO:
+ * 1. Add hud sizes to config
+ * 2. Add attack range handling
+ */
 
 public class ZSWeaponHandler {
     private int remainingCooldown = -1;
@@ -22,10 +27,7 @@ public class ZSWeaponHandler {
     private ScriptOverlay cooldownOverlay;
     private Minecraft mc;
 
-
-    public ZSWeaponHandler() {
-
-    }
+    public ZSWeaponHandler() {}
 
     @SubscribeEvent
     public void logIn(PlayerEvent.PlayerLoggedInEvent event) {
@@ -82,20 +84,8 @@ public class ZSWeaponHandler {
     }
 
     /**
+     * Sets up attack cooldown overlay updating position relative to screen size
      */
-    public void updateCooldownOverlay(EntityPlayer player) {
-        if(this.sp == null || this.cooldownOverlay == null) return;
-        if(this.remainingCooldown < 1) {
-            this.sp.closeOverlay(742);
-        } else {
-            IOverlayLine mainLine = (IOverlayLine) this.cooldownOverlay.getComponent(2);
-            int width = (int) (mainLine.getX1() / 0.47);
-            int newX2 = (int) (width * 0.53 - width * 0.06 * (1 - (double)this.remainingCooldown / this.lastCooldown));
-            mainLine.setX2(newX2);
-            this.cooldownOverlay.update(this.sp);
-        }
-    }
-
     public void setUpOverlay() {
         if(this.mc == null) return;
         ScaledResolution sr = new ScaledResolution(this.mc, this.mc.displayWidth, this.mc.displayHeight);
@@ -115,5 +105,23 @@ public class ZSWeaponHandler {
         mainLine.setThickness((actualX2 - actualX1) / 7 - 2);
         mainLine.setAlpha(0.7F);
         this.sp.showCustomOverlay(this.cooldownOverlay);
+    }
+
+    /**
+     * Updates existing overlay with updated bar progress
+     * @param player - Player to show overlay to
+     */
+    public void updateCooldownOverlay(EntityPlayer player) {
+        if(this.sp == null || this.cooldownOverlay == null) return;
+        if(this.remainingCooldown == 0) {
+            this.sp.closeOverlay(742);
+            this.remainingCooldown = -1;
+        } else if(this.remainingCooldown > 0) {
+            IOverlayLine mainLine = (IOverlayLine) this.cooldownOverlay.getComponent(2);
+            int width = (int) (mainLine.getX1() / 0.47);
+            int newX2 = (int) (width * 0.53 - width * 0.06 * (1 - (double)this.remainingCooldown / this.lastCooldown));
+            mainLine.setX2(newX2);
+            this.cooldownOverlay.update(this.sp);
+        }
     }
 }
