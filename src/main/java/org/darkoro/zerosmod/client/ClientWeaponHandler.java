@@ -1,13 +1,8 @@
 package org.darkoro.zerosmod.client;
 
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import noppes.npcs.api.overlay.IOverlayLine;
 import noppes.npcs.scripted.entity.ScriptPlayer;
@@ -15,59 +10,18 @@ import noppes.npcs.scripted.overlay.ScriptOverlay;
 
 /**
  * TODO:
- * 1. Add hud sizes to config
- * 2. Add attack range handling
+ * 1. Add listener to left click sending a packet on entity found
+ * 2. Receive packet to start cooldown overlay
  */
 
-public class ZSWeaponHandler {
+public class ClientWeaponHandler {
     private int remainingCooldown = -1;
     private int lastCooldown;
-    private ItemStack heldItem;
     private ScriptPlayer sp;
     private ScriptOverlay cooldownOverlay;
     private Minecraft mc;
 
-    public ZSWeaponHandler() {}
-
-    @SubscribeEvent
-    public void logIn(PlayerEvent.PlayerLoggedInEvent event) {
-        this.mc = Minecraft.getMinecraft();
-        this.sp = new ScriptPlayer((EntityPlayerMP) event.player);
-    }
-
-    @SubscribeEvent
-    public void hitEvent(AttackEntityEvent event) {
-        EntityPlayer player = event.entityPlayer;
-        if(player == null || player.worldObj.isRemote) return;
-        // Cancel event if player attack on cooldown
-        if(
-                this.remainingCooldown > 0 ||
-                !(ItemStack.areItemStacksEqual(this.heldItem, player.getHeldItem()) &&
-                ItemStack.areItemStackTagsEqual(this.heldItem, player.getHeldItem()))
-        ) {
-            event.setCanceled(true);
-            return;
-        }
-        updateAttackCooldown(player);
-    }
-
-    @SubscribeEvent
-    public void tick(TickEvent.ClientTickEvent event) {
-        Minecraft mc = Minecraft.getMinecraft();
-        if(mc.thePlayer == null) return;
-        // Check item at the start of the tick to prevent attribute swapping
-        if(event.phase == TickEvent.Phase.START) {
-            this.heldItem = mc.thePlayer.getHeldItem();
-            if(this.remainingCooldown > 0) this.remainingCooldown --;
-        } else {
-            // Detect item slot change and update attack cooldown
-            if(!(ItemStack.areItemStacksEqual(this.heldItem, mc.thePlayer.getHeldItem()) && ItemStack.areItemStackTagsEqual(this.heldItem, mc.thePlayer.getHeldItem()))) {
-                mc.thePlayer.getHeldItem();
-                updateAttackCooldown(mc.thePlayer);
-            }
-            updateCooldownOverlay(mc.thePlayer);
-        }
-    }
+    public ClientWeaponHandler() {}
 
     /**
      * Updates the player's attack cooldown based on current held item
@@ -96,7 +50,7 @@ public class ZSWeaponHandler {
 
         // Add shadow
         this.cooldownOverlay = new ScriptOverlay(742);
-        IOverlayLine shadowLine = this.cooldownOverlay.addLine(1, (int) actualX1 - 1, (int) actualY1 + 1, (int) actualX2 + 1, (int) actualY2 + 1);
+        IOverlayLine shadowLine = this.cooldownOverlay.addLine(1,actualX1 - 1,actualY1 + 1,actualX2 + 1,actualY2 + 1);
         shadowLine.setColor(0);
         shadowLine.setThickness((actualX2 - actualX1) / 7);
         shadowLine.setAlpha(0.5F);
@@ -109,9 +63,8 @@ public class ZSWeaponHandler {
 
     /**
      * Updates existing overlay with updated bar progress
-     * @param player - Player to show overlay to
      */
-    public void updateCooldownOverlay(EntityPlayer player) {
+    public void updateCooldownOverlay() {
         if(this.sp == null || this.cooldownOverlay == null) return;
         if(this.remainingCooldown == 0) {
             this.sp.closeOverlay(742);
