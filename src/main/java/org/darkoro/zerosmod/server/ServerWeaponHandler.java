@@ -75,7 +75,7 @@ public class ServerWeaponHandler {
                 target != null &&
                 state != null &&
                 state.remainingCooldown <= 0 &&
-                player.getDistanceToEntity(target) < state.range &&
+                player.getDistanceSqToEntity(target) < state.range * state.range &&
                 itemsAreEqual(state.currentItem, player.getHeldItem())
         );
     }
