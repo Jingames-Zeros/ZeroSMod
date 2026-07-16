@@ -10,7 +10,6 @@ import java.util.List;
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.client.JRMCoreRacePatch;
 import org.darkoro.zerosmod.client.ZSTabOverlayHandler;
-import org.darkoro.zerosmod.client.ZSWeaponHandler;
 import org.darkoro.zerosmod.input.KeyInputHandler;
 import org.darkoro.zerosmod.input.KeybindHandler;
 import net.minecraftforge.common.MinecraftForge;
@@ -29,9 +28,6 @@ public class ClientProxy extends CommonProxy {
     FMLCommonHandler.instance().bus().register(new KeyInputHandler());
     MinecraftForge.EVENT_BUS.register(new ZSTabOverlayHandler());
 
-    ZSWeaponHandler wHandler = new ZSWeaponHandler();
-    MinecraftForge.EVENT_BUS.register(wHandler);
-    FMLCommonHandler.instance().bus().register(wHandler);
   }
 
   @Override
