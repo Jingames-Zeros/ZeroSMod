@@ -13,6 +13,7 @@ import org.darkoro.zerosmod.client.ZSTabOverlayHandler;
 import org.darkoro.zerosmod.input.KeyInputHandler;
 import org.darkoro.zerosmod.input.KeybindHandler;
 import net.minecraftforge.common.MinecraftForge;
+import org.darkoro.zerosmod.zsweapons.client.ClientWeaponHandler;
 
 public class ClientProxy extends CommonProxy {
 
@@ -26,7 +27,9 @@ public class ClientProxy extends CommonProxy {
     super.init(event);
     KeybindHandler.init();
     FMLCommonHandler.instance().bus().register(new KeyInputHandler());
+    FMLCommonHandler.instance().bus().register(ClientWeaponHandler.INSTANCE);
     MinecraftForge.EVENT_BUS.register(new ZSTabOverlayHandler());
+    MinecraftForge.EVENT_BUS.register(ClientWeaponHandler.INSTANCE);
 
   }
 

@@ -15,7 +15,7 @@ import org.darkoro.zerosmod.command.CommandZSMod;
 import org.darkoro.zerosmod.config.BiomeConfig;
 import org.darkoro.zerosmod.event.SaiyanMasteryMergeEvent;
 import org.darkoro.zerosmod.network.NetworkHandler;
-import org.darkoro.zerosmod.server.ServerWeaponHandler;
+import org.darkoro.zerosmod.zsweapons.server.ServerWeaponHandler;
 import org.darkoro.zerosmod.world.GenericZSBiome;
 
 public class CommonProxy {
@@ -50,9 +50,8 @@ public class CommonProxy {
       ZeroSMod.LOGGER.info("Registered Saiyan mastery merge handler on FML and CNPC event buses.");
     }
 
-    ServerWeaponHandler weaponHandler = new ServerWeaponHandler();
-    FMLCommonHandler.instance().bus().register(weaponHandler);
-    MinecraftForge.EVENT_BUS.register(weaponHandler);
+    FMLCommonHandler.instance().bus().register(ServerWeaponHandler.INSTANCE);
+    MinecraftForge.EVENT_BUS.register(ServerWeaponHandler.INSTANCE);
 
     if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
       try {
