@@ -7,7 +7,8 @@ public class PlayerCombatState {
     public ItemStack currentItem;
     public int remainingCooldown = 0;
     public int cooldown = 20;
-    public int range = 3;
+    private int range = 3;
+    private int rangeSq = 9;
 
     public PlayerCombatState() {}
 
@@ -20,19 +21,20 @@ public class PlayerCombatState {
         if(item != null && item.getTagCompound() != null && item.getTagCompound().hasKey("zsweapon")) {
             NBTTagCompound weaponCompound = item.getTagCompound().getCompoundTag("zsweapon");
             cooldown = weaponCompound.hasKey("attackcooldown") ? weaponCompound.getInteger("attackcooldown") : 20;
-            range = weaponCompound.hasKey("range") ? weaponCompound.getInteger("range") : 3;
+            setRange(weaponCompound.hasKey("range") ? weaponCompound.getInteger("range") : 3);
         } else {
             cooldown = 20;
-            range = 3;
+            setRange(3);
         }
-        resetCooldown();
     }
 
     /**
      * Handles combat state ticks
      */
     public void tick() {
-        if(remainingCooldown > 0) remainingCooldown --;
+        if(remainingCooldown > 0) {
+            remainingCooldown --;
+        }
     }
 
     /**
@@ -48,4 +50,14 @@ public class PlayerCombatState {
     public void resetCooldown() {
         remainingCooldown = cooldown;
     }
+
+    /**
+     * Updates range and rangeSq
+     */
+    public void setRange(int range) {
+        this.range = range;
+        this.rangeSq = range * range;
+    }
+    public int getRange() { return range; }
+    public int getRangeSq() { return rangeSq; }
 }
