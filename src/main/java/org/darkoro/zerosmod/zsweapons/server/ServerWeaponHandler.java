@@ -40,7 +40,7 @@ public class ServerWeaponHandler {
         }
         // Reset cooldown if event is valid
         state.handleAttack();
-        sendCooldownPacketToClient((EntityPlayerMP) player, state, 20F);
+        sendCooldownPacketToClient((EntityPlayerMP) player, state);
     }
 
     @SubscribeEvent
@@ -54,8 +54,7 @@ public class ServerWeaponHandler {
             state.tick();
             // Periodically send cooldown to resync with server
             if(state.remainingCooldown > 0 && state.remainingCooldown % 5 == 0) {
-                MinecraftServer.getServer().worldTickTimes.get(player.dimension);
-                sendCooldownPacketToClient((EntityPlayerMP) player, state, 20F);
+                sendCooldownPacketToClient((EntityPlayerMP) player, state);
             }
         } else {
             // Detect item slot change and update attack cooldown
@@ -67,16 +66,40 @@ public class ServerWeaponHandler {
         }
     }
 
+    /**
+     * Start attack cooldown and send client packet
+     * @param player client to send to
+     * @param state state to reset cooldown of
+     */
     public void startCooldown(EntityPlayerMP player, PlayerCombatState state) {
         state.resetCooldown();
-        sendCooldownPacketToClient(player, state, 20F);
+        sendCooldownPacketToClient(player, state);
     }
 
-    private void sendCooldownPacketToClient(EntityPlayerMP player, PlayerCombatState state, float tps) {
-        CooldownToClientPacket packet = new CooldownToClientPacket(state.cooldown, state.remainingCooldown, tps);
+    /**
+     * Sends original cooldown, remaining cooldown and menaTPS to client
+     * @param player client to send to
+     * @param state client's combat state
+     */
+    private void sendCooldownPacketToClient(EntityPlayerMP player, PlayerCombatState state) {
+        // Calculate current server tps
+        long sum = 0L;
+        long[] tickTimeArray = MinecraftServer.getServer().tickTimeArray;
+        for (long v : tickTimeArray) sum+=v;
+        sum /= tickTimeArray.length;
+        double meanTickTime = sum * 1.0E-6D;
+        double meanTPS = Math.min(1000.0/meanTickTime, 20);
+        
+        // Build and send packet
+        CooldownToClientPacket packet = new CooldownToClientPacket(state.cooldown, state.remainingCooldown, meanTPS);
         ZeroSMod.network.sendTo(packet, player);
     }
 
+    /**
+     * Handles attacking extended reach targets received from client
+     * @param message .
+     * @param ctx .
+     */
     public void handleTargetEntityPacket(TargetEntityToServerPacket message, MessageContext ctx) {
         EntityPlayer player = ctx.getServerHandler().playerEntity;
         EntityLivingBase target = (EntityLivingBase) player.worldObj.getEntityByID(message.entityId);

@@ -7,7 +7,6 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
@@ -16,21 +15,14 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.zsweapons.network.CooldownToClientPacket;
 import org.darkoro.zerosmod.zsweapons.network.TargetEntityToServerPacket;
-
 import java.util.List;
-
-/**
- * TODO:
- * 1. Add listener to left click sending a packet on entity found
- * 2. Receive packet to start cooldown overlay
- */
 
 public class ClientWeaponHandler {
     public static final ClientWeaponHandler INSTANCE = new ClientWeaponHandler();
 
-    private float remainingCooldown = -1;
+    private double remainingCooldown = -1;
     private int lastCooldown = 20;
-    private float currentTps = 20.0F;
+    private double currentTps = 20.0D;
 
     private int x1;
     private int x2;
@@ -59,12 +51,13 @@ public class ClientWeaponHandler {
     @SubscribeEvent
     public void tick(TickEvent.ClientTickEvent event) {
         if(event.phase == TickEvent.Phase.END && remainingCooldown > 0) {
-            remainingCooldown -= currentTps / 20.0F;
+            remainingCooldown -= currentTps / 20.0D;
         }
     }
 
     @SubscribeEvent
     public void render(RenderGameOverlayEvent.Post event) {
+        if (event.type != RenderGameOverlayEvent.ElementType.ALL) return;
         if(remainingCooldown > 0) updateOverlay();
     }
 
@@ -77,7 +70,7 @@ public class ClientWeaponHandler {
         x1 = (int) (sr.getScaledWidth() * 0.47);
         y1 = (int) (sr.getScaledHeight() * 0.55);
         x2 = (int) (sr.getScaledWidth() * 0.53);
-        y2 = (int) (sr.getScaledHeight() * 0.57);
+        y2 = (int) (sr.getScaledHeight() * 0.56);
     }
 
     /**
@@ -85,8 +78,8 @@ public class ClientWeaponHandler {
      */
     public void updateOverlay() {
         // Add shadow
-        Gui.drawRect(x1 - 1, y1 - 1, x2 + 1, y2 + 1, 0xCC000000);
-        Gui.drawRect(x1, y1, x1 + (int) ((x2 - x1) * remainingCooldown / lastCooldown), y2, 0xCC00FFFF);
+        Gui.drawRect(x1 - 1, y1 - 1, x2 + 1, y2 + 1, 0xAA000000);
+        Gui.drawRect(x1, y1, x1 + (int) ((x2 - x1) * remainingCooldown / lastCooldown), y2, 0xAA00FFFF);
     }
 
     /**
