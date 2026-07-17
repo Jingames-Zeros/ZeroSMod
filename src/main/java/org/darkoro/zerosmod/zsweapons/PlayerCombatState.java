@@ -7,6 +7,7 @@ public class PlayerCombatState {
     public ItemStack currentItem;
     public int remainingCooldown = 0;
     public int cooldown = 20;
+    public float attackMultiplier = 1.0F;
     private int range = 3;
     private int rangeSq = 9;
 
@@ -22,9 +23,11 @@ public class PlayerCombatState {
             NBTTagCompound weaponCompound = item.getTagCompound().getCompoundTag("zsweapon");
             cooldown = weaponCompound.hasKey("attackcooldown") ? weaponCompound.getInteger("attackcooldown") : 20;
             setRange(weaponCompound.hasKey("range") ? weaponCompound.getInteger("range") : 3);
+            attackMultiplier = weaponCompound.hasKey("attackmultiplier") ? weaponCompound.getFloat("attackmultiplier") : 1.0F;
         } else {
             cooldown = 20;
             setRange(3);
+            attackMultiplier = 1.0F;
         }
     }
 

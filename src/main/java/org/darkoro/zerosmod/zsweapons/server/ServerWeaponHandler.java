@@ -1,5 +1,6 @@
 package org.darkoro.zerosmod.zsweapons.server;
 
+import cpw.mods.fml.common.eventhandler.EventPriority;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.EntityPlayer;
@@ -10,7 +11,11 @@ import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
+import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import noppes.npcs.scripted.entity.ScriptDBCPlayer;
+import noppes.npcs.scripted.event.NpcEvent;
+import kamkeel.npcdbc.util.DBCUtils;
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.zsweapons.PlayerCombatState;
 import org.darkoro.zerosmod.zsweapons.network.CooldownToClientPacket;
@@ -41,6 +46,17 @@ public class ServerWeaponHandler {
         // Reset cooldown if event is valid
         state.handleAttack();
         sendCooldownPacketToClient((EntityPlayerMP) player, state);
+    }
+
+    // Add on weapon multiplier damage on npc hits
+    @SubscribeEvent(priority=EventPriority.HIGHEST)
+    public void damageNpc(NpcEvent.DamagedEvent event) {
+        if(!(event.source instanceof ScriptDBCPlayer)) return;
+        EntityPlayer player = (EntityPlayer) event.source.getMCEntity();
+        PlayerCombatState state = stateMap.get(player.getUniqueID());
+        if(state.attackMultiplier == 1.0F) return;
+        float extraDamage = getMultiplierBonusDamage(player, state.attackMultiplier);
+        event.setDamage(event.getDamage() + extraDamage);
     }
 
     @SubscribeEvent
@@ -106,6 +122,17 @@ public class ServerWeaponHandler {
         PlayerCombatState state = stateMap.get(player.getUniqueID());
         if(!isValidAttack(state, player, target)) return;
         player.attackTargetEntityWithCurrentItem(target);
+    }
+
+    /**
+     * Calculates additional damage from multiplier
+     * @param player .
+     * @param multiplier float multiplier
+     * @return float
+     */
+    public float getMultiplierBonusDamage(EntityPlayer player, float multiplier) {
+        float meleeDamage = DBCUtils.calculateAttackStat(player, 0, DamageSource.causePlayerDamage(player));
+        return meleeDamage * multiplier - meleeDamage;
     }
 
     /**
