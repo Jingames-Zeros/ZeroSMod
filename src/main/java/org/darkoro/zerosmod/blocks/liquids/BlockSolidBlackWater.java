@@ -1,4 +1,4 @@
-package org.darkoro.zerosmod.blocks;
+package org.darkoro.zerosmod.blocks.liquids;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -9,22 +9,21 @@ import net.minecraftforge.fluids.BlockFluidClassic;
 import net.minecraftforge.fluids.Fluid;
 import org.darkoro.zerosmod.ZeroSMod;
 
-public class BlockDragonWater extends BlockFluidClassic {
+public class BlockSolidBlackWater extends BlockFluidClassic {
 
   @SideOnly(Side.CLIENT) private IIcon stillIcon;
   @SideOnly(Side.CLIENT) private IIcon flowIcon;
 
-  public BlockDragonWater(Fluid fluid) {
+  public BlockSolidBlackWater(Fluid fluid) {
     super(fluid, Material.water);
-    setBlockName("dragon_water");
+    setBlockName("solid_black_water");
     setLightOpacity(3);
     setCreativeTab(ZeroSMod.ZeroSModTab);
   }
 
   @Override @SideOnly(Side.CLIENT) public void registerBlockIcons(IIconRegister register) {
-    stillIcon = register.registerIcon(
-        "zerosmod:dragon_water_still"); // Update texture opacity please
-    flowIcon = register.registerIcon("zerosmod:dragon_water_flow"); // Update texture opacity please
+    stillIcon = register.registerIcon("zerosmod:liquids/solid_black_water_still");
+    flowIcon = register.registerIcon("zerosmod:liquids/solid_black_water_flow");
 
     Fluid fluid = getFluid();
     if (fluid != null) {

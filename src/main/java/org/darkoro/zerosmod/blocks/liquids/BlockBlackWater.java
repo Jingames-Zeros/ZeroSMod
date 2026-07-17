@@ -1,4 +1,4 @@
-package org.darkoro.zerosmod.blocks;
+package org.darkoro.zerosmod.blocks.liquids;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -9,21 +9,21 @@ import net.minecraftforge.fluids.BlockFluidClassic;
 import net.minecraftforge.fluids.Fluid;
 import org.darkoro.zerosmod.ZeroSMod;
 
-public class BlockSpiritWater extends BlockFluidClassic {
+public class BlockBlackWater extends BlockFluidClassic {
 
   @SideOnly(Side.CLIENT) private IIcon stillIcon;
   @SideOnly(Side.CLIENT) private IIcon flowIcon;
 
-  public BlockSpiritWater(Fluid fluid) {
+  public BlockBlackWater(Fluid fluid) {
     super(fluid, Material.water);
-    setBlockName("spirit_water");
+    setBlockName("black_water");
     setLightOpacity(3);
     setCreativeTab(ZeroSMod.ZeroSModTab);
   }
 
   @Override @SideOnly(Side.CLIENT) public void registerBlockIcons(IIconRegister register) {
-    stillIcon = register.registerIcon("zerosmod:spirit_water_still");
-    flowIcon = register.registerIcon("zerosmod:spirit_water_flow");
+    stillIcon = register.registerIcon("zerosmod:liquids/black_water_still");
+    flowIcon = register.registerIcon("zerosmod:liquids/black_water_flow");
 
     Fluid fluid = getFluid();
     if (fluid != null) {
