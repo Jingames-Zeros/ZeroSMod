@@ -52,6 +52,7 @@ public class CommonProxy {
 
     FMLCommonHandler.instance().bus().register(ServerWeaponHandler.INSTANCE);
     MinecraftForge.EVENT_BUS.register(ServerWeaponHandler.INSTANCE);
+    NpcAPI.EVENT_BUS.register(ServerWeaponHandler.INSTANCE);
 
     if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
       try {
