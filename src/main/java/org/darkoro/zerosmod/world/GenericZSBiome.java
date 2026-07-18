@@ -21,6 +21,8 @@ public class GenericZSBiome extends BiomeGenBase {
     this.spawnableMonsterList.clear();
   }
 
+  public BiomeConfig.BiomeVisuals getVisuals() { return config; }
+
   @Override @SideOnly(Side.CLIENT) public int getSkyColorByTemp(float currentTemperature) { return config.skyColor; }
   @Override @SideOnly(Side.CLIENT) public int getBiomeGrassColor(int x, int y, int z) { return config.grassColor; }
   @Override @SideOnly(Side.CLIENT) public int getModdedBiomeGrassColor(int original) { return config.grassColor; }
