@@ -42,16 +42,19 @@ public class GUIScheduler {
   @SubscribeEvent
   public void onServerTick(ServerTickEvent event) {
     if (event.side == Side.SERVER && event.phase == Phase.END) {
-      Iterator<DelayedGUI> iterator = pendingOpens.iterator();
-      while (iterator.hasNext()) {
-        DelayedGUI request = iterator.next();
-        request.ticksToDelay--;
+      if (pendingOpens.isEmpty()) return;
+      synchronized (pendingOpens) {
+        Iterator<DelayedGUI> iterator = pendingOpens.iterator();
+        while (iterator.hasNext()) {
+          DelayedGUI request = iterator.next();
+          request.ticksToDelay--;
 
-        if (request.ticksToDelay <= 0) {
-          if (request.player != null && !request.player.isDead && request.player.worldObj == request.world) {
-            request.player.openGui(request.mod, request.guiId, request.world, request.x, request.y, request.z);
+          if (request.ticksToDelay <= 0) {
+            if (request.player != null && !request.player.isDead && request.player.worldObj == request.world) {
+              request.player.openGui(request.mod, request.guiId, request.world, request.x, request.y, request.z);
+            }
+            iterator.remove();
           }
-          iterator.remove();
         }
       }
     }
