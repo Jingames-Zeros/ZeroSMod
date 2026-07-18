@@ -4,26 +4,16 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
-import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.config.BiomeConfig;
+import org.darkoro.zerosmod.world.GenericZSBiome;
 
 @SideOnly(Side.CLIENT) public class BiomeFogHandler {
 
-  // Your current defaults. These are used when config Fog Strength = -1.
-  private static final float DEFAULT_SPIRIT_MAX_STRENGTH = 0.7F;
-  private static final float DEFAULT_VAKRON_MAX_STRENGTH = 0.7F;
-  private static final float DEFAULT_DRAGON_MAX_STRENGTH = 0.7F;
-  private static final float DEFAULT_ZS_BIOME_2_STRENGTH = 0.7F;
-  private static final float DEFAULT_ZS_BIOME_3_STRENGTH = 0.7F;
-  private static final float DEFAULT_ZS_BIOME_4_STRENGTH = 0.7F;
-  private static final float DEFAULT_ZS_BIOME_5_STRENGTH = 0.7F;
-  private static final float DEFAULT_ZS_BIOME_6_STRENGTH = 0.7F;
-  private static final float DEFAULT_ZS_BIOME_7_STRENGTH = 0.7F;
-  private static final float DEFAULT_ZS_BIOME_8_STRENGTH = 0.7F;
-  private static final float DEFAULT_ZS_BIOME_9_STRENGTH = 0.7F;
-  private static final float DEFAULT_ZS_BIOME_10_STRENGTH = 0.7F;
+  // Used when config Fog Strength = -1.
+  private static final float DEFAULT_MAX_STRENGTH = 0.7F;
 
   @SubscribeEvent
   public void onFogColors(EntityViewRenderEvent.FogColors event) {
@@ -34,85 +24,18 @@ import org.darkoro.zerosmod.config.BiomeConfig;
     int z = (int) Math.floor(mc.thePlayer.posZ);
 
     BiomeGenBase biome = mc.theWorld.getBiomeGenForCoords(x, z);
+    if (!(biome instanceof GenericZSBiome)) return;
 
-    int rgb;
-    float maxStrength;
-
-    if (biome == ZeroSMod.SPIRIT_GARDEN_BIOME) {
-      rgb = BiomeConfig.SPIRIT_GARDEN.fogColor;
-      maxStrength = (BiomeConfig.SPIRIT_GARDEN.fogMaxStrength >= 0.0F)
-          ? BiomeConfig.SPIRIT_GARDEN.fogMaxStrength
-          : DEFAULT_SPIRIT_MAX_STRENGTH;
-
-    } else if (biome == ZeroSMod.VAKRON_BIOME) {
-      rgb = BiomeConfig.VAKRON.fogColor;
-      maxStrength = (BiomeConfig.VAKRON.fogMaxStrength >= 0.0F)
-          ? BiomeConfig.VAKRON.fogMaxStrength
-          : DEFAULT_VAKRON_MAX_STRENGTH;
-
-    } else if (biome == ZeroSMod.DRAGON_REALM) {
-      rgb = BiomeConfig.DRAGON_REALM.fogColor;
-      maxStrength = (BiomeConfig.DRAGON_REALM.fogMaxStrength >= 0.0F)
-          ? BiomeConfig.DRAGON_REALM.fogMaxStrength
-          : DEFAULT_DRAGON_MAX_STRENGTH;
-
-    } else if (biome == ZeroSMod.ZS_BIOME_2) {
-      rgb = BiomeConfig.ZS_BIOME_2.fogColor;
-      maxStrength = (BiomeConfig.ZS_BIOME_2.fogMaxStrength >= 0.0F)
-          ? BiomeConfig.ZS_BIOME_2.fogMaxStrength
-          : DEFAULT_ZS_BIOME_2_STRENGTH;
-
-    }  else if (biome == ZeroSMod.ZS_BIOME_3) {
-      rgb = BiomeConfig.ZS_BIOME_3.fogColor;
-      maxStrength = (BiomeConfig.ZS_BIOME_3.fogMaxStrength >= 0.0F)
-          ? BiomeConfig.ZS_BIOME_3.fogMaxStrength
-          : DEFAULT_ZS_BIOME_3_STRENGTH;
-
-    } else if (biome == ZeroSMod.ZS_BIOME_4) {
-      rgb = BiomeConfig.ZS_BIOME_4.fogColor;
-      maxStrength = (BiomeConfig.ZS_BIOME_4.fogMaxStrength >= 0.0F)
-          ? BiomeConfig.ZS_BIOME_4.fogMaxStrength
-          : DEFAULT_ZS_BIOME_4_STRENGTH;
-    } else if (biome == ZeroSMod.ZS_BIOME_5) {
-      rgb = BiomeConfig.ZS_BIOME_5.fogColor;
-      maxStrength = (BiomeConfig.ZS_BIOME_5.fogMaxStrength >= 0.0F)
-          ? BiomeConfig.ZS_BIOME_5.fogMaxStrength
-          : DEFAULT_ZS_BIOME_5_STRENGTH;
-    } else if (biome == ZeroSMod.ZS_BIOME_6) {
-      rgb = BiomeConfig.ZS_BIOME_6.fogColor;
-      maxStrength = (BiomeConfig.ZS_BIOME_6.fogMaxStrength >= 0.0F)
-          ? BiomeConfig.ZS_BIOME_6.fogMaxStrength
-          : DEFAULT_ZS_BIOME_6_STRENGTH;
-    } else if (biome == ZeroSMod.ZS_BIOME_7) {
-      rgb = BiomeConfig.ZS_BIOME_7.fogColor;
-      maxStrength = (BiomeConfig.ZS_BIOME_7.fogMaxStrength >= 0.0F)
-          ? BiomeConfig.ZS_BIOME_7.fogMaxStrength
-          : DEFAULT_ZS_BIOME_7_STRENGTH;
-    } else if (biome == ZeroSMod.ZS_BIOME_8) {
-      rgb = BiomeConfig.ZS_BIOME_8.fogColor;
-      maxStrength = (BiomeConfig.ZS_BIOME_8.fogMaxStrength >= 0.0F)
-          ? BiomeConfig.ZS_BIOME_8.fogMaxStrength
-          : DEFAULT_ZS_BIOME_8_STRENGTH;
-    } else if (biome == ZeroSMod.ZS_BIOME_9) {
-      rgb = BiomeConfig.ZS_BIOME_9.fogColor;
-      maxStrength = (BiomeConfig.ZS_BIOME_9.fogMaxStrength >= 0.0F)
-          ? BiomeConfig.ZS_BIOME_9.fogMaxStrength
-          : DEFAULT_ZS_BIOME_9_STRENGTH;
-    } else if (biome == ZeroSMod.ZS_BIOME_10) {
-      rgb = BiomeConfig.ZS_BIOME_10.fogColor;
-      maxStrength = (BiomeConfig.ZS_BIOME_10.fogMaxStrength >= 0.0F)
-          ? BiomeConfig.ZS_BIOME_10.fogMaxStrength
-          : DEFAULT_ZS_BIOME_10_STRENGTH;
-    } else {
-      return;
-    }
+    BiomeConfig.BiomeVisuals visuals = ((GenericZSBiome) biome).getVisuals();
+    int rgb = visuals.fogColor;
+    float maxStrength = (visuals.fogMaxStrength >= 0.0F) ? visuals.fogMaxStrength : DEFAULT_MAX_STRENGTH;
 
     float r = ((rgb >> 16) & 0xFF) / 255.0F;
     float g = ((rgb >> 8) & 0xFF) / 255.0F;
     float b = (rgb & 0xFF) / 255.0F;
 
-    // Keep your current math exactly
-    float lookY = (float) Math.abs(event.entity.getLookVec().yCoord);
+    // Same value getLookVec().yCoord produces, without allocating a Vec3 per frame.
+    float lookY = Math.abs(MathHelper.sin(-event.entity.rotationPitch * (float) Math.PI / 180.0F));
     float horizonFactor = 0.9F + (0.75F * lookY);
 
     float strength = maxStrength * horizonFactor;
