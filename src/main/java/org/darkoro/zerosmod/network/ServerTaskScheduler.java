@@ -20,6 +20,7 @@ public class ServerTaskScheduler {
 
   @SubscribeEvent public void onServerTick(ServerTickEvent event) {
     if (event.side == Side.SERVER && event.phase == Phase.END) {
+      if (queue.isEmpty()) return;
       List<Runnable> queued;
       synchronized (queue) {
         queued = new ArrayList<>(queue);
