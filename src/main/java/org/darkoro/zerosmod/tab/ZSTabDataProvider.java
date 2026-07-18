@@ -10,8 +10,12 @@ import kamkeel.npcdbc.util.PlayerDataUtil;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.controllers.data.PlayerData;
@@ -36,6 +40,10 @@ public final class ZSTabDataProvider {
       "spcUltimate", "SPCUltimate", "equippedUltimate", "equipped_ultimate",
       "zsmod_spc_ultimate", "SPC_ULTIMATE"
   };
+
+  // NBT Fallback is non-performant - cache values for a short time
+  private static final long NBT_CACHE_TTL_MS = 30000L;
+  private static final Map<UUID, NbtSlotCache> NBT_SLOT_CACHE = new ConcurrentHashMap<UUID, NbtSlotCache>();
 
   private ZSTabDataProvider() {}
 
@@ -170,10 +178,24 @@ public final class ZSTabDataProvider {
 
   private static String getSpcValue(EntityPlayerMP player, String slotName, String[] keys) {
     String liveValue = getLiveSpcAbilityName(player, slotName);
-    if (liveValue.length() > 0) {
-      return liveValue;
+    if (!liveValue.isEmpty()) return liveValue;
+    long now = System.currentTimeMillis();
+    UUID playerId = player.getUniqueID();
+    NbtSlotCache cache = NBT_SLOT_CACHE.get(playerId);
+    if (cache == null || cache.isExpired(now)) {
+      pruneExpired(now);
+      cache = new NbtSlotCache(now);
+      NBT_SLOT_CACHE.put(playerId, cache);
     }
 
+    String cached = cache.valuesBySlot.get(slotName);
+    if (cached != null) return !cached.isEmpty() ? cached : "None";
+    String value = scanNbtForSpcValue(player, keys);
+    cache.valuesBySlot.put(slotName, value);
+    return !value.isEmpty() ? value : "None";
+  }
+
+  private static String scanNbtForSpcValue(EntityPlayerMP player, String[] keys) {
     String value = findInCompound(player.getEntityData(), keys);
     if (value.length() > 0) {
       return value;
@@ -192,7 +214,34 @@ public final class ZSTabDataProvider {
       }
     } catch (Throwable ignored) {}
 
-    return value.length() > 0 ? value : "None";
+    return value;
+  }
+
+  private static void pruneExpired(long now) {
+    if (NBT_SLOT_CACHE.size() < 64) {
+      return;
+    }
+
+    Iterator<NbtSlotCache> iterator = NBT_SLOT_CACHE.values().iterator();
+    while (iterator.hasNext()) {
+      if (iterator.next().isExpired(now)) {
+        iterator.remove();
+      }
+    }
+  }
+
+  private static final class NbtSlotCache {
+    private final long createdMillis;
+    // Only touched from the server thread (buildPacket runs via ServerTaskScheduler).
+    private final Map<String, String> valuesBySlot = new HashMap<String, String>();
+
+    private NbtSlotCache(long createdMillis) {
+      this.createdMillis = createdMillis;
+    }
+
+    private boolean isExpired(long now) {
+      return now - createdMillis > NBT_CACHE_TTL_MS;
+    }
   }
 
   private static String getLiveSpcAbilityName(EntityPlayerMP player, String slotName) {
@@ -202,7 +251,11 @@ public final class ZSTabDataProvider {
         return "";
       }
 
-      Method getAbilityFromSlot = scPlayer.getClass().getMethod("getAbilityFromSlot", String.class);
+      Method getAbilityFromSlot = scMethodsFor(scPlayer).getAbilityFromSlot;
+      if (getAbilityFromSlot == null) {
+        return "";
+      }
+
       Object ability = getAbilityFromSlot.invoke(scPlayer, slotName);
       return getAbilityName(ability);
     } catch (Throwable ignored) {
@@ -217,8 +270,13 @@ public final class ZSTabDataProvider {
         return -1;
       }
 
-      double spirit = invokeDouble(scPlayer, "getSpirit");
-      double maxSpirit = invokeDouble(scPlayer, "getMaxSpirit");
+      ScMethods methods = scMethodsFor(scPlayer);
+      if (methods.getSpirit == null || methods.getMaxSpirit == null) {
+        return -1;
+      }
+
+      double spirit = invokeDouble(scPlayer, methods.getSpirit);
+      double maxSpirit = invokeDouble(scPlayer, methods.getMaxSpirit);
       if (maxSpirit <= 0.0D) {
         return -1;
       }
@@ -241,7 +299,11 @@ public final class ZSTabDataProvider {
         return true;
       }
 
-      Method isArmed = scPlayer.getClass().getMethod("isArmed");
+      Method isArmed = scMethodsFor(scPlayer).isArmed;
+      if (isArmed == null) {
+        return true;
+      }
+
       Object value = isArmed.invoke(scPlayer);
       return !(value instanceof Boolean) || (Boolean) value;
     } catch (Throwable ignored) {
@@ -256,7 +318,11 @@ public final class ZSTabDataProvider {
         return false;
       }
 
-      Method hasUnlockedSpiritControl = scPlayer.getClass().getMethod("hasUnlockedSpiritControl");
+      Method hasUnlockedSpiritControl = scMethodsFor(scPlayer).hasUnlockedSpiritControl;
+      if (hasUnlockedSpiritControl == null) {
+        return false;
+      }
+
       Object value = hasUnlockedSpiritControl.invoke(scPlayer);
       return value instanceof Boolean && (Boolean) value;
     } catch (Throwable ignored) {
@@ -264,8 +330,7 @@ public final class ZSTabDataProvider {
     }
   }
 
-  private static double invokeDouble(Object target, String methodName) throws Exception {
-    Method method = target.getClass().getMethod(methodName);
+  private static double invokeDouble(Object target, Method method) throws Exception {
     Object value = method.invoke(target);
     return value instanceof Number ? ((Number) value).doubleValue() : 0.0D;
   }
@@ -275,23 +340,89 @@ public final class ZSTabDataProvider {
       return "";
     }
 
+    AbilityMethods methods = abilityMethodsFor(ability);
     try {
-      Method getName = ability.getClass().getMethod("getName");
-      Object name = getName.invoke(ability);
-      if (name instanceof String && ((String) name).length() > 0) {
-        return (String) name;
+      if (methods.getName != null) {
+        Object name = methods.getName.invoke(ability);
+        if (name instanceof String && ((String) name).length() > 0) {
+          return (String) name;
+        }
       }
     } catch (Throwable ignored) {}
 
     try {
-      Method getId = ability.getClass().getMethod("getId");
-      Object id = getId.invoke(ability);
-      if (id instanceof String && ((String) id).length() > 0) {
-        return (String) id;
+      if (methods.getId != null) {
+        Object id = methods.getId.invoke(ability);
+        if (id instanceof String && ((String) id).length() > 0) {
+          return (String) id;
+        }
       }
     } catch (Throwable ignored) {}
 
     return ability.toString();
+  }
+
+  // Class.getMethod is slow and buildPacket runs once per second per player, so
+  // reflected methods are resolved once per target class (null = method absent).
+  private static volatile ScMethods scMethodsCache;
+  private static volatile AbilityMethods abilityMethodsCache;
+
+  private static ScMethods scMethodsFor(Object scPlayer) {
+    ScMethods cached = scMethodsCache;
+    Class<?> owner = scPlayer.getClass();
+    if (cached == null || cached.owner != owner) {
+      cached = new ScMethods(owner);
+      scMethodsCache = cached;
+    }
+    return cached;
+  }
+
+  private static AbilityMethods abilityMethodsFor(Object ability) {
+    AbilityMethods cached = abilityMethodsCache;
+    Class<?> owner = ability.getClass();
+    if (cached == null || cached.owner != owner) {
+      cached = new AbilityMethods(owner);
+      abilityMethodsCache = cached;
+    }
+    return cached;
+  }
+
+  private static Method findMethod(Class<?> owner, String name, Class<?>... params) {
+    try {
+      return owner.getMethod(name, params);
+    } catch (Throwable ignored) {
+      return null;
+    }
+  }
+
+  private static final class ScMethods {
+    private final Class<?> owner;
+    private final Method getAbilityFromSlot;
+    private final Method getSpirit;
+    private final Method getMaxSpirit;
+    private final Method isArmed;
+    private final Method hasUnlockedSpiritControl;
+
+    private ScMethods(Class<?> owner) {
+      this.owner = owner;
+      this.getAbilityFromSlot = findMethod(owner, "getAbilityFromSlot", String.class);
+      this.getSpirit = findMethod(owner, "getSpirit");
+      this.getMaxSpirit = findMethod(owner, "getMaxSpirit");
+      this.isArmed = findMethod(owner, "isArmed");
+      this.hasUnlockedSpiritControl = findMethod(owner, "hasUnlockedSpiritControl");
+    }
+  }
+
+  private static final class AbilityMethods {
+    private final Class<?> owner;
+    private final Method getName;
+    private final Method getId;
+
+    private AbilityMethods(Class<?> owner) {
+      this.owner = owner;
+      this.getName = findMethod(owner, "getName");
+      this.getId = findMethod(owner, "getId");
+    }
   }
 
   private static String findInCompound(NBTTagCompound compound, String[] keys) {

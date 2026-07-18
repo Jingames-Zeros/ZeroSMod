@@ -4,8 +4,9 @@ import org.darkoro.zerosmod.network.SyncZSTabDataPacket;
 
 public final class ClientZSTabDataCache {
 
-  private static SyncZSTabDataPacket latest = new SyncZSTabDataPacket();
-  private static long lastUpdateMillis;
+  // Read/Write on different threads
+  private static volatile SyncZSTabDataPacket latest = new SyncZSTabDataPacket();
+  private static volatile long lastUpdateMillis;
 
   private ClientZSTabDataCache() {}
 
