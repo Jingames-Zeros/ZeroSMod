@@ -9,21 +9,24 @@ import net.minecraftforge.fluids.BlockFluidClassic;
 import net.minecraftforge.fluids.Fluid;
 import org.darkoro.zerosmod.ZeroSMod;
 
-public class BlockSolidBlackWater extends BlockFluidClassic {
+public class GenericZSLiquid extends BlockFluidClassic {
+
+  private final String name;
 
   @SideOnly(Side.CLIENT) private IIcon stillIcon;
   @SideOnly(Side.CLIENT) private IIcon flowIcon;
 
-  public BlockSolidBlackWater(Fluid fluid) {
+  public GenericZSLiquid(Fluid fluid, String name) {
     super(fluid, Material.water);
-    setBlockName("solid_black_water");
+    this.name = name;
+    setBlockName(name);
     setLightOpacity(3);
     setCreativeTab(ZeroSMod.ZeroSModTab);
   }
 
   @Override @SideOnly(Side.CLIENT) public void registerBlockIcons(IIconRegister register) {
-    stillIcon = register.registerIcon("zerosmod:liquids/solid_black_water_still");
-    flowIcon = register.registerIcon("zerosmod:liquids/solid_black_water_flow");
+    stillIcon = register.registerIcon("zerosmod:liquids/" + name + "_still");
+    flowIcon = register.registerIcon("zerosmod:liquids/" + name + "_flow");
 
     Fluid fluid = getFluid();
     if (fluid != null) {
