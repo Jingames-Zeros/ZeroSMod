@@ -1,9 +1,7 @@
 package org.darkoro.zerosmod.config;
 
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -25,13 +23,7 @@ public final class PathConfig {
   private PathConfig() {}
 
   public static void load(FMLPreInitializationEvent event) {
-    File configDir = new File(event.getModConfigurationDirectory(), "zerosmod");
-    if (!configDir.exists()) {
-      //noinspection ResultOfMethodCallIgnored
-      configDir.mkdirs();
-    }
-
-    pathConfigFile = new File(configDir, CONFIG_FILE_NAME);
+    pathConfigFile = new File(ConfigHandler.getConfigDir(event), CONFIG_FILE_NAME);
     reload();
   }
 
@@ -142,58 +134,34 @@ public final class PathConfig {
   }
 
   private static void readPathFile() {
-    BufferedReader reader = null;
-    String currentPath = null;
-    String currentColor = "white";
-    boolean currentBold = false;
-    List<String> currentForms = new ArrayList<String>();
+    PathFileVisitor visitor = new PathFileVisitor();
+    ConfigHandler.parseIni(pathConfigFile, visitor);
+    addEntry(visitor.currentPath, visitor.currentColor, visitor.currentBold, visitor.currentForms);
+  }
 
-    try {
-      reader = new BufferedReader(new FileReader(pathConfigFile));
-      String line;
-      while ((line = reader.readLine()) != null) {
-        String cleanLine = line.trim();
-        if (cleanLine.length() == 0 || cleanLine.startsWith("#") || cleanLine.startsWith(";")) {
-          continue;
-        }
+  private static final class PathFileVisitor implements ConfigHandler.IniVisitor {
+    private String currentPath;
+    private String currentColor = "white";
+    private boolean currentBold;
+    private List<String> currentForms = new ArrayList<String>();
 
-        if (cleanLine.startsWith("[") && cleanLine.endsWith("]")) {
-          addEntry(currentPath, currentColor, currentBold, currentForms);
-          currentPath = cleanLine.substring(1, cleanLine.length() - 1).trim();
-          currentColor = "white";
-          currentBold = false;
-          currentForms = new ArrayList<String>();
-          continue;
-        }
-
-        int separator = cleanLine.indexOf('=');
-        if (separator < 0) {
-          separator = cleanLine.indexOf(':');
-        }
-
-        if (separator <= 0 || separator >= cleanLine.length() - 1) {
-          continue;
-        }
-
-        String key = cleanLine.substring(0, separator).trim();
-        String value = cleanLine.substring(separator + 1).trim();
-        if ("forms".equalsIgnoreCase(key)) {
-          addForms(currentForms, value);
-        } else if ("color".equalsIgnoreCase(key)) {
-          currentColor = value;
-        } else if ("bold".equalsIgnoreCase(key)) {
-          currentBold = Boolean.parseBoolean(value);
-        } else if (currentPath == null) {
-          addLegacyEntry(key, value);
-        }
-      }
-    } catch (IOException ignored) {
-    } finally {
+    @Override public void onSection(String name) {
       addEntry(currentPath, currentColor, currentBold, currentForms);
-      if (reader != null) {
-        try {
-          reader.close();
-        } catch (IOException ignored) {}
+      currentPath = name;
+      currentColor = "white";
+      currentBold = false;
+      currentForms = new ArrayList<String>();
+    }
+
+    @Override public void onKeyValue(String key, String value) {
+      if ("forms".equalsIgnoreCase(key)) {
+        addForms(currentForms, value);
+      } else if ("color".equalsIgnoreCase(key)) {
+        currentColor = value;
+      } else if ("bold".equalsIgnoreCase(key)) {
+        currentBold = Boolean.parseBoolean(value);
+      } else if (currentPath == null) {
+        addLegacyEntry(key, value);
       }
     }
   }
@@ -210,16 +178,12 @@ public final class PathConfig {
     }
 
     String cleanPath = displayPath.trim();
-    if (cleanPath.length() == 0) {
-      return;
-    }
+    if (cleanPath.isEmpty()) return;
 
     Set<String> normalizedForms = new LinkedHashSet<String>();
     for (String form : forms) {
       String normalizedForm = normalize(form);
-      if (normalizedForm.length() > 0) {
-        normalizedForms.add(normalizedForm);
-      }
+      if (!normalizedForm.isEmpty()) normalizedForms.add(normalizedForm);
     }
 
     if (!normalizedForms.isEmpty()) {
@@ -228,23 +192,19 @@ public final class PathConfig {
   }
 
   private static void addForms(List<String> forms, String formsPart) {
-    if (formsPart == null) {
-      return;
-    }
+    if (formsPart == null) return;
 
     String[] splitForms = formsPart.split(",");
     for (String form : splitForms) {
       String cleanForm = form.trim();
-      if (cleanForm.length() > 0) {
+      if (!cleanForm.isEmpty()) {
         forms.add(cleanForm);
       }
     }
   }
 
   private static String normalize(String value) {
-    if (value == null) {
-      return "";
-    }
+    if (value == null) return "";
 
     StringBuilder builder = new StringBuilder();
     boolean skipNext = false;
@@ -273,9 +233,7 @@ public final class PathConfig {
     }
 
     String clean = value.trim();
-    if (clean.length() == 0) {
-      return EnumChatFormatting.WHITE;
-    }
+    if (clean.isEmpty()) return EnumChatFormatting.WHITE;
 
     if (clean.startsWith("&") || clean.startsWith("\u00a7")) {
       clean = clean.substring(1);
