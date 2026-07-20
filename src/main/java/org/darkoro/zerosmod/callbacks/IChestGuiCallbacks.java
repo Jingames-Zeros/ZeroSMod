@@ -7,12 +7,11 @@ import net.minecraft.item.ItemStack;
 
 public interface IChestGuiCallbacks extends IGuiContextProvider {
 
-  String getGuiTitle(EntityPlayer ply);
+  @Override String getGuiTitle(EntityPlayer ply);
   int getNumberOfRows(EntityPlayer ply);
   void populateSlots(EntityPlayer ply, InventoryBasic inv);
   void onSlotClick(EntityPlayer ply, int slotIndex, ItemStack item, GUIContainer container, int mouseButton, int clickType);
-  boolean isEditable(EntityPlayer ply);
-  default boolean isInventory(EntityPlayer ply) { return false; }
+  @Override boolean isEditable(EntityPlayer ply);
   default void onGuiClosed(EntityPlayer ply) {}
 
 }

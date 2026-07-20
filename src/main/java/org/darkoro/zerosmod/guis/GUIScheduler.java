@@ -2,8 +2,6 @@ package org.darkoro.zerosmod.guis;
 
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.callbacks.GuiContextManager;
-import org.darkoro.zerosmod.callbacks.IAnvilGuiCallbacks;
-import org.darkoro.zerosmod.callbacks.IChestGuiCallbacks;
 import org.darkoro.zerosmod.callbacks.IGuiContextProvider;
 import org.darkoro.zerosmod.network.SyncGuiTitlePacket;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -29,11 +27,9 @@ public class GUIScheduler {
 
     IGuiContextProvider ctx = GuiContextManager.getContext(request.player, request.x);
 
-    if (ctx instanceof IChestGuiCallbacks chest) {
-      ZeroSMod.network.sendTo(new SyncGuiTitlePacket(request.x, chest.getGuiTitle(request.player),
-          chest.isEditable(request.player), chest.isInventory(request.player)), (EntityPlayerMP) request.player);
-    } else if (ctx instanceof IAnvilGuiCallbacks anvil) {
-      ZeroSMod.network.sendTo(new SyncGuiTitlePacket(request.x, anvil.getGuiTitle(request.player)), (EntityPlayerMP) request.player);
+    if (ctx != null) {
+      ZeroSMod.network.sendTo(new SyncGuiTitlePacket(request.x, ctx.getGuiTitle(request.player),
+          ctx.isEditable(request.player), ctx.isInventory(request.player)), (EntityPlayerMP) request.player);
     }
 
     this.pendingOpens.add(request);
