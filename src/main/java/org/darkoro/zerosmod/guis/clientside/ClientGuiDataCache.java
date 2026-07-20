@@ -31,17 +31,4 @@ public class ClientGuiDataCache {
     guiData.remove(ctxId);
   }
 
-  public static void storeTitle(int ctxId, String title) {
-    guiData.put(ctxId, new GuiData(title, false, false));
-  }
-
-  public static String getTitle(int ctxId) {
-    GuiData data = guiData.get(ctxId);
-    return data != null ? data.title : null;
-  }
-
-  public static void removeTitle(int ctxId) {
-    guiData.remove(ctxId);
-  }
-
 }
