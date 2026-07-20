@@ -12,6 +12,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.config.Configuration;
 
 public final class BiomeConfig {
@@ -59,12 +60,7 @@ public final class BiomeConfig {
   }
 
   public static void load(FMLPreInitializationEvent event) {
-    biomeConfigDir = new File(event.getModConfigurationDirectory(), "zerosmod");
-    if (!biomeConfigDir.exists()) {
-      //noinspection ResultOfMethodCallIgnored
-      biomeConfigDir.mkdirs();
-    }
-
+    biomeConfigDir = ConfigHandler.getConfigDir(event);
     biomesFile = new File(biomeConfigDir, CONFIG_FILE_NAME);
     reload();
   }
@@ -97,45 +93,23 @@ public final class BiomeConfig {
   }
 
   private static void readCleanConfig() {
-    BufferedReader reader = null;
-    String currentSection = null;
-    Map<String, String> values = new LinkedHashMap<String, String>();
+    SectionCollector collector = new SectionCollector();
+    ConfigHandler.parseIni(biomesFile, collector);
+    applySection(collector.currentSection, collector.values);
+  }
 
-    try {
-      reader = new BufferedReader(new FileReader(biomesFile));
-      String line;
-      while ((line = reader.readLine()) != null) {
-        String cleanLine = line.trim();
-        if (cleanLine.length() == 0 || cleanLine.startsWith("#") || cleanLine.startsWith(";")) {
-          continue;
-        }
+  private static final class SectionCollector implements ConfigHandler.IniVisitor {
+    private String currentSection;
+    private Map<String, String> values = new LinkedHashMap<String, String>();
 
-        if (cleanLine.startsWith("[") && cleanLine.endsWith("]")) {
-          applySection(currentSection, values);
-          currentSection = cleanLine.substring(1, cleanLine.length() - 1).trim();
-          values = new LinkedHashMap<String, String>();
-          continue;
-        }
-
-        int separator = cleanLine.indexOf('=');
-        if (separator < 0) {
-          separator = cleanLine.indexOf(':');
-        }
-
-        if (separator <= 0 || separator >= cleanLine.length() - 1) {
-          continue;
-        }
-
-        values.put(normalizeKey(cleanLine.substring(0, separator)), cleanLine.substring(separator + 1).trim());
-      }
-    } catch (IOException ignored) {
-    } finally {
+    @Override public void onSection(String name) {
       applySection(currentSection, values);
-      if (reader != null) {
-        try {
-          reader.close();
-        } catch (IOException ignored) {}
-      }
+      currentSection = name;
+      values = new LinkedHashMap<String, String>();
+    }
+
+    @Override public void onKeyValue(String key, String value) {
+      values.put(normalizeKey(key), value);
     }
   }
 
@@ -168,10 +142,10 @@ public final class BiomeConfig {
       }
     }
 
-    String normalizedSection = normalizeName(sectionName);
+    String normalizedSection = normalizeKey(sectionName);
     for (BiomeVisuals visuals : getAllVisuals()) {
-      if (normalizeName(visuals.getLabel()).equals(normalizedSection)
-          || normalizeName(visuals.defaultName).equals(normalizedSection)) {
+      if (normalizeKey(visuals.getLabel()).equals(normalizedSection)
+          || normalizeKey(visuals.defaultName).equals(normalizedSection)) {
         return visuals;
       }
     }
@@ -378,14 +352,10 @@ public final class BiomeConfig {
   }
 
   private static String normalizeKey(String value) {
-    return value == null ? "" : value.trim().replace(" ", "").replace("_", "").replace("-", "").toLowerCase(Locale.ROOT);
+    return ConfigHandler.normalizeKey(value);
   }
 
-  private static String normalizeName(String value) {
-    return value == null ? "" : value.trim().replace(" ", "").replace("_", "").replace("-", "").toLowerCase(Locale.ROOT);
-  }
-
-  private static BiomeVisuals[] getAllVisuals() {
+  public static BiomeVisuals[] getAllVisuals() {
     return new BiomeVisuals[] {
         SPIRIT_GARDEN,
         VAKRON,
@@ -410,6 +380,8 @@ public final class BiomeConfig {
     public int grassColor;
     public int foliageColor;
     public int waterColor;
+
+    private net.minecraft.world.biome.BiomeGenBase biome;
 
     private final String label;
     private final int id;
@@ -451,6 +423,14 @@ public final class BiomeConfig {
 
     public int getId() {
       return id;
+    }
+
+    public BiomeGenBase getBiome() {
+      return biome;
+    }
+
+    public void setBiome(BiomeGenBase biome) {
+      this.biome = biome;
     }
   }
 }

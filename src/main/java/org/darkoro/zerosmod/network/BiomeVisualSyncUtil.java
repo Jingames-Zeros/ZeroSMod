@@ -1,7 +1,5 @@
 package org.darkoro.zerosmod.network;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.darkoro.zerosmod.config.BiomeConfig;
 
 public final class BiomeVisualSyncUtil {
@@ -9,23 +7,10 @@ public final class BiomeVisualSyncUtil {
   private BiomeVisualSyncUtil() {}
 
   public static SyncBiomeVisualsPacket buildFullPacket() {
-    List<BiomeConfig.BiomeVisuals> list = new ArrayList<BiomeConfig.BiomeVisuals>();
-
-    list.add(BiomeConfig.SPIRIT_GARDEN);
-    list.add(BiomeConfig.VAKRON);
-    list.add(BiomeConfig.DRAGON_REALM);
-    list.add(BiomeConfig.ZS_BIOME_2);
-    list.add(BiomeConfig.ZS_BIOME_3);
-    list.add(BiomeConfig.ZS_BIOME_4);
-    list.add(BiomeConfig.ZS_BIOME_5);
-    list.add(BiomeConfig.ZS_BIOME_6);
-    list.add(BiomeConfig.ZS_BIOME_7);
-    list.add(BiomeConfig.ZS_BIOME_8);
-    list.add(BiomeConfig.ZS_BIOME_9);
-    list.add(BiomeConfig.ZS_BIOME_10);
+    BiomeConfig.BiomeVisuals[] list = BiomeConfig.getAllVisuals();
 
     SyncBiomeVisualsPacket pkt = new SyncBiomeVisualsPacket();
-    pkt.count = list.size();
+    pkt.count = list.length;
 
     pkt.biomeIds = new int[pkt.count];
     pkt.skyColors = new int[pkt.count];
@@ -36,7 +21,7 @@ public final class BiomeVisualSyncUtil {
     pkt.waterColors = new int[pkt.count];
 
     for (int i = 0; i < pkt.count; i++) {
-      BiomeConfig.BiomeVisuals v = list.get(i);
+      BiomeConfig.BiomeVisuals v = list[i];
 
       pkt.biomeIds[i] = v.getId();
       pkt.skyColors[i] = v.skyColor;
