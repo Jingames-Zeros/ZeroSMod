@@ -1,20 +1,13 @@
 package org.darkoro.zerosmod.network;
 
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import cpw.mods.fml.common.eventhandler.Event;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraftforge.common.MinecraftForge;
 import org.darkoro.zerosmod.event.ChargeKeyEvent;
 
-public class ChargeKeyPacketHandler implements IMessageHandler<ChargeKeyPacket, IMessage> {
+public class ChargeKeyPacketHandler extends PostEventPacketHandler<ChargeKeyPacket> {
 
-  @Override public IMessage onMessage(ChargeKeyPacket message, MessageContext ctx) {
-    ServerTaskScheduler.schedule(() -> {
-      EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-      MinecraftForge.EVENT_BUS.post(new ChargeKeyEvent(player, message.isHolding()));
-    });
-    return null;
+  @Override protected Event createEvent(EntityPlayerMP player, ChargeKeyPacket message) {
+    return new ChargeKeyEvent(player, message.isHolding());
   }
 
 }

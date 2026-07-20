@@ -4,7 +4,6 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import net.minecraft.world.biome.BiomeGenBase;
-import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.config.BiomeConfig;
 
 public class SyncBiomeVisualsPacketHandler implements IMessageHandler<SyncBiomeVisualsPacket, IMessage> {
@@ -27,28 +26,11 @@ public class SyncBiomeVisualsPacketHandler implements IMessageHandler<SyncBiomeV
 
       // Water tint is baked into the BiomeGenBase instance as waterColorMultiplier.
       // Biomes set it once in the constructor, update it live.
-      BiomeGenBase biome = getBiomeInstanceById(id);
+      BiomeGenBase biome = v.getBiome();
       if (biome != null) {
         biome.waterColorMultiplier = v.waterColor;
       }
     }
-
-    return null;
-  }
-
-  private BiomeGenBase getBiomeInstanceById(int id) {
-    if (id == BiomeConfig.SPIRIT_GARDEN.getId()) return ZeroSMod.SPIRIT_GARDEN_BIOME;
-    if (id == BiomeConfig.VAKRON.getId()) return ZeroSMod.VAKRON_BIOME;
-    if (id == BiomeConfig.DRAGON_REALM.getId()) return ZeroSMod.DRAGON_REALM;
-    if (id == BiomeConfig.ZS_BIOME_2.getId()) return ZeroSMod.ZS_BIOME_2;
-    if (id == BiomeConfig.ZS_BIOME_3.getId()) return ZeroSMod.ZS_BIOME_3;
-    if (id == BiomeConfig.ZS_BIOME_4.getId()) return ZeroSMod.ZS_BIOME_4;
-    if (id == BiomeConfig.ZS_BIOME_5.getId()) return ZeroSMod.ZS_BIOME_5;
-    if (id == BiomeConfig.ZS_BIOME_6.getId()) return ZeroSMod.ZS_BIOME_6;
-    if (id == BiomeConfig.ZS_BIOME_7.getId()) return ZeroSMod.ZS_BIOME_7;
-    if (id == BiomeConfig.ZS_BIOME_8.getId()) return ZeroSMod.ZS_BIOME_8;
-    if (id == BiomeConfig.ZS_BIOME_9.getId()) return ZeroSMod.ZS_BIOME_9;
-    if (id == BiomeConfig.ZS_BIOME_10.getId()) return ZeroSMod.ZS_BIOME_10;
 
     return null;
   }

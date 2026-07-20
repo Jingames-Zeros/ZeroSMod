@@ -1,20 +1,13 @@
 package org.darkoro.zerosmod.network;
 
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import cpw.mods.fml.common.eventhandler.Event;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraftforge.common.MinecraftForge;
 import org.darkoro.zerosmod.event.TournamentMenuKeyEvent;
 
-public class OpenTournamentGuiPacketHandler implements IMessageHandler<OpenTournamentGuiPacket, IMessage> {
+public class OpenTournamentGuiPacketHandler extends PostEventPacketHandler<OpenTournamentGuiPacket> {
 
-  @Override public IMessage onMessage(OpenTournamentGuiPacket message, MessageContext ctx) {
-    ServerTaskScheduler.schedule(() -> {
-      EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-      MinecraftForge.EVENT_BUS.post(new TournamentMenuKeyEvent(player));
-    });
-    return null;
+  @Override protected Event createEvent(EntityPlayerMP player, OpenTournamentGuiPacket message) {
+    return new TournamentMenuKeyEvent(player);
   }
 
 }
