@@ -13,6 +13,7 @@ import org.darkoro.zerosmod.blocks.ModBlocks;
 import org.darkoro.zerosmod.client.JRMCoreRacePatch;
 import org.darkoro.zerosmod.command.CommandZSMod;
 import org.darkoro.zerosmod.config.BiomeConfig;
+import org.darkoro.zerosmod.config.ServerWeaponConfig;
 import org.darkoro.zerosmod.event.SaiyanMasteryMergeEvent;
 import org.darkoro.zerosmod.network.NetworkHandler;
 import org.darkoro.zerosmod.zsweapons.server.ServerWeaponHandler;
@@ -50,9 +51,11 @@ public class CommonProxy {
       ZeroSMod.LOGGER.info("Registered Saiyan mastery merge handler on FML and CNPC event buses.");
     }
 
-    FMLCommonHandler.instance().bus().register(ServerWeaponHandler.INSTANCE);
-    MinecraftForge.EVENT_BUS.register(ServerWeaponHandler.INSTANCE);
-    NpcAPI.EVENT_BUS.register(ServerWeaponHandler.INSTANCE);
+    if(ServerWeaponConfig.isEnabled() && FMLCommonHandler.instance().getSide() == Side.SERVER) {
+      FMLCommonHandler.instance().bus().register(ServerWeaponHandler.INSTANCE);
+      MinecraftForge.EVENT_BUS.register(ServerWeaponHandler.INSTANCE);
+      NpcAPI.EVENT_BUS.register(ServerWeaponHandler.INSTANCE);
+    }
 
     if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
       try {

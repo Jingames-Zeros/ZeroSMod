@@ -10,5 +10,7 @@ public final class ConfigHandler {
 
     BiomeConfig.load(event);
     PathConfig.load(event);
+    ClientWeaponConfig.load(event);
+    ServerWeaponConfig.load(event);
   }
 }

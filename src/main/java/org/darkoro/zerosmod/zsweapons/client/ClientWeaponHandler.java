@@ -13,6 +13,7 @@ import net.minecraft.util.Vec3;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import org.darkoro.zerosmod.ZeroSMod;
+import org.darkoro.zerosmod.config.ClientWeaponConfig;
 import org.darkoro.zerosmod.zsweapons.network.CooldownToClientPacket;
 import org.darkoro.zerosmod.zsweapons.network.TargetEntityToServerPacket;
 import java.util.List;
@@ -23,6 +24,7 @@ public class ClientWeaponHandler {
     private double remainingCooldown = -1;
     private int lastCooldown = 20;
     private double currentTps = 20.0D;
+    private final ClientWeaponConfig.hudConfig config = ClientWeaponConfig.getHudConfig();
 
     private int x1;
     private int x2;
@@ -67,10 +69,10 @@ public class ClientWeaponHandler {
     public void calculateOverlayDimensions() {
         Minecraft mc = Minecraft.getMinecraft();
         ScaledResolution sr = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
-        x1 = (int) (sr.getScaledWidth() * 0.47);
-        y1 = (int) (sr.getScaledHeight() * 0.55);
-        x2 = (int) (sr.getScaledWidth() * 0.53);
-        y2 = (int) (sr.getScaledHeight() * 0.56);
+        x1 = (int) (sr.getScaledWidth() * config.x1);
+        y1 = (int) (sr.getScaledHeight() * config.y1);
+        x2 = (int) (sr.getScaledWidth() * config.x2);
+        y2 = (int) (sr.getScaledHeight() * config.y2);
     }
 
     /**
@@ -78,8 +80,8 @@ public class ClientWeaponHandler {
      */
     public void updateOverlay() {
         // Add shadow
-        Gui.drawRect(x1 - 1, y1 - 1, x2 + 1, y2 + 1, 0xAA000000);
-        Gui.drawRect(x1, y1, x1 + (int) ((x2 - x1) * remainingCooldown / lastCooldown), y2, 0xAA00FFFF);
+        Gui.drawRect(x1 - 1, y1 - 1, x2 + 1, y2 + 1, config.progressBarShadowColour);
+        Gui.drawRect(x1, y1, x1 + (int) ((x2 - x1) * remainingCooldown / lastCooldown), y2, config.progressBarColour);
     }
 
     /**

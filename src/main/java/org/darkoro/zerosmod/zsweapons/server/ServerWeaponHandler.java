@@ -17,6 +17,7 @@ import noppes.npcs.scripted.entity.ScriptDBCPlayer;
 import noppes.npcs.scripted.event.NpcEvent;
 import kamkeel.npcdbc.util.DBCUtils;
 import org.darkoro.zerosmod.ZeroSMod;
+import org.darkoro.zerosmod.config.ServerWeaponConfig;
 import org.darkoro.zerosmod.zsweapons.PlayerCombatState;
 import org.darkoro.zerosmod.zsweapons.network.CooldownToClientPacket;
 import org.darkoro.zerosmod.zsweapons.network.TargetEntityToServerPacket;
@@ -36,7 +37,6 @@ public class ServerWeaponHandler {
     @SubscribeEvent
     public void hitEvent(AttackEntityEvent event) {
         EntityPlayer player = event.entityPlayer;
-        if(player.worldObj.isRemote) return;
         PlayerCombatState state = stateMap.get(player.getUniqueID());
         // Cancel event if attack is invalid
         if(!(event.target instanceof EntityLivingBase target) || !isValidAttack(state, player, target)) {
@@ -51,7 +51,6 @@ public class ServerWeaponHandler {
     // Add on weapon multiplier damage on npc hits
     @SubscribeEvent(priority=EventPriority.HIGHEST)
     public void damageNpc(NpcEvent.DamagedEvent event) {
-        if(!(event.source instanceof ScriptDBCPlayer)) return;
         EntityPlayer player = (EntityPlayer) event.source.getMCEntity();
         PlayerCombatState state = stateMap.get(player.getUniqueID());
         if(state.attackMultiplier == 1.0F) return;
@@ -61,7 +60,6 @@ public class ServerWeaponHandler {
 
     @SubscribeEvent
     public void tick(TickEvent.PlayerTickEvent event) {
-        if(event.side.isClient()) return;
         EntityPlayer player = event.player;
         PlayerCombatState state = stateMap.computeIfAbsent(player.getUniqueID(), k -> new PlayerCombatState());
 
