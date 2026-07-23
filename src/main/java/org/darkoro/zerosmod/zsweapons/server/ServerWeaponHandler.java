@@ -1,6 +1,5 @@
 package org.darkoro.zerosmod.zsweapons.server;
 
-import cpw.mods.fml.common.eventhandler.EventPriority;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.EntityPlayer;
@@ -13,14 +12,13 @@ import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
-import noppes.npcs.scripted.entity.ScriptDBCPlayer;
 import noppes.npcs.scripted.event.NpcEvent;
 import kamkeel.npcdbc.util.DBCUtils;
 import org.darkoro.zerosmod.ZeroSMod;
-import org.darkoro.zerosmod.config.ServerWeaponConfig;
 import org.darkoro.zerosmod.zsweapons.PlayerCombatState;
 import org.darkoro.zerosmod.zsweapons.network.CooldownToClientPacket;
 import org.darkoro.zerosmod.zsweapons.network.TargetEntityToServerPacket;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -49,9 +47,9 @@ public class ServerWeaponHandler {
     }
 
     // Add on weapon multiplier damage on npc hits
-    @SubscribeEvent(priority=EventPriority.HIGHEST)
+    @SubscribeEvent
     public void damageNpc(NpcEvent.DamagedEvent event) {
-        EntityPlayer player = (EntityPlayer) event.source.getMCEntity();
+        if(event.getSource() == null || !(event.getSource().getMCEntity() instanceof EntityPlayer player)) return;
         PlayerCombatState state = stateMap.get(player.getUniqueID());
         if(state.attackMultiplier == 1.0F) return;
         float extraDamage = getMultiplierBonusDamage(player, state.attackMultiplier);

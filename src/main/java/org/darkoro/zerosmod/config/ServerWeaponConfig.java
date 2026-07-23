@@ -90,7 +90,7 @@ public class ServerWeaponConfig {
                 String key = line.substring(0, separator).trim();
                 String value = line.substring(separator + 1).trim();
                 if(section.equals("[Combat System]") && key.equals("Disable All Modules")) {
-                    ENABLED = value.equals("1");
+                    ENABLED = !value.equals("1");
                 }
             }
         } catch (IOException ignored) {

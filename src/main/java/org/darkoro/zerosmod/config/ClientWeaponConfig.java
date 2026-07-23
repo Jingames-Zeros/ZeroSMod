@@ -35,8 +35,8 @@ public class ClientWeaponConfig {
     private static final String[] hudColourConfig = {
             "# HUD Colour - Hexadecimal ARBG Colours for hud main bar and shadow",
             "[HUD Colour]",
-            "Progress Bar = AA000000",
-            "Shadow Bar =  AA00FFFF",
+            "Progress Bar = AA00FFFF",
+            "Shadow Bar =  AA000000",
             ""
     };
 
@@ -124,14 +124,14 @@ public class ClientWeaponConfig {
                             break;
                     }
                 }
-                else if(section.equals("[HUD Colours]")) {
+                else if(section.equals("[HUD Colour]")) {
                     switch(key) {
                         case "Progress Bar":
-                            progressBarColour = Integer.parseInt(value, 16);
+                            progressBarColour = (int) Long.parseLong(value, 16);
                             break;
 
                         case "Shadow Bar":
-                            progressBarShadow = Integer.parseInt(value, 16);
+                            progressBarShadow = (int) Long.parseLong(value, 16);
                             break;
                     }
                 }
