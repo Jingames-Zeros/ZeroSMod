@@ -1,4 +1,13 @@
+itemGroup.zerosmod=ZS Mod
+tile.spirit_water.name=Água Espiritual
+tile.colorless_water.name=Água Incolor
+tile.dragon_water.name=Água de Dragão
+tile.yellow_water.name=Água Amarela
+tile.black_water.name=Água Negra
+tile.solid_black_water.name=Água Negra Sólida
+tile.pink_water.name=Água Rosa
+tile.purple_water.name=Água Roxa
+tile.dark_green_water.name=Água Verde Escuro
 key.zerosmod.spiritcontrol_gui=Abra o menu Spirit Control
 key.categories.zerosmod=Zero S Keybinds
 key.zerosmod.charge_spirit=Ative sua habilidade de Spirit Control
-key.zerosmod.tournament_gui=Abra o menu do torneio
