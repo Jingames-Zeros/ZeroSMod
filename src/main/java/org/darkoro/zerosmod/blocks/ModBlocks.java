@@ -19,6 +19,7 @@ public class ModBlocks {
       "solid_black_water",
       "pink_water",
       "purple_water",
+      "red_water",
       "dark_green_water"
   };
 
