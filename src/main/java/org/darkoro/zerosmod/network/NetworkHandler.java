@@ -11,7 +11,6 @@ public class NetworkHandler {
   public static void init() {
     INSTANCE.registerMessage(OpenSpcGuiPacketHandler.class, OpenSpcGuiPacket.class, 0, Side.SERVER);
     INSTANCE.registerMessage(ChargeKeyPacketHandler.class, ChargeKeyPacket.class, 1, Side.SERVER);
-    INSTANCE.registerMessage(OpenTournamentGuiPacketHandler.class, OpenTournamentGuiPacket.class, 2, Side.SERVER);
   }
 
 }

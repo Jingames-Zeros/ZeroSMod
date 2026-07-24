@@ -5,7 +5,6 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import java.util.function.Supplier;
 import net.minecraft.client.settings.KeyBinding;
 import org.darkoro.zerosmod.network.OpenSpcGuiPacket;
-import org.darkoro.zerosmod.network.OpenTournamentGuiPacket;
 import org.lwjgl.input.Keyboard;
 
 public class KeybindHandler {
@@ -23,18 +22,15 @@ public class KeybindHandler {
 
   public static KeyBinding spcGui;
   public static KeyBinding chargeSpc;
-  public static KeyBinding tournamentGui;
 
   public static PressBinding[] pressBindings;
 
   public static void init() {
     spcGui = register("key.zerosmod.spiritcontrol_gui", Keyboard.KEY_U);
     chargeSpc = register("key.zerosmod.charge_spirit", Keyboard.KEY_O);
-    tournamentGui = register("key.zerosmod.tournament_gui", Keyboard.KEY_Q);
 
     pressBindings = new PressBinding[] {
         new PressBinding(spcGui, OpenSpcGuiPacket::new),
-        new PressBinding(tournamentGui, OpenTournamentGuiPacket::new),
     };
   }
 
