@@ -30,7 +30,26 @@ public class ZSTabOverlayHandler extends Gui {
   private static final int SPC_GAUGE_SEGMENTS = 40;
   private static final int SPC_COLUMN_MIN_WIDTH = 122;
 
+  private static final int STATS_ROW_COUNT = 15;
+  private static final String STATS_HEADER =
+      EnumChatFormatting.BLUE + "" + EnumChatFormatting.BOLD + "Stats";
+  private static final String SPC_HEADER =
+      EnumChatFormatting.DARK_AQUA + "" + EnumChatFormatting.BOLD + "Spirit Control";
+  private static final String DISARMED_TEXT =
+      EnumChatFormatting.RED + "" + EnumChatFormatting.BOLD + "Disarmed";
+
   private long lastRequestMillis;
+  private int cachedScreenWidth = -1;
+  private boolean cachedShowSpc;
+  private int[] cachedWidths;
+  // Each sync replaces the packet object, so reference identity detects new data.
+  private SyncZSTabDataPacket cachedData;
+  private int cachedStatsTextWidth = -1;
+  private int cachedSpcTextWidth = -1;
+  private String[] statsLines;
+  private String[] spcAbilityLines;
+  private int[] spcAbilityColors;
+  private String spcGaugeLine;
 
   @SubscribeEvent
   public void onRenderPlayerList(RenderGameOverlayEvent.Pre event) {
@@ -67,11 +86,13 @@ public class ZSTabOverlayHandler extends Gui {
     boolean showSpc = data.spcUnlocked;
 
     int rows = Math.max(MIN_PLAYER_ROWS, Math.min(MAX_PLAYER_ROWS, (players.size() + 1) / 2));
-    int[] widths = getColumnWidths(screenWidth, showSpc);
+    int[] widths = getColumnWidthsCached(screenWidth, showSpc);
     int panelWidth = widths[0] + widths[1] + widths[2] + (showSpc ? widths[3] : 0);
     int left = (screenWidth - panelWidth) / 2;
     int top = 18;
     int height = (rows + 1) * ROW_HEIGHT;
+
+    rebuildDerivedTextIfNeeded(font, data, widths[2] - 6, widths[3] - 6);
 
     GL11.glPushMatrix();
     drawRect(left - 2, top - 2, left + panelWidth + 2, top + height + 2, 0xAA202020);
@@ -89,13 +110,13 @@ public class ZSTabOverlayHandler extends Gui {
       drawColumnGrid(x3, top, widths[3], rows);
     }
 
-    drawCentered(font, EnumChatFormatting.BLUE + "" + EnumChatFormatting.BOLD + "Stats", x2, top + 1, widths[2], HEADER_COLOR);
+    drawCentered(font, STATS_HEADER, x2, top + 1, widths[2], HEADER_COLOR);
     if (showSpc) {
-      drawCentered(font, EnumChatFormatting.DARK_AQUA + "" + EnumChatFormatting.BOLD + "Spirit Control", x3, top + 1, widths[3], HEADER_COLOR);
+      drawCentered(font, SPC_HEADER, x3, top + 1, widths[3], HEADER_COLOR);
     }
 
     drawPlayers(mc, font, players, x0, x1, top + ROW_HEIGHT, widths[0], widths[1], rows);
-    drawStats(font, data, x2, top + ROW_HEIGHT, widths[2]);
+    drawStats(font, x2, top + ROW_HEIGHT);
     if (showSpc) {
       drawSpiritControl(font, data, x3, top + ROW_HEIGHT, widths[3]);
     }
@@ -105,6 +126,16 @@ public class ZSTabOverlayHandler extends Gui {
     }
 
     GL11.glPopMatrix();
+  }
+
+  private int[] getColumnWidthsCached(int screenWidth, boolean showSpc) {
+    if (cachedWidths == null || screenWidth != cachedScreenWidth || showSpc != cachedShowSpc) {
+      cachedWidths = getColumnWidths(screenWidth, showSpc);
+      cachedScreenWidth = screenWidth;
+      cachedShowSpc = showSpc;
+    }
+
+    return cachedWidths;
   }
 
   private int[] getColumnWidths(int screenWidth, boolean showSpc) {
@@ -123,6 +154,49 @@ public class ZSTabOverlayHandler extends Gui {
     }
 
     return new int[] {nameWidth, nameWidth, statsWidth, spcWidth};
+  }
+
+  private void rebuildDerivedTextIfNeeded(FontRenderer font, SyncZSTabDataPacket data, int statsTextWidth, int spcTextWidth) {
+    if (statsLines != null && data == cachedData
+        && statsTextWidth == cachedStatsTextWidth && spcTextWidth == cachedSpcTextWidth) {
+      return;
+    }
+
+    cachedData = data;
+    cachedStatsTextWidth = statsTextWidth;
+    cachedSpcTextWidth = spcTextWidth;
+
+    String[] lines = new String[STATS_ROW_COUNT];
+    lines[0] = trimFormatted(font, raceText(data.raceName), statsTextWidth);
+    lines[1] = trimFormatted(font, classText(data.className), statsTextWidth);
+    lines[3] = trimFormatted(font, formText(data.raceName, data.currentForm), statsTextWidth);
+    lines[4] = trimFormatted(font, pathText(data.currentPath), statsTextWidth);
+    lines[6] = statLine(font, "TP", formatCompactNumber(data.tp), EnumChatFormatting.DARK_AQUA, statsTextWidth);
+    lines[7] = statLine(font, "STR", formatNumber(data.str) + formatMultiplier(data.strMulti), EnumChatFormatting.RED, statsTextWidth);
+    lines[8] = statLine(font, "DEX", formatNumber(data.dex) + formatMultiplier(data.dexMulti), EnumChatFormatting.BLUE, statsTextWidth);
+    lines[9] = statLine(font, "CON", formatNumber(data.con), EnumChatFormatting.GREEN, statsTextWidth);
+    lines[10] = statLine(font, "WIL", formatNumber(data.wil) + formatMultiplier(data.wilMulti), EnumChatFormatting.GOLD, statsTextWidth);
+    lines[11] = statLine(font, "MND", formatNumber(data.mnd), EnumChatFormatting.LIGHT_PURPLE, statsTextWidth);
+    lines[12] = statLine(font, "SPI", formatNumber(data.spi), EnumChatFormatting.AQUA, statsTextWidth);
+    lines[14] = trimFormatted(font, EnumChatFormatting.GOLD + "" + EnumChatFormatting.BOLD + "Level: "
+        + EnumChatFormatting.RESET + EnumChatFormatting.WHITE + formatNumber(data.level), statsTextWidth);
+    statsLines = lines;
+
+    String[] abilities = {data.passive, data.super1, data.super2, data.ultimate};
+    spcAbilityLines = new String[abilities.length];
+    spcAbilityColors = new int[abilities.length];
+    for (int i = 0; i < abilities.length; i++) {
+      spcAbilityLines[i] = trim(font, abilities[i], spcTextWidth);
+      spcAbilityColors[i] = "none".equalsIgnoreCase(clean(abilities[i])) ? 0x555555 : TEXT_COLOR;
+    }
+
+    spcGaugeLine = buildSpcGauge(data.spiritPercent);
+  }
+
+  private String statLine(FontRenderer font, String label, String value, EnumChatFormatting color, int width) {
+    String statLabel = color + "" + EnumChatFormatting.BOLD + label + ": ";
+    String statValue = EnumChatFormatting.RESET + "" + EnumChatFormatting.WHITE + value;
+    return trimFormatted(font, statLabel + statValue, width);
   }
 
   private void drawPlayers(Minecraft mc, FontRenderer font, List<GuiPlayerInfo> players, int x0, int x1, int y,
@@ -152,48 +226,26 @@ public class ZSTabOverlayHandler extends Gui {
     }
   }
 
-  private void drawStats(FontRenderer font, SyncZSTabDataPacket data, int x, int y, int width) {
-    int row = 0;
-    drawFormatted(font, raceText(data.raceName), x + 3, y + row++ * ROW_HEIGHT + 1, width - 6, TEXT_COLOR);
-    drawFormatted(font, classText(data.className), x + 3, y + row++ * ROW_HEIGHT + 1, width - 6, TEXT_COLOR);
-    row++;
-    drawFormatted(font, formText(data.raceName, data.currentForm), x + 3, y + row++ * ROW_HEIGHT + 1, width - 6, TEXT_COLOR);
-    drawFormatted(font, pathText(data.currentPath), x + 3, y + row++ * ROW_HEIGHT + 1, width - 6, TEXT_COLOR);
-    row++;
-    drawStatText(font, "TP", formatCompactNumber(data.tp), EnumChatFormatting.DARK_AQUA, x, y + row++ * ROW_HEIGHT, width);
-    drawStat(font, "STR", data.str, data.strMulti, EnumChatFormatting.RED, x, y + row++ * ROW_HEIGHT, width);
-    drawStat(font, "DEX", data.dex, data.dexMulti, EnumChatFormatting.BLUE, x, y + row++ * ROW_HEIGHT, width);
-    drawStat(font, "CON", data.con, EnumChatFormatting.GREEN, x, y + row++ * ROW_HEIGHT, width);
-    drawStat(font, "WIL", data.wil, data.wilMulti, EnumChatFormatting.GOLD, x, y + row++ * ROW_HEIGHT, width);
-    drawStat(font, "MND", data.mnd, EnumChatFormatting.LIGHT_PURPLE, x, y + row++ * ROW_HEIGHT, width);
-    drawStat(font, "SPI", data.spi, EnumChatFormatting.AQUA, x, y + row++ * ROW_HEIGHT, width);
-    row++;
-    drawFormatted(font, EnumChatFormatting.GOLD + "" + EnumChatFormatting.BOLD + "Level: "
-        + EnumChatFormatting.RESET + EnumChatFormatting.WHITE + formatNumber(data.level),
-        x + 3, y + row * ROW_HEIGHT + 1, width - 6, TEXT_COLOR);
+  private void drawStats(FontRenderer font, int x, int y) {
+    for (int row = 0; row < statsLines.length; row++) {
+      String line = statsLines[row];
+      if (line != null) {
+        drawString(font, line, x + 3, y + row * ROW_HEIGHT + 1, TEXT_COLOR);
+      }
+    }
   }
 
   private void drawSpiritControl(FontRenderer font, SyncZSTabDataPacket data, int x, int y, int width) {
     if (!data.spcArmed) {
-      drawCentered(font, EnumChatFormatting.RED + "" + EnumChatFormatting.BOLD + "Disarmed",
-          x, y + ROW_HEIGHT + 1, width, TEXT_COLOR);
+      drawCentered(font, DISARMED_TEXT, x, y + ROW_HEIGHT + 1, width, TEXT_COLOR);
       return;
     }
 
-    drawSpcAbility(font, data.passive, x + 3, y + 1, width - 6);
-    drawSpcAbility(font, data.super1, x + 3, y + ROW_HEIGHT * 3 + 1, width - 6);
-    drawSpcAbility(font, data.super2, x + 3, y + ROW_HEIGHT * 4 + 1, width - 6);
-    drawSpcAbility(font, data.ultimate, x + 3, y + ROW_HEIGHT * 7 + 1, width - 6);
-    drawSpcGauge(font, data.spiritPercent, x + 3, y + ROW_HEIGHT * 9 + 1);
-  }
-
-  private void drawSpcAbility(FontRenderer font, String value, int x, int y, int width) {
-    int color = "none".equalsIgnoreCase(clean(value)) ? 0x555555 : TEXT_COLOR;
-    drawString(font, trim(font, value, width), x, y, color);
-  }
-
-  private void drawSpcGauge(FontRenderer font, int percent, int x, int y) {
-    drawString(font, buildSpcGauge(percent), x, y, TEXT_COLOR);
+    drawString(font, spcAbilityLines[0], x + 3, y + 1, spcAbilityColors[0]);
+    drawString(font, spcAbilityLines[1], x + 3, y + ROW_HEIGHT * 3 + 1, spcAbilityColors[1]);
+    drawString(font, spcAbilityLines[2], x + 3, y + ROW_HEIGHT * 4 + 1, spcAbilityColors[2]);
+    drawString(font, spcAbilityLines[3], x + 3, y + ROW_HEIGHT * 7 + 1, spcAbilityColors[3]);
+    drawString(font, spcGaugeLine, x + 3, y + ROW_HEIGHT * 9 + 1, TEXT_COLOR);
   }
 
   private String buildSpcGauge(int percent) {
@@ -221,20 +273,6 @@ public class ZSTabOverlayHandler extends Gui {
     return EnumChatFormatting.RESET + "" + EnumChatFormatting.AQUA + clampedPercent + "%";
   }
 
-  private void drawStat(FontRenderer font, String label, int value, EnumChatFormatting color, int x, int y, int width) {
-    drawStatText(font, label, formatNumber(value), color, x, y, width);
-  }
-
-  private void drawStat(FontRenderer font, String label, int value, float multiplier, EnumChatFormatting color, int x, int y, int width) {
-    drawStatText(font, label, formatNumber(value) + formatMultiplier(multiplier), color, x, y, width);
-  }
-
-  private void drawStatText(FontRenderer font, String label, String value, EnumChatFormatting color, int x, int y, int width) {
-    String statLabel = color + "" + EnumChatFormatting.BOLD + label + ": ";
-    String statValue = EnumChatFormatting.RESET + "" + EnumChatFormatting.WHITE + value;
-    drawFormatted(font, statLabel + statValue, x + 3, y + 1, width - 6, TEXT_COLOR);
-  }
-
   private String raceText(String raceName) {
     EnumChatFormatting color = EnumChatFormatting.WHITE;
     String normalized = clean(raceName).toLowerCase();
@@ -257,13 +295,13 @@ public class ZSTabOverlayHandler extends Gui {
     EnumChatFormatting color = EnumChatFormatting.WHITE;
     String normalized = clean(className).toLowerCase();
     String displayName = className;
-    if ("warrior".equals(normalized)) {
-      color = EnumChatFormatting.RED;
-    } else if ("martialartist".equals(normalized) || "martial artist".equals(normalized)) {
-      color = EnumChatFormatting.GOLD;
-      displayName = "Martial Artist";
-    } else if ("spiritualist".equals(normalized)) {
-      color = EnumChatFormatting.AQUA;
+    switch (normalized) {
+      case "warrior" -> color = EnumChatFormatting.RED;
+      case "martialartist", "martial artist" -> {
+        color = EnumChatFormatting.GOLD;
+        displayName = "Martial Artist";
+      }
+      case "spiritualist" -> color = EnumChatFormatting.AQUA;
     }
 
     return color + "" + EnumChatFormatting.BOLD + displayName;
@@ -284,7 +322,7 @@ public class ZSTabOverlayHandler extends Gui {
 
   private String pathText(String pathName) {
     String clean = clean(pathName);
-    if (clean.length() == 0) {
+    if (clean.isEmpty()) {
       pathName = EnumChatFormatting.WHITE + "None";
     }
 
@@ -316,20 +354,16 @@ public class ZSTabOverlayHandler extends Gui {
     drawString(font, text, x + (width - font.getStringWidth(text)) / 2, y, color);
   }
 
-  private void drawFormatted(FontRenderer font, String text, int x, int y, int width, int color) {
-    drawString(font, trimFormatted(font, text, width), x, y, color);
-  }
-
   private String trim(FontRenderer font, String text, int width) {
     if (text == null) {
       return "";
     }
 
-    String clean = EnumChatFormatting.getTextWithoutFormattingCodes(text);
     if (font.getStringWidth(text) <= width) {
       return text;
     }
 
+    String clean = EnumChatFormatting.getTextWithoutFormattingCodes(text);
     String suffix = "...";
     return font.trimStringToWidth(clean, Math.max(0, width - font.getStringWidth(suffix))) + suffix;
   }

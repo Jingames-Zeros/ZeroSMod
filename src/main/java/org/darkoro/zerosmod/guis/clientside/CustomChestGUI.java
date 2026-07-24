@@ -16,11 +16,6 @@ public class CustomChestGUI extends GuiContainer {
   private InventoryPlayer plyInv;
   private int numRows;
 
-
-  public CustomChestGUI(InventoryPlayer playerInv, IInventory inv, int textureId) {
-    this(playerInv, inv, textureId, false, false);
-  }
-
   public CustomChestGUI(InventoryPlayer playerInv, IInventory inv, int textureId,
                         boolean isEditable, boolean isInventory) {
     super(new GUIContainer(playerInv, inv, null, isEditable, isInventory));

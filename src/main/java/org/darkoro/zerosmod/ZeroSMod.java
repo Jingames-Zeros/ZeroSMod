@@ -16,7 +16,6 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.biome.BiomeGenBase;
 import org.apache.logging.log4j.Logger;
 import org.darkoro.zerosmod.config.ConfigHandler;
 import org.darkoro.zerosmod.guis.GUIHandler;
@@ -57,26 +56,6 @@ public class ZeroSMod {
 
 	public static int GENERIC_CHEST_GUI = 1;
 	public static int GENERIC_ANVIL_GUI = 2;
-
-	// Spirit Garden
-	public static BiomeGenBase SPIRIT_GARDEN_BIOME;
-
-	// Vakron
-	public static BiomeGenBase VAKRON_BIOME;
-
-	// Dragon Realm
-	public static BiomeGenBase DRAGON_REALM;
-
-	//Generic Biomes
-	public static BiomeGenBase ZS_BIOME_2;
-	public static BiomeGenBase ZS_BIOME_3;
-	public static BiomeGenBase ZS_BIOME_4;
-  public static BiomeGenBase ZS_BIOME_5;
-  public static BiomeGenBase ZS_BIOME_6;
-  public static BiomeGenBase ZS_BIOME_7;
-  public static BiomeGenBase ZS_BIOME_8;
-  public static BiomeGenBase ZS_BIOME_9;
-  public static BiomeGenBase ZS_BIOME_10;
 
 	// Creative Tab
 	public static final CreativeTabs ZeroSModTab = new CreativeTabs("zerosmod") {
