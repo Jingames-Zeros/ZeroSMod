@@ -4,8 +4,10 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
+import noppes.npcs.blocks.BlockTable;
 import org.darkoro.zerosmod.blocks.liquids.GenericZSLiquid;
 
 public class ModBlocks {
@@ -35,6 +37,8 @@ public class ModBlocks {
       LIQUID_FLUIDS.put(name, fluid);
       LIQUID_BLOCKS.put(name, block);
     }
+
+    GameRegistry.registerBlock(new BlockPhylacteryStoneDummy(), "phylactery_stone");
   }
 
   public static Fluid getLiquidFluid(String name) {
@@ -52,5 +56,15 @@ public class ModBlocks {
       FluidRegistry.registerFluid(fluid);
     }
     return fluid;
+  }
+
+  private static final class BlockPhylacteryStoneDummy extends Block {
+
+    public BlockPhylacteryStoneDummy() {
+      super(Material.rock);
+      setBlockName("phylactery_stone");
+      setBlockTextureName("stone"); // optional
+      setHardness(1.5F);
+    }
   }
 }

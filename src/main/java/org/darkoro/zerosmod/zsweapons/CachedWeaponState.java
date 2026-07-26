@@ -3,15 +3,22 @@ package org.darkoro.zerosmod.zsweapons;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class PlayerCombatState {
+public class CachedWeaponState {
     public ItemStack currentItem;
-    public int remainingCooldown = 0;
-    public int cooldown = 20;
-    public float attackMultiplier = 1.0F;
-    private int range = 3;
-    private int rangeSq = 9;
+    public double remainingCooldown;
+    public int cooldown;
+    public float attackMultiplier;
+    private int range;
+    private int rangeSq;
 
-    public PlayerCombatState() {}
+    public boolean canChargeKi;
+    public boolean canBlock;
+    public float blockReduction;
+    public float blockCostMultiplier;
+
+    public CachedWeaponState() {
+        setToDefaultStats();
+    }
 
     /**
      * Updates stats and current item from new item and it's nbt
@@ -21,14 +28,33 @@ public class PlayerCombatState {
         currentItem = item;
         if(item != null && item.getTagCompound() != null && item.getTagCompound().hasKey("zsweapon")) {
             NBTTagCompound weaponCompound = item.getTagCompound().getCompoundTag("zsweapon");
+
             cooldown = weaponCompound.hasKey("attackcooldown") ? weaponCompound.getInteger("attackcooldown") : 20;
             setRange(weaponCompound.hasKey("range") ? weaponCompound.getInteger("range") : 3);
             attackMultiplier = weaponCompound.hasKey("attackmultiplier") ? weaponCompound.getFloat("attackmultiplier") : 1.0F;
+            canChargeKi = weaponCompound.getBoolean("cancharge");
+            canBlock = weaponCompound.getBoolean("canblock");
+            blockReduction = weaponCompound.hasKey("blockreduction") ? weaponCompound.getFloat("blockreduction") : 0.5F;
+            blockCostMultiplier = weaponCompound.hasKey("blockcostmultiplier") ? weaponCompound.getFloat("blockcostmultiplier") : 1.0F;
+
         } else {
-            cooldown = 20;
-            setRange(3);
-            attackMultiplier = 1.0F;
+            setToDefaultStats();
         }
+    }
+
+    public void blockEvent() {}
+
+    /**
+     * Sets stats to default values
+     */
+    public void setToDefaultStats() {
+        cooldown = 20;
+        setRange(3);
+        attackMultiplier = 1.0F;
+        canChargeKi = false;
+        canBlock = false;
+        blockReduction = 0.5F;
+        blockCostMultiplier = 1.0F;
     }
 
     /**

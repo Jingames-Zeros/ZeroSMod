@@ -1,6 +1,6 @@
 package org.darkoro.zerosmod.mixin.late;
 
-import JinRyuu.DragonBC.common.DBCClientTickHandler;
+import JinRyuu.JRMCore.JRMCoreHC;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import org.darkoro.zerosmod.zsweapons.client.ClientWeaponHandler;
@@ -9,22 +9,22 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(
-        value = DBCClientTickHandler.class,
+        value = {JRMCoreHC.class},
         remap = false
 )
-public class DBCClientTickHandlerMixins {
+public class JRMCoreHCMixins {
 
     @Redirect(
-            method = "onTickInGame()V",
+            method = "Blocking()V",
             at = @At(
                     value = "INVOKE",
                     target = "net/minecraft/entity/player/InventoryPlayer.getCurrentItem ()Lnet/minecraft/item/ItemStack;"
             ),
             remap = true
     )
-    private ItemStack heldItemCanChargeKi(InventoryPlayer instance) {
+    private static ItemStack heldItemCanBlock(InventoryPlayer instance) {
         ItemStack item = instance.getCurrentItem();
-        if(ClientWeaponHandler.INSTANCE.currentWeapon.canChargeKi) return null;
+        if(item == null || ClientWeaponHandler.INSTANCE.currentWeapon.canBlock) return null;
         return item;
     }
 }
