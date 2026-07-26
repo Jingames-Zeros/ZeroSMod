@@ -5,11 +5,11 @@ import io.netty.buffer.ByteBuf;
 
 public class CooldownToClientPacket implements IMessage {
     public int fullCooldown;
-    public int cooldown;
+    public double cooldown;
     public double tps;
 
     public CooldownToClientPacket() {}
-    public CooldownToClientPacket(int fullCooldown, int cooldown, double tps) {
+    public CooldownToClientPacket(int fullCooldown, double cooldown, double tps) {
         this.fullCooldown = fullCooldown;
         this.cooldown = cooldown;
         this.tps = tps;
@@ -17,13 +17,13 @@ public class CooldownToClientPacket implements IMessage {
 
     @Override public void fromBytes(ByteBuf buf) {
         fullCooldown = buf.readInt();
-        cooldown = buf.readInt();
+        cooldown = buf.readDouble();
         tps = buf.readDouble();
     }
 
     @Override public void toBytes(ByteBuf buf) {
         buf.writeInt(fullCooldown);
-        buf.writeInt(cooldown);
+        buf.writeDouble(cooldown);
         buf.writeDouble(tps);
     }
 }

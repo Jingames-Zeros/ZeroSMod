@@ -3,7 +3,7 @@
 // (powered by FernFlower decompiler)
 //
 
-package org.darkoro.zerosmod.mixin.late;
+package org.darkoro.zerosmod.mixinloaders;
 
 import com.gtnewhorizon.gtnhmixins.ILateMixinLoader;
 import com.gtnewhorizon.gtnhmixins.LateMixin;
@@ -21,13 +21,17 @@ public class ZeroSModLateMixins implements ILateMixinLoader {
     }
 
     public String getMixinConfig() {
-        return "mixins.ZeroSMod.late.json";
+        return "mixins.zerosmod.late.json";
     }
 
     public List<String> getMixins(Set<String> loadedMods) {
         List<String> mixins = new ArrayList();
         if (side == Side.CLIENT) {
             mixins.add("DBCClientTickHandlerMixins");
+            mixins.add("JRMCoreHCMixins");
+        } else if (side == Side.SERVER) {
+            mixins.add("JRMCoreHMixins");
+            mixins.add("DBCUtilsMixins");
         }
         return mixins;
     }
