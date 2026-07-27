@@ -20,4 +20,6 @@ public class WeaponTypesDefaults {
             "Block Cost Multiplier : 1.0",
             "Block Cooldown : 20"
     };
+
+    public static String[][] values = {header, defaultStats};
 }
