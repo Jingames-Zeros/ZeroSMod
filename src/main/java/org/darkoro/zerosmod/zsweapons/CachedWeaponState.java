@@ -15,6 +15,7 @@ public class CachedWeaponState {
     public boolean canBlock;
     public float blockReduction;
     public float blockCostMultiplier;
+    public float blockCooldown;
 
     public CachedWeaponState() {
         setToDefaultStats();
@@ -27,22 +28,31 @@ public class CachedWeaponState {
     public void changeItem(ItemStack item) {
         currentItem = item;
         if(item != null && item.getTagCompound() != null && item.getTagCompound().hasKey("zsweapon")) {
-            NBTTagCompound weaponCompound = item.getTagCompound().getCompoundTag("zsweapon");
-
-            cooldown = weaponCompound.hasKey("attackcooldown") ? weaponCompound.getInteger("attackcooldown") : 20;
-            setRange(weaponCompound.hasKey("range") ? weaponCompound.getInteger("range") : 3);
-            attackMultiplier = weaponCompound.hasKey("attackmultiplier") ? weaponCompound.getFloat("attackmultiplier") : 1.0F;
-            canChargeKi = weaponCompound.getBoolean("cancharge");
-            canBlock = weaponCompound.getBoolean("canblock");
-            blockReduction = weaponCompound.hasKey("blockreduction") ? weaponCompound.getFloat("blockreduction") : 0.5F;
-            blockCostMultiplier = weaponCompound.hasKey("blockcostmultiplier") ? weaponCompound.getFloat("blockcostmultiplier") : 1.0F;
-
+            readStatsFromCompound(item.getTagCompound().getCompoundTag("zsweapon"));
         } else {
             setToDefaultStats();
         }
     }
 
-    public void blockEvent() {}
+    /**
+     * Reads weapon stats from zsweapon nbt compound
+     * @param compound - zsweapon compound
+     */
+    public void readStatsFromCompound(NBTTagCompound compound) {
+        cooldown = compound.hasKey("attackcooldown") ? compound.getInteger("attackcooldown") : 20;
+        setRange(compound.hasKey("range") ? compound.getInteger("range") : 3);
+        attackMultiplier = compound.hasKey("attackmultiplier") ? compound.getFloat("attackmultiplier") : 1.0F;
+        canChargeKi = compound.getBoolean("cancharge");
+        canBlock = compound.getBoolean("canblock");
+        blockReduction = compound.hasKey("blockreduction") ? compound.getFloat("blockreduction") : 0.5F;
+        blockCostMultiplier = compound.hasKey("blockcostmultiplier") ? compound.getFloat("blockcostmultiplier") : 1.0F;
+        blockCooldown = compound.hasKey("blockcooldown") ? compound.getInteger("blockcooldown") : cooldown;
+    }
+
+    /**
+     *
+     */
+    public NBTTagCompound saveStatsToCompound() { return null; }
 
     /**
      * Sets stats to default values
@@ -55,6 +65,7 @@ public class CachedWeaponState {
         canBlock = false;
         blockReduction = 0.5F;
         blockCostMultiplier = 1.0F;
+        blockCooldown = cooldown;
     }
 
     /**
@@ -71,6 +82,13 @@ public class CachedWeaponState {
      */
     public void handleAttack() {
         resetCooldown();
+    }
+
+    /**
+     * Resets cooldown after blocking
+     */
+    public void blockEvent() {
+        remainingCooldown = blockCooldown;
     }
 
     /**
