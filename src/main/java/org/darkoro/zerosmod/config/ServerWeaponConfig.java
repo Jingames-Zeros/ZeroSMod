@@ -66,6 +66,12 @@ public class ServerWeaponConfig {
             for(String line : enableConfig) {
                 writer.println(line);
             }
+            for(String[] section : WeaponTypesDefaults.values) {
+                for(String line : section) {
+                    writer.println(line);
+                }
+            }
+
             writer.close();
         } catch (IOException ignored) {}
     }
