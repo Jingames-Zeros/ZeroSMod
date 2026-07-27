@@ -15,11 +15,9 @@ import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.zsweapons.CachedWeaponState;
 import org.darkoro.zerosmod.zsweapons.network.CooldownToClientPacket;
 import org.darkoro.zerosmod.zsweapons.network.TargetEntityToServerPacket;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
 import static org.darkoro.zerosmod.zsweapons.ZSWeaponUtils.*;
 
 public class ServerWeaponHandler {
