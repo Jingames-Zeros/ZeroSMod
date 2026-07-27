@@ -8,8 +8,8 @@ public class CachedWeaponState {
     public double remainingCooldown;
     public int cooldown;
     public float attackMultiplier;
-    private int range;
-    private int rangeSq;
+    private float range;
+    private float rangeSq;
 
     public boolean canChargeKi;
     public boolean canBlock;
@@ -35,18 +35,33 @@ public class CachedWeaponState {
     }
 
     /**
+     * Copies states from an existing weapon state
+     */
+    public void copy(CachedWeaponState state) {
+        this.cooldown = state.cooldown;
+        setRange(state.getRange());
+        this.attackMultiplier = state.attackMultiplier;
+        this.canChargeKi = state.canChargeKi;
+        this.canBlock = state.canBlock;
+        this.blockReduction = state.blockReduction;
+        this.blockCostMultiplier = state.blockCostMultiplier;
+        this.blockCooldown = state.blockCooldown;
+    }
+
+    /**
      * Reads weapon stats from zsweapon nbt compound
      * @param compound - zsweapon compound
      */
     public void readStatsFromCompound(NBTTagCompound compound) {
         cooldown = compound.hasKey("attackcooldown") ? compound.getInteger("attackcooldown") : 20;
-        setRange(compound.hasKey("range") ? compound.getInteger("range") : 3);
         attackMultiplier = compound.hasKey("attackmultiplier") ? compound.getFloat("attackmultiplier") : 1.0F;
         canChargeKi = compound.getBoolean("cancharge");
         canBlock = compound.getBoolean("canblock");
         blockReduction = compound.hasKey("blockreduction") ? compound.getFloat("blockreduction") : 0.5F;
         blockCostMultiplier = compound.hasKey("blockcostmultiplier") ? compound.getFloat("blockcostmultiplier") : 1.0F;
         blockCooldown = compound.hasKey("blockcooldown") ? compound.getInteger("blockcooldown") : cooldown;
+
+        setRange(compound.hasKey("range") ? compound.getFloat("range") : 3.0F);
     }
 
     /**
@@ -101,10 +116,10 @@ public class CachedWeaponState {
     /**
      * Updates range and rangeSq
      */
-    public void setRange(int range) {
+    public void setRange(float range) {
         this.range = range;
         this.rangeSq = range * range;
     }
-    public int getRange() { return range; }
-    public int getRangeSq() { return rangeSq; }
+    public float getRange() { return range; }
+    public float getRangeSq() { return rangeSq; }
 }
