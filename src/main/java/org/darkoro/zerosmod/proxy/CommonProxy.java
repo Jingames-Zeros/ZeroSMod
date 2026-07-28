@@ -14,6 +14,8 @@ import org.darkoro.zerosmod.config.BiomeConfig;
 import org.darkoro.zerosmod.event.SaiyanMasteryMergeEvent;
 import org.darkoro.zerosmod.network.NetworkHandler;
 import org.darkoro.zerosmod.world.GenericZSBiome;
+import org.darkoro.zerosmod.world.ModDimensions;
+import org.darkoro.zerosmod.world.WorldProviderPhylactery;
 
 public class CommonProxy {
 
@@ -27,6 +29,7 @@ public class CommonProxy {
 
     // Blocks & Fluids
     ModBlocks.registerAll();
+    ModDimensions.registerAll();
     NetworkHandler.init();
   }
 
@@ -46,4 +49,6 @@ public class CommonProxy {
   public void serverStarting(FMLServerStartingEvent event) {
     event.registerServerCommand(new CommandZSMod());
   }
+
+  public void configurePhylacterySky(WorldProviderPhylactery provider) {}
 }

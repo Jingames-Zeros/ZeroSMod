@@ -14,6 +14,7 @@ public class SyncBiomeVisualsPacket implements IMessage {
   public int[] grassColors;
   public int[] foliageColors;
   public int[] waterColors;
+  public int[] sunOverlayColors;
 
   public SyncBiomeVisualsPacket() {}
 
@@ -28,6 +29,7 @@ public class SyncBiomeVisualsPacket implements IMessage {
     this.grassColors = new int[count];
     this.foliageColors = new int[count];
     this.waterColors = new int[count];
+    this.sunOverlayColors = new int[count];
 
     for (int i = 0; i < count; i++) {
       biomeIds[i] = buf.readInt();
@@ -37,6 +39,7 @@ public class SyncBiomeVisualsPacket implements IMessage {
       grassColors[i] = buf.readInt();
       foliageColors[i] = buf.readInt();
       waterColors[i] = buf.readInt();
+      sunOverlayColors[i] = buf.readInt();
     }
   }
 
@@ -52,6 +55,7 @@ public class SyncBiomeVisualsPacket implements IMessage {
       buf.writeInt(grassColors[i]);
       buf.writeInt(foliageColors[i]);
       buf.writeInt(waterColors[i]);
+      buf.writeInt(sunOverlayColors[i]);
     }
   }
 }

@@ -18,6 +18,7 @@ import net.minecraftforge.common.config.Configuration;
 public final class BiomeConfig {
 
   private static final String CONFIG_FILE_NAME = "biomes.cfg";
+  public static final int NO_SUN_OVERLAY = -1;
 
   private static File biomeConfigDir;
   private static File biomesFile;
@@ -46,6 +47,8 @@ public final class BiomeConfig {
       new BiomeVisuals("ZS Biome 9", 90, 0xFFFFF9, 0xFFFFF9, -1.0F, 0xFFFFF9, 0xFFFFF9, 0xFFFFF9);
   public static final BiomeVisuals ZS_BIOME_10 =
       new BiomeVisuals("ZS Biome 10", 91, 0xFFFFF9, 0xFFFFF9, -1.0F, 0xFFFFF9, 0xFFFFF9, 0xFFFFF9);
+  public static final BiomeVisuals PHYLACTERY =
+      new BiomeVisuals("Phylactery", 92, 0xFFFFF9, 0xFFFFF9, -1.0F, 0xFFFFF9, 0xFFFFF9, 0xFFFFF9);
 
   private BiomeConfig() {}
 
@@ -131,6 +134,8 @@ public final class BiomeConfig {
     visuals.grassColor = getHex(values, visuals.defaultGrassColor, "grass", "grasscolor");
     visuals.foliageColor = getHex(values, visuals.defaultFoliageColor, "foliage", "foliagecolor");
     visuals.waterColor = getHex(values, visuals.defaultWaterColor, "water", "watercolor");
+    visuals.sunOverlayColor = getOptionalHex(values, visuals.defaultSunOverlayColor,
+        "sunoverlay", "sun_overlay", "sunoverlaycolor", "sun_overlay_color");
   }
 
   private static BiomeVisuals findVisuals(String sectionName, String idValue) {
@@ -195,6 +200,7 @@ public final class BiomeConfig {
           "Foliage color hex");
       visuals.waterColor = getLegacyHex(config, "Water Color", category, visuals.defaultWaterColor,
           "Water overlay color hex. This is an overlay tint, not a real water texture.");
+      visuals.sunOverlayColor = NO_SUN_OVERLAY;
     }
   }
 
@@ -233,6 +239,7 @@ public final class BiomeConfig {
       writer.println("# grass = grass tint");
       writer.println("# foliage = leaf/foliage tint");
       writer.println("# water = water overlay tint, not a water texture");
+      writer.println("# sun_overlay = optional sun overlay tint; use none to disable");
       writer.println("#");
       writer.println("# Colors accept 0xRRGGBB, #RRGGBB, or RRGGBB.");
       writer.println();
@@ -258,6 +265,7 @@ public final class BiomeConfig {
     writer.println("grass = " + toHex6(visuals.grassColor));
     writer.println("foliage = " + toHex6(visuals.foliageColor));
     writer.println("water = " + toHex6(visuals.waterColor));
+    writer.println("sun_overlay = " + toOptionalHex(visuals.sunOverlayColor));
     writer.println();
   }
 
@@ -275,6 +283,26 @@ public final class BiomeConfig {
   private static int getHex(Map<String, String> values, int fallback, String... keys) {
     for (String key : keys) {
       Integer parsed = parseHexColor(values.get(normalizeKey(key)));
+      if (parsed != null) {
+        return parsed;
+      }
+    }
+
+    return fallback;
+  }
+
+  private static int getOptionalHex(Map<String, String> values, int fallback, String... keys) {
+    for (String key : keys) {
+      String value = values.get(normalizeKey(key));
+      if (value == null) {
+        continue;
+      }
+
+      if (isDisabledColor(value)) {
+        return NO_SUN_OVERLAY;
+      }
+
+      Integer parsed = parseHexColor(value);
       if (parsed != null) {
         return parsed;
       }
@@ -321,6 +349,10 @@ public final class BiomeConfig {
     return String.format(Locale.ROOT, "0x%06X", (rgb & 0xFFFFFF));
   }
 
+  private static String toOptionalHex(int rgb) {
+    return rgb < 0 ? "none" : toHex6(rgb);
+  }
+
   private static String formatFloat(float value) {
     if (value == Math.rint(value)) {
       return String.format(Locale.ROOT, "%.0f", value);
@@ -351,6 +383,14 @@ public final class BiomeConfig {
     }
   }
 
+  private static boolean isDisabledColor(String raw) {
+    String clean = raw == null ? "" : raw.trim();
+    return clean.equalsIgnoreCase("none")
+        || clean.equalsIgnoreCase("off")
+        || clean.equalsIgnoreCase("disabled")
+        || clean.equals("-1");
+  }
+
   private static String normalizeKey(String value) {
     return ConfigHandler.normalizeKey(value);
   }
@@ -368,7 +408,8 @@ public final class BiomeConfig {
         ZS_BIOME_7,
         ZS_BIOME_8,
         ZS_BIOME_9,
-        ZS_BIOME_10
+        ZS_BIOME_10,
+        PHYLACTERY
     };
   }
 
@@ -380,6 +421,7 @@ public final class BiomeConfig {
     public int grassColor;
     public int foliageColor;
     public int waterColor;
+    public int sunOverlayColor;
 
     private net.minecraft.world.biome.BiomeGenBase biome;
 
@@ -392,6 +434,7 @@ public final class BiomeConfig {
     private final int defaultGrassColor;
     private final int defaultFoliageColor;
     private final int defaultWaterColor;
+    private final int defaultSunOverlayColor;
 
     private BiomeVisuals(String label, int id, int defaultSkyColor, int defaultFogColor,
         float defaultFogMaxStrength, int defaultGrassColor, int defaultFoliageColor, int defaultWaterColor) {
@@ -404,6 +447,7 @@ public final class BiomeConfig {
       this.defaultGrassColor = defaultGrassColor;
       this.defaultFoliageColor = defaultFoliageColor;
       this.defaultWaterColor = defaultWaterColor;
+      this.defaultSunOverlayColor = NO_SUN_OVERLAY;
       reset();
     }
 
@@ -415,6 +459,7 @@ public final class BiomeConfig {
       this.grassColor = defaultGrassColor;
       this.foliageColor = defaultFoliageColor;
       this.waterColor = defaultWaterColor;
+      this.sunOverlayColor = defaultSunOverlayColor;
     }
 
     public String getLabel() {

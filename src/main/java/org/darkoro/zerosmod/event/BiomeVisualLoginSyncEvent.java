@@ -5,6 +5,7 @@ import cpw.mods.fml.common.gameevent.PlayerEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.network.BiomeVisualSyncUtil;
+import org.darkoro.zerosmod.network.SyncDimensionConfigPacket;
 
 public class BiomeVisualLoginSyncEvent {
 
@@ -14,5 +15,6 @@ public class BiomeVisualLoginSyncEvent {
 
     EntityPlayerMP player = (EntityPlayerMP) event.player;
     ZeroSMod.network.sendTo(BiomeVisualSyncUtil.buildFullPacket(), player);
+    ZeroSMod.network.sendTo(SyncDimensionConfigPacket.buildCurrent(), player);
   }
 }

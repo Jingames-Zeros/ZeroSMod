@@ -10,6 +10,8 @@ import org.darkoro.zerosmod.blocks.liquids.GenericZSLiquid;
 
 public class ModBlocks {
 
+  public static final Block PHYLACTERY_STONE = new GenericZSSolidBlock("phylactery_stone", "end_stone");
+
   public static final String[] LIQUID_NAMES = {
       "spirit_water",
       "colorless_water",
@@ -27,6 +29,8 @@ public class ModBlocks {
   private static final Map<String, Block> LIQUID_BLOCKS = new LinkedHashMap<String, Block>();
 
   public static void registerAll() {
+    GameRegistry.registerBlock(PHYLACTERY_STONE, "phylactery_stone");
+
     for (String name : LIQUID_NAMES) {
       Fluid fluid = getOrRegisterFluid(name);
       Block block = new GenericZSLiquid(fluid, name);

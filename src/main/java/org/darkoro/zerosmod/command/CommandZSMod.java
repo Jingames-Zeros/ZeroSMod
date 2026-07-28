@@ -13,9 +13,11 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.config.BiomeConfig;
+import org.darkoro.zerosmod.config.DimensionConfig;
 import org.darkoro.zerosmod.config.PathConfig;
 import org.darkoro.zerosmod.event.SaiyanMasteryMergeEvent;
 import org.darkoro.zerosmod.network.BiomeVisualSyncUtil;
+import org.darkoro.zerosmod.network.SyncDimensionConfigPacket;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -256,9 +258,11 @@ public class CommandZSMod extends CommandBase {
 
       PathConfig.reload();
       BiomeConfig.reload();
+      DimensionConfig.reload();
 
       IMessage pkt = BiomeVisualSyncUtil.buildFullPacket();
       ZeroSMod.network.sendToAll(pkt);
+      ZeroSMod.network.sendToAll(SyncDimensionConfigPacket.buildCurrent());
 
       int players = MinecraftServer.getServer().getConfigurationManager().playerEntityList.size();
       sender.addChatMessage(new ChatComponentText(

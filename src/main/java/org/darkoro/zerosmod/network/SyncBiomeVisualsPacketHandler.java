@@ -23,6 +23,7 @@ public class SyncBiomeVisualsPacketHandler implements IMessageHandler<SyncBiomeV
       v.grassColor = msg.grassColors[i];
       v.foliageColor = msg.foliageColors[i];
       v.waterColor = msg.waterColors[i];
+      v.sunOverlayColor = msg.sunOverlayColors[i];
 
       // Water tint is baked into the BiomeGenBase instance as waterColorMultiplier.
       // Biomes set it once in the constructor, update it live.

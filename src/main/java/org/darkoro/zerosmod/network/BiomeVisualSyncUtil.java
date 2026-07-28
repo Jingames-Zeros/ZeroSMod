@@ -19,6 +19,7 @@ public final class BiomeVisualSyncUtil {
     pkt.grassColors = new int[pkt.count];
     pkt.foliageColors = new int[pkt.count];
     pkt.waterColors = new int[pkt.count];
+    pkt.sunOverlayColors = new int[pkt.count];
 
     for (int i = 0; i < pkt.count; i++) {
       BiomeConfig.BiomeVisuals v = list[i];
@@ -30,6 +31,7 @@ public final class BiomeVisualSyncUtil {
       pkt.grassColors[i] = v.grassColor;
       pkt.foliageColors[i] = v.foliageColor;
       pkt.waterColors[i] = v.waterColor;
+      pkt.sunOverlayColors[i] = v.sunOverlayColor;
     }
 
     return pkt;

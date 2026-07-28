@@ -8,10 +8,13 @@ import java.util.Arrays;
 import java.util.List;
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.client.BiomeFogHandler;
+import org.darkoro.zerosmod.client.DimensionVisibilityHandler;
+import org.darkoro.zerosmod.client.PhylacterySkyRenderer;
 import org.darkoro.zerosmod.client.ZSTabOverlayHandler;
 import org.darkoro.zerosmod.input.KeyInputHandler;
 import org.darkoro.zerosmod.input.KeybindHandler;
 import net.minecraftforge.common.MinecraftForge;
+import org.darkoro.zerosmod.world.WorldProviderPhylactery;
 import org.darkoro.zerosmod.zsweapons.client.ClientWeaponHandler;
 
 public class ClientProxy extends CommonProxy {
@@ -24,6 +27,7 @@ public class ClientProxy extends CommonProxy {
     FMLCommonHandler.instance().bus().register(ClientWeaponHandler.INSTANCE);
     MinecraftForge.EVENT_BUS.register(new ZSTabOverlayHandler());
     MinecraftForge.EVENT_BUS.register(new BiomeFogHandler());
+    MinecraftForge.EVENT_BUS.register(new DimensionVisibilityHandler());
     MinecraftForge.EVENT_BUS.register(ClientWeaponHandler.INSTANCE);
   }
 
@@ -38,5 +42,10 @@ public class ClientProxy extends CommonProxy {
       LanguageRegistry.instance().loadLocalization(String.format(defaultFile, lang), lang, false);
       ZeroSMod.LOGGER.info("Loaded language {}", lang);
     }
+  }
+
+  @Override
+  public void configurePhylacterySky(WorldProviderPhylactery provider) {
+    provider.setSkyRenderer(new PhylacterySkyRenderer());
   }
 }

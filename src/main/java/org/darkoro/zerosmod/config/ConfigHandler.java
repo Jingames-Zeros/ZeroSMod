@@ -13,6 +13,7 @@ public final class ConfigHandler {
 
   public static void loadAll(FMLPreInitializationEvent event) {
     BiomeConfig.load(event);
+    DimensionConfig.load(event);
     PathConfig.load(event);
     ClientWeaponConfig.load(event);
     ServerWeaponConfig.load(event);
