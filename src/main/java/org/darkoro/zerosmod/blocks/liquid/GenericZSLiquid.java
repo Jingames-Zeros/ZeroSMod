@@ -1,4 +1,4 @@
-package org.darkoro.zerosmod.blocks.liquids;
+package org.darkoro.zerosmod.blocks.liquid;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;

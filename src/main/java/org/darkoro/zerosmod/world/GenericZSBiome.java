@@ -17,13 +17,6 @@ public class GenericZSBiome extends BiomeGenBase {
     this.waterColorMultiplier = config.waterColor;
     this.topBlock = Blocks.grass;
     this.fillerBlock = Blocks.dirt;
-    if (config == BiomeConfig.DRAGON_REALM) {
-      this.rootHeight = 0.7F;
-      this.heightVariation = 0.7F;
-      this.theBiomeDecorator.treesPerChunk = 8;
-      this.theBiomeDecorator.grassPerChunk = 4;
-      this.theBiomeDecorator.generateLakes = false;
-    }
     this.spawnableCreatureList.clear();
     this.spawnableMonsterList.clear();
   }

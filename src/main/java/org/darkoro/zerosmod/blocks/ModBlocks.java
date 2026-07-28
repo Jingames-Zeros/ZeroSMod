@@ -6,11 +6,14 @@ import java.util.Map;
 import net.minecraft.block.Block;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
-import org.darkoro.zerosmod.blocks.liquids.GenericZSLiquid;
+import org.darkoro.zerosmod.blocks.block.GenericZSBlock;
+import org.darkoro.zerosmod.blocks.liquid.GenericZSLiquid;
 
 public class ModBlocks {
 
-  public static final Block PHYLACTERY_STONE = new GenericZSSolidBlock("phylactery_stone", "end_stone");
+  public static final GenericZSBlock PHYLACTERY_STONE = new GenericZSBlock("phylactery_stone");
+  public static final GenericZSBlock DRAGON_CLOUDS = new GenericZSBlock("dragon_clouds");
+  public static final GenericZSBlock PITCLOUDS = new GenericZSBlock("pitclouds");
 
   public static final String[] LIQUID_NAMES = {
       "spirit_water",
@@ -29,7 +32,9 @@ public class ModBlocks {
   private static final Map<String, Block> LIQUID_BLOCKS = new LinkedHashMap<String, Block>();
 
   public static void registerAll() {
-    GameRegistry.registerBlock(PHYLACTERY_STONE, "phylactery_stone");
+    registerBlock(PHYLACTERY_STONE);
+    registerBlock(DRAGON_CLOUDS);
+    registerBlock(PITCLOUDS);
 
     for (String name : LIQUID_NAMES) {
       Fluid fluid = getOrRegisterFluid(name);
@@ -56,5 +61,9 @@ public class ModBlocks {
       FluidRegistry.registerFluid(fluid);
     }
     return fluid;
+  }
+
+  private static void registerBlock(GenericZSBlock block) {
+    GameRegistry.registerBlock(block, block.getRegistryName());
   }
 }
