@@ -7,12 +7,14 @@ public final class ModDimensions {
 
   public static final int PHYLACTERY_PROVIDER_TYPE_ID = 69;
   public static final int DRAGON_REALM_PROVIDER_TYPE_ID = 70;
+  public static final int PVP_PROVIDER_TYPE_ID = 71;
 
   private ModDimensions() {}
 
   public static void registerAll() {
     registerProviderType(PHYLACTERY_PROVIDER_TYPE_ID, WorldProviderPhylactery.class, "Phylactery");
     registerProviderType(DRAGON_REALM_PROVIDER_TYPE_ID, WorldProviderDragonRealm.class, "Dragon Realm");
+    registerProviderType(PVP_PROVIDER_TYPE_ID, WorldProviderPvP.class, "PvP");
   }
 
   private static void registerProviderType(int providerTypeId, Class<? extends net.minecraft.world.WorldProvider> provider,

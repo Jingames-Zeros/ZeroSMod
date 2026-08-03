@@ -115,14 +115,6 @@ public class WorldProviderPhylactery extends WorldProvider {
     return "Phylactery";
   }
 
-  @Override public String getWelcomeMessage() {
-    return "Entering Phylactery";
-  }
-
-  @Override public String getDepartMessage() {
-    return "Leaving Phylactery";
-  }
-
   private Vec3 rgbVector(int rgb, float multiplier) {
     float red = (float)(rgb >> 16 & 255) / 255.0F * multiplier;
     float green = (float)(rgb >> 8 & 255) / 255.0F * multiplier;

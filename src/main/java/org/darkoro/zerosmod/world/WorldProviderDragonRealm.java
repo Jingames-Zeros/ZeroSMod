@@ -64,14 +64,6 @@ public class WorldProviderDragonRealm extends WorldProvider {
     return "Dragon Realm";
   }
 
-  @Override public String getWelcomeMessage() {
-    return "Entering Dragon Realm";
-  }
-
-  @Override public String getDepartMessage() {
-    return "Leaving Dragon Realm";
-  }
-
   private String getFlatPreset() {
     int biomeId = getDragonRealmBiomeId();
     int dragonCloudsId = Block.getIdFromBlock(ModBlocks.DRAGON_CLOUDS);
