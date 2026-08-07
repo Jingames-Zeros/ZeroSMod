@@ -19,9 +19,7 @@ public class ServerProxy extends CommonProxy {
 
 
     if (ServerWeaponConfig.isEnabled()) {
-      FMLCommonHandler.instance().bus().register(ServerWeaponHandler.INSTANCE);
-      MinecraftForge.EVENT_BUS.register(ServerWeaponHandler.INSTANCE);
-      NpcAPI.EVENT_BUS.register(ServerWeaponHandler.INSTANCE);
+
     }
   }
 

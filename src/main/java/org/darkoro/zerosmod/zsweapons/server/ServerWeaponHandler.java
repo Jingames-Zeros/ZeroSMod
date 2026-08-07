@@ -1,6 +1,5 @@
 package org.darkoro.zerosmod.zsweapons.server;
 
-import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.EntityPlayer;
@@ -64,6 +63,7 @@ public class ServerWeaponHandler {
 
     @SubscribeEvent
     public void tick(TickEvent.PlayerTickEvent event) {
+        if(event.side.isClient()) return;
         EntityPlayer player = event.player;
         CachedWeaponState state = stateMap.computeIfAbsent(player.getUniqueID(), k -> new CachedWeaponState());
 
