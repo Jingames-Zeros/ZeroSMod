@@ -14,6 +14,7 @@ import net.minecraft.util.IChatComponent;
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.config.BiomeConfig;
 import org.darkoro.zerosmod.config.DimensionConfig;
+import org.darkoro.zerosmod.config.KiAttackConfig;
 import org.darkoro.zerosmod.config.PathConfig;
 import org.darkoro.zerosmod.event.SaiyanMasteryMergeEvent;
 import org.darkoro.zerosmod.network.BiomeVisualSyncUtil;
@@ -259,6 +260,7 @@ public class CommandZSMod extends CommandBase {
       PathConfig.reload();
       BiomeConfig.reload();
       DimensionConfig.reload();
+      KiAttackConfig.reload();
 
       IMessage pkt = BiomeVisualSyncUtil.buildFullPacket();
       ZeroSMod.network.sendToAll(pkt);

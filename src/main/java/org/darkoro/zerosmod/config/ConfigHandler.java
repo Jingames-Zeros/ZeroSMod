@@ -17,6 +17,7 @@ public final class ConfigHandler {
     PathConfig.load(event);
     ClientWeaponConfig.load(event);
     ServerWeaponConfig.load(event);
+    KiAttackConfig.load(event);
   }
 
   public static File getConfigDir(FMLPreInitializationEvent event) {

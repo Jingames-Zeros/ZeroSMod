@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h1>Zero S Script API</h1>
+<p>
+This site documents only the Zero S methods and hooks exposed to CNPC scripts.
+Use the class list for the method reference pages.
+</p>
+
+<h2>Reference Pages</h2>
+<ul>
+<li><code>ScriptKiAttackEntityMethods</code> - methods called directly on DBC ki attack entity wrappers.</li>
+<li><code>ScriptLivingKiMethods</code> - methods called on NPC/player/living entity wrappers.</li>
+<li><code>ScriptPlayerInstantTransmissionMethods</code> - methods called on player wrappers.</li>
+<li><code>ZSAPI</code> - methods called through the global <code>ZSAPI</code> object.</li>
+<li><code>IZeroSEvent.ActivatedInstantTransmissionEvent</code> - event for <code>activatedInstantTransmission(event)</code>.</li>
+</ul>
+
+<h2>Parameter Note</h2>
+<p>
+On <code>ZSAPI</code> radius methods, <code>origin</code> means the entity used as the middle of the search.
+For example, <code>ZSAPI.stopKi(npc, 5)</code> stops ki within 5 blocks of that NPC until <code>ZSAPI.releaseKi(npc, 5)</code>.
+Wrapper methods like <code>npc.stopKi(5)</code> do not need this parameter because the wrapper itself is the origin.
+</p>
+</body>
+</html>

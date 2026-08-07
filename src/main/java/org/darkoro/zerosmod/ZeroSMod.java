@@ -27,6 +27,10 @@ import org.darkoro.zerosmod.network.SyncDimensionConfigPacket;
 import org.darkoro.zerosmod.network.SyncDimensionConfigPacketHandler;
 import org.darkoro.zerosmod.network.SyncGuiTitlePacket;
 import org.darkoro.zerosmod.network.SyncGuiTitlePacketHandler;
+import org.darkoro.zerosmod.network.SyncKiAttackColorPacket;
+import org.darkoro.zerosmod.network.SyncKiAttackColorPacketHandler;
+import org.darkoro.zerosmod.network.SyncKiAttackStatePacket;
+import org.darkoro.zerosmod.network.SyncKiAttackStatePacketHandler;
 import org.darkoro.zerosmod.network.RequestZSTabDataPacket;
 import org.darkoro.zerosmod.network.RequestZSTabDataPacketHandler;
 import org.darkoro.zerosmod.network.SyncZSTabDataPacket;
@@ -44,10 +48,10 @@ public class ZeroSMod {
 
 	public static final String MODID = "zerosmod";
 	// Bump VERSION only when clients must update. Forge uses this for the client/server mod handshake.
-	public static final String VERSION = "1.6.0";
+	public static final String VERSION = "2.0.0-beta32";
 	public static final String ACCEPTABLE_REMOTE_VERSIONS = "[" + VERSION + "]";
 	// Bump this for server-only emergency builds that should still allow clients on VERSION.
-	public static final String SERVER_BUILD_VERSION = "1.6.0";
+	public static final String SERVER_BUILD_VERSION = "2.0.0-beta32";
 	public static SimpleNetworkWrapper network;
 
 	@Instance(MODID)
@@ -76,6 +80,8 @@ public class ZeroSMod {
 		network.registerMessage(CooldownToClientPacketHandler.class, CooldownToClientPacket.class, 4, Side.CLIENT);
 		network.registerMessage(TargetEntityToServerPacketHandler.class, TargetEntityToServerPacket.class, 5, Side.SERVER);
 		network.registerMessage(SyncDimensionConfigPacketHandler.class, SyncDimensionConfigPacket.class, 6, Side.CLIENT);
+		network.registerMessage(SyncKiAttackColorPacketHandler.class, SyncKiAttackColorPacket.class, 7, Side.CLIENT);
+		network.registerMessage(SyncKiAttackStatePacketHandler.class, SyncKiAttackStatePacket.class, 8, Side.CLIENT);
 		proxy.preInit(event);
 	}
 
