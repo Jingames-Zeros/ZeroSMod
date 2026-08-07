@@ -5,6 +5,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.common.MinecraftForge;
 import noppes.npcs.scripted.NpcAPI;
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.blocks.ModBlocks;
@@ -17,6 +18,7 @@ import org.darkoro.zerosmod.world.GenericZSBiome;
 import org.darkoro.zerosmod.world.ModDimensions;
 import org.darkoro.zerosmod.world.WorldProviderPhylactery;
 import org.darkoro.zerosmod.zsweapons.API.WeaponAPI;
+import org.darkoro.zerosmod.zsweapons.server.ServerWeaponHandler;
 
 public class CommonProxy {
 
@@ -37,6 +39,9 @@ public class CommonProxy {
   public void init(FMLInitializationEvent event) {
     SaiyanMasteryMergeEvent saiyanMasteryMergeEvent = new SaiyanMasteryMergeEvent();
     FMLCommonHandler.instance().bus().register(saiyanMasteryMergeEvent);
+    FMLCommonHandler.instance().bus().register(ServerWeaponHandler.INSTANCE);
+    MinecraftForge.EVENT_BUS.register(ServerWeaponHandler.INSTANCE);
+    NpcAPI.EVENT_BUS.register(ServerWeaponHandler.INSTANCE);
     NpcAPI.EVENT_BUS.register(saiyanMasteryMergeEvent);
     NpcAPI.engineObjects.put("WeaponAPI", new WeaponAPI());
     if (ZeroSMod.LOGGER != null) {

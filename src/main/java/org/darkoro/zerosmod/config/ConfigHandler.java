@@ -18,9 +18,7 @@ public final class ConfigHandler {
     DimensionConfig.load(event);
     PathConfig.load(event);
     ClientWeaponConfig.load(event);
-    if(event.getSide() == Side.SERVER) {
-      ServerWeaponConfig.load(event);
-    }
+    ServerWeaponConfig.load(event);
   }
 
   public static File getConfigDir(FMLPreInitializationEvent event) {
