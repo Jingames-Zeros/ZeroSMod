@@ -1,5 +1,6 @@
 package org.darkoro.zerosmod.zsweapons.server;
 
+import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.EntityPlayer;
@@ -12,9 +13,12 @@ import cpw.mods.fml.common.gameevent.TickEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import noppes.npcs.scripted.event.NpcEvent;
 import org.darkoro.zerosmod.ZeroSMod;
+import org.darkoro.zerosmod.config.ServerWeaponConfig;
 import org.darkoro.zerosmod.zsweapons.CachedWeaponState;
-import org.darkoro.zerosmod.zsweapons.network.CooldownToClientPacket;
-import org.darkoro.zerosmod.zsweapons.network.TargetEntityToServerPacket;
+import org.darkoro.zerosmod.zsweapons.network.packets.CooldownToClientPacket;
+import org.darkoro.zerosmod.zsweapons.network.packets.TargetEntityToServerPacket;
+import org.darkoro.zerosmod.zsweapons.network.packets.WeaponTypesToClientPacket;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -23,6 +27,11 @@ import static org.darkoro.zerosmod.zsweapons.ZSWeaponUtils.*;
 public class ServerWeaponHandler {
     public static final ServerWeaponHandler INSTANCE = new ServerWeaponHandler();
     private final Map<UUID, CachedWeaponState> stateMap = new HashMap<>();
+
+    @SubscribeEvent
+    public void login(PlayerEvent.PlayerLoggedInEvent event) {
+        sendWeaponTypesPacketToClient((EntityPlayerMP) event.player);
+    }
 
     @SubscribeEvent
     public void logout(PlayerEvent.PlayerLoggedOutEvent event) {
@@ -86,6 +95,15 @@ public class ServerWeaponHandler {
     }
 
     /**
+     * Returns player's current combat state
+     * @param player
+     * @return CachedWeaponState
+     */
+    public CachedWeaponState getPlayerState(EntityPlayer player) {
+        return stateMap.get(player.getUniqueID());
+    }
+
+    /**
      * Sends original cooldown, remaining cooldown and menaTPS to client
      * @param player client to send to
      * @param state client's combat state
@@ -105,6 +123,15 @@ public class ServerWeaponHandler {
     }
 
     /**
+     * Sends a weapon types packet to the client
+     * @param player - MP player
+     */
+    private void sendWeaponTypesPacketToClient(EntityPlayerMP player) {
+        WeaponTypesToClientPacket packet = new WeaponTypesToClientPacket(ServerWeaponConfig.defaultWeaponState, ServerWeaponConfig.loadedWeaponStates);
+        ZeroSMod.network.sendTo(packet, player);
+    }
+
+    /**
      * Handles attacking extended reach targets received from client
      * @param message .
      * @param ctx .
@@ -115,9 +142,5 @@ public class ServerWeaponHandler {
         CachedWeaponState state = stateMap.get(player.getUniqueID());
         if(!isValidAttack(state, player, target)) return;
         player.attackTargetEntityWithCurrentItem(target);
-    }
-
-    public CachedWeaponState getPlayerState(EntityPlayer player) {
-        return stateMap.get(player.getUniqueID());
     }
 }

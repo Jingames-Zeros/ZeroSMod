@@ -5,13 +5,14 @@ import org.darkoro.zerosmod.config.defaults.WeaponTypesDefaults;
 import org.darkoro.zerosmod.zsweapons.CachedWeaponState;
 
 import java.io.*;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ServerWeaponConfig {
     private static final String CONFIG_FILE_NAME = "weapon_server.cfg";
     private static boolean ENABLED;
-    private static CachedWeaponState defaultWeaponState;
-    private static Map<String, CachedWeaponState> loadedWeaponStates;
+    public static CachedWeaponState defaultWeaponState;
+    public static Map<String, CachedWeaponState> loadedWeaponStates = new HashMap<>();
 
     private static final String[] fileHeader = {
             "# ZeroSMod server Weapon System config",
@@ -32,7 +33,7 @@ public class ServerWeaponConfig {
             "# Combat System toggles - 1 = Enable, 0 = Disable",
             "# Disabling all modules overwrites all",
             "[Combat System]",
-            "Disable All Modules = 1",
+            "All Combat Modules = 1",
             ""
     };
 
@@ -100,18 +101,24 @@ public class ServerWeaponConfig {
                 if (separator <= 0 || separator >= line.length() - 1) continue;
 
 
-                String key = line.substring(0, separator).trim();
-                String value = line.substring(separator + 1).trim();
-                if(section.equals(enableConfig[2]) && key.equals("Disable All Modules")) {
-                    ENABLED = !value.equals("1");
+                String key = line.substring(0, separator).trim().toLowerCase();
+                String value = line.substring(separator + 1).trim().toLowerCase();
+                if(section.equals(enableConfig[2]) && key.equals("all combat modules")) {
+                    ENABLED = value.equalsIgnoreCase("1");
                 }
-                else if(section.equals(WeaponTypesDefaults.header[0])) {
+                else if(section.equalsIgnoreCase(WeaponTypesDefaults.header[0])) {
                     if(key.equals("type")) {
                         currentWeaponType = value;
-                        loadedWeaponStates.put(value, new CachedWeaponState());
+                        if(value.equals("default")) {
+                            defaultWeaponState = new CachedWeaponState("default");
+                        } else {
+                            loadedWeaponStates.put(value, new CachedWeaponState());
+                        }
                     }
-                    if(!currentWeaponType.equals("")) {
-                        loadWeaponState(loadedWeaponStates.get(currentWeaponType), key, value);
+                    if(!currentWeaponType.isEmpty()) {
+                        CachedWeaponState state = currentWeaponType.equals("default") ?
+                                defaultWeaponState : loadedWeaponStates.get(currentWeaponType);
+                        loadWeaponState(state, key.toLowerCase(), value);
                     }
                 }
             }
@@ -127,35 +134,38 @@ public class ServerWeaponConfig {
 
     public static void loadWeaponState(CachedWeaponState state, String key, String value) {
         switch(key) {
-            case "Attack Cooldown":
-                state.cooldown = Integer.parseInt(value);
+            case "type":
+                state.type = value;
                 break;
-            case "Melee Multiplier":
+            case "attack cooldown":
+                state.blockCooldown = state.cooldown = Integer.parseInt(value);
+                break;
+            case "melee multiplier":
                 state.attackMultiplier = Float.parseFloat(value);
                 break;
-            case "Melee Range":
+            case "melee range":
                 state.setRange(Float.parseFloat(value));
                 break;
-            case "Can Charge Ki":
+            case "can charge ki":
                 state.canChargeKi = Boolean.parseBoolean(value);
                 break;
-            case "Ki Additive Damage":
+            case "ki additive damage":
                 // TODO
                 break;
-            case "Ki Multiplier":
+            case "ki multiplier":
                 // TODO
                 break;
-            case "Can Block":
+            case "can block":
                 state.canBlock = Boolean.parseBoolean(value);
                 break;
-            case "Block Dex Percent":
+            case "block dex percent":
                 state.blockReduction = Float.parseFloat(value);
                 break;
-            case "Block Cost Multiplier":
+            case "block cost multiplier":
                 state.blockCostMultiplier = Float.parseFloat(value);
                 break;
-            case "Block Cooldown":
-                state.blockCooldown = Float.parseFloat(value);
+            case "block cooldown":
+                state.blockCooldown = Integer.parseInt(value);
                 break;
         }
     }

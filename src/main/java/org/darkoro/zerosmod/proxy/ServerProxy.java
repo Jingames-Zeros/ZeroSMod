@@ -17,6 +17,7 @@ public class ServerProxy extends CommonProxy {
     FMLCommonHandler.instance().bus().register(ServerTaskScheduler.INSTANCE);
     FMLCommonHandler.instance().bus().register(new BiomeVisualLoginSyncEvent());
 
+
     if (ServerWeaponConfig.isEnabled()) {
       FMLCommonHandler.instance().bus().register(ServerWeaponHandler.INSTANCE);
       MinecraftForge.EVENT_BUS.register(ServerWeaponHandler.INSTANCE);

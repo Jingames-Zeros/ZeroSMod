@@ -1,6 +1,8 @@
 package org.darkoro.zerosmod.config;
 
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.relauncher.Side;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -16,7 +18,9 @@ public final class ConfigHandler {
     DimensionConfig.load(event);
     PathConfig.load(event);
     ClientWeaponConfig.load(event);
-    ServerWeaponConfig.load(event);
+    if(event.getSide() == Side.SERVER) {
+      ServerWeaponConfig.load(event);
+    }
   }
 
   public static File getConfigDir(FMLPreInitializationEvent event) {

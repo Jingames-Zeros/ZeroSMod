@@ -1,22 +1,40 @@
 package org.darkoro.zerosmod.zsweapons;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import org.darkoro.zerosmod.config.ServerWeaponConfig;
+import org.darkoro.zerosmod.zsweapons.client.ClientWeaponHandler;
+
+import java.util.Map;
+
 
 public class CachedWeaponState {
     public ItemStack currentItem;
+    public String type;
     public double remainingCooldown;
     public int cooldown;
     public float attackMultiplier;
     private float range;
     private float rangeSq;
+    public float sweetSpot;
 
     public boolean canChargeKi;
+    public float kiMultiplier;
+    public int kiAdditive;
+
     public boolean canBlock;
     public float blockReduction;
     public float blockCostMultiplier;
-    public float blockCooldown;
+    public int blockCooldown;
 
+    public CachedWeaponState(String type) {
+        this.type = type;
+        if(!type.equalsIgnoreCase("default")) {
+            // Copy from config
+
+        }
+    }
     public CachedWeaponState() {
         setToDefaultStats();
     }
@@ -28,7 +46,17 @@ public class CachedWeaponState {
     public void changeItem(ItemStack item) {
         currentItem = item;
         if(item != null && item.getTagCompound() != null && item.getTagCompound().hasKey("zsweapon")) {
-            readStatsFromCompound(item.getTagCompound().getCompoundTag("zsweapon"));
+            NBTTagCompound zsweaponNbt = item.getTagCompound().getCompoundTag("zsweapon");
+            String type = zsweaponNbt.getString("type");
+            Map<String, CachedWeaponState> loadedMap = (FMLCommonHandler.instance().getSide().isClient() ? ClientWeaponHandler.loadedWeaponStates : ServerWeaponConfig.loadedWeaponStates);
+            if(loadedMap == null) return;
+            if(type != null && loadedMap.containsKey(type)) {
+                copy(loadedMap.get(type));
+            } else if(type != null && type.equals("special")) {
+                readStatsFromCompound(zsweaponNbt);
+            } else {
+                setToDefaultStats();
+            }
         } else {
             setToDefaultStats();
         }
@@ -38,6 +66,8 @@ public class CachedWeaponState {
      * Copies states from an existing weapon state
      */
     public void copy(CachedWeaponState state) {
+        if(state == null) return;
+        this.type = state.type;
         this.cooldown = state.cooldown;
         setRange(state.getRange());
         this.attackMultiplier = state.attackMultiplier;
@@ -73,14 +103,11 @@ public class CachedWeaponState {
      * Sets stats to default values
      */
     public void setToDefaultStats() {
-        cooldown = 20;
-        setRange(3);
-        attackMultiplier = 1.0F;
-        canChargeKi = false;
-        canBlock = false;
-        blockReduction = 0.5F;
-        blockCostMultiplier = 1.0F;
-        blockCooldown = cooldown;
+        if(FMLCommonHandler.instance().getSide().isClient()) {
+            copy(ClientWeaponHandler.defaultWeaponState); // EDIT
+        } else {
+            copy(ServerWeaponConfig.defaultWeaponState);
+        }
     }
 
     /**
