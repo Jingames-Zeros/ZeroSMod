@@ -3,13 +3,14 @@ package org.darkoro.zerosmod.config.defaults;
 public class WeaponTypesDefaults {
     public static String[] header = {
             "[Weapon Types]",
-            "# Any missing attributes will be filled from default stats."
+            "# Any missing attributes will be filled from default stats.",
+            ""
     };
 
     public static String[] defaultStats = {
-            "[DEFAULT]",
+            "# Default stats used for fist and to fill blanks",
             "Type : Default",
-            "Attack Cooldown : 20",
+            "Attack Cooldown : 10",
             "Melee Multiplier : 1.0",
             "Melee Range : 3.0",
             "Can Charge Ki : true",
@@ -18,8 +19,24 @@ public class WeaponTypesDefaults {
             "Can Block : true",
             "Block Dex Percent : 1.0",
             "Block Cost Multiplier : 1.0",
-            "Block Cooldown : 20"
+            "Block Cooldown : 10",
+            ""
     };
 
-    public static String[][] values = {header, defaultStats};
+    public static String[] sword = {
+          "Type : Sword",
+          "Attack Cooldown : 20",
+          "Melee Multiplier : 2.0",
+          "Melee Range : 4.0",
+          "Can Charge Ki : false",
+          "Can Block : true",
+          "Block Dex Percent : 1.0",
+          "Block Cost Multiplier : 1.0",
+          "Block Cooldown : 10",
+          "Sweet Spot : 2.0",
+          ""
+    };
+
+    // ADD ALL DEFAULTS TO HERE
+    public static String[][] values = {header, defaultStats, sword};
 }

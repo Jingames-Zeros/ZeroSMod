@@ -14,6 +14,7 @@ import org.darkoro.zerosmod.config.BiomeConfig;
 import org.darkoro.zerosmod.event.SaiyanMasteryMergeEvent;
 import org.darkoro.zerosmod.network.NetworkHandler;
 import org.darkoro.zerosmod.world.GenericZSBiome;
+import org.darkoro.zerosmod.zsweapons.API.WeaponAPI;
 
 public class CommonProxy {
 
@@ -34,6 +35,7 @@ public class CommonProxy {
     SaiyanMasteryMergeEvent saiyanMasteryMergeEvent = new SaiyanMasteryMergeEvent();
     FMLCommonHandler.instance().bus().register(saiyanMasteryMergeEvent);
     NpcAPI.EVENT_BUS.register(saiyanMasteryMergeEvent);
+    NpcAPI.engineObjects.put("WeaponAPI", new WeaponAPI());
     if (ZeroSMod.LOGGER != null) {
       ZeroSMod.LOGGER.info("Registered Saiyan mastery merge handler on FML and CNPC event busses.");
     }

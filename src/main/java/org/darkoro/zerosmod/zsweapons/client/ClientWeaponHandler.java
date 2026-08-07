@@ -16,12 +16,19 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.config.ClientWeaponConfig;
 import org.darkoro.zerosmod.zsweapons.CachedWeaponState;
-import org.darkoro.zerosmod.zsweapons.network.CooldownToClientPacket;
-import org.darkoro.zerosmod.zsweapons.network.TargetEntityToServerPacket;
+import org.darkoro.zerosmod.zsweapons.network.packets.CooldownToClientPacket;
+import org.darkoro.zerosmod.zsweapons.network.packets.TargetEntityToServerPacket;
+import org.darkoro.zerosmod.zsweapons.network.packets.WeaponTypesToClientPacket;
+
 import java.util.List;
+import java.util.Map;
+
 import static org.darkoro.zerosmod.zsweapons.ZSWeaponUtils.itemsAreEqual;
 
 public class ClientWeaponHandler {
+    public static Map<String, CachedWeaponState> loadedWeaponStates;
+    public static CachedWeaponState defaultWeaponState;
+
     public static final ClientWeaponHandler INSTANCE = new ClientWeaponHandler();
     public CachedWeaponState currentWeapon = new CachedWeaponState();
 
@@ -34,13 +41,6 @@ public class ClientWeaponHandler {
     private int y2;
 
     public ClientWeaponHandler() {}
-
-    public void handleCooldownPacket(CooldownToClientPacket message) {
-        currentWeapon.remainingCooldown = message.cooldown;
-        currentWeapon.cooldown = message.fullCooldown;
-        this.currentTps = message.tps;
-        calculateOverlayDimensions();
-    }
 
     @SubscribeEvent
     public void mouseClick(MouseEvent event) {
@@ -63,7 +63,6 @@ public class ClientWeaponHandler {
             ItemStack newItem = Minecraft.getMinecraft().thePlayer.getHeldItem();
             if(!(itemsAreEqual(currentWeapon.currentItem, newItem))) {
                 currentWeapon.changeItem(newItem);
-                currentWeapon.resetCooldown();
             }
         }
     }
@@ -143,5 +142,25 @@ public class ClientWeaponHandler {
         } else {
             return targetEntity;
         }
+    }
+
+    /**
+     * Receives cooldown from the server
+     * @param message
+     */
+    public void handleCooldownPacket(CooldownToClientPacket message) {
+        currentWeapon.remainingCooldown = message.cooldown;
+        currentWeapon.cooldown = message.fullCooldown;
+        this.currentTps = message.tps;
+        calculateOverlayDimensions();
+    }
+
+    /**
+     * Receives weapon config from the server
+     * @param message
+     */
+    public void handleWeaponTypesPacket(WeaponTypesToClientPacket message) {
+        defaultWeaponState = message.defaultState;
+        loadedWeaponStates = message.loadedWeaponStates;
     }
 }
