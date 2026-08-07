@@ -7,6 +7,7 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
@@ -14,16 +15,23 @@ import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.config.ClientWeaponConfig;
-import org.darkoro.zerosmod.zsweapons.network.CooldownToClientPacket;
-import org.darkoro.zerosmod.zsweapons.network.TargetEntityToServerPacket;
+import org.darkoro.zerosmod.zsweapons.CachedWeaponState;
+import org.darkoro.zerosmod.zsweapons.network.packets.CooldownToClientPacket;
+import org.darkoro.zerosmod.zsweapons.network.packets.TargetEntityToServerPacket;
+import org.darkoro.zerosmod.zsweapons.network.packets.WeaponTypesToClientPacket;
 
 import java.util.List;
+import java.util.Map;
+
+import static org.darkoro.zerosmod.zsweapons.ZSWeaponUtils.itemsAreEqual;
 
 public class ClientWeaponHandler {
-    public static final ClientWeaponHandler INSTANCE = new ClientWeaponHandler();
+    public static Map<String, CachedWeaponState> loadedWeaponStates;
+    public static CachedWeaponState defaultWeaponState;
 
-    private double remainingCooldown = -1;
-    private int lastCooldown = 20;
+    public static final ClientWeaponHandler INSTANCE = new ClientWeaponHandler();
+    public CachedWeaponState currentWeapon = new CachedWeaponState();
+
     private double currentTps = 20.0D;
     private final ClientWeaponConfig.hudConfig config = ClientWeaponConfig.getHudConfig();
 
@@ -34,16 +42,9 @@ public class ClientWeaponHandler {
 
     public ClientWeaponHandler() {}
 
-    public void handleCooldownPacket(CooldownToClientPacket message) {
-        this.remainingCooldown = message.cooldown;
-        this.lastCooldown = message.fullCooldown;
-        this.currentTps = message.tps;
-        calculateOverlayDimensions();
-    }
-
     @SubscribeEvent
     public void mouseClick(MouseEvent event) {
-        if(event.button != 0 || !event.buttonstate || remainingCooldown > 0) return;
+        if(event.button != 0 || !event.buttonstate || currentWeapon.remainingCooldown > 0) return;
         EntityLivingBase target = getExtendedReachTarget();
         if(target != null) {
             TargetEntityToServerPacket packet = new TargetEntityToServerPacket(target.getEntityId());
@@ -53,15 +54,25 @@ public class ClientWeaponHandler {
 
     @SubscribeEvent
     public void tick(TickEvent.ClientTickEvent event) {
-        if(event.phase == TickEvent.Phase.END && remainingCooldown > 0) {
-            remainingCooldown -= currentTps / 20.0D;
+        // Run combat tick at the start of the tick
+        if(event.phase == TickEvent.Phase.START) {
+            if(currentWeapon.remainingCooldown > 0) {
+                currentWeapon.remainingCooldown -= currentTps / 20.0D;
+            }
+        } else {
+            // Detect item slot change and update attack cooldown
+            if(Minecraft.getMinecraft().thePlayer == null) return;
+            ItemStack newItem = Minecraft.getMinecraft().thePlayer.getHeldItem();
+            if(!(itemsAreEqual(currentWeapon.currentItem, newItem))) {
+                currentWeapon.changeItem(newItem);
+            }
         }
     }
 
     @SubscribeEvent
     public void render(RenderGameOverlayEvent.Post event) {
         if (event.type != RenderGameOverlayEvent.ElementType.ALL) return;
-        if(remainingCooldown > 0) updateOverlay();
+        if(currentWeapon.remainingCooldown > 0) updateOverlay(currentWeapon.remainingCooldown, currentWeapon.cooldown);
     }
 
     /**
@@ -79,7 +90,7 @@ public class ClientWeaponHandler {
     /**
      * Draw overlay on screen
      */
-    public void updateOverlay() {
+    public void updateOverlay(double remainingCooldown, double lastCooldown) {
         // Add shadow
         Gui.drawRect(x1 - 1, y1 - 1, x2 + 1, y2 + 1, config.progressBarShadowColour);
         Gui.drawRect(x1, y1, x1 + (int) ((x2 - x1) * remainingCooldown / lastCooldown), y2, config.progressBarColour);
@@ -132,6 +143,31 @@ public class ClientWeaponHandler {
             return null;
         } else {
             return targetEntity;
+        }
+    }
+
+    /**
+     * Receives cooldown from the server
+     * @param message
+     */
+    public void handleCooldownPacket(CooldownToClientPacket message) {
+        currentWeapon.remainingCooldown = message.cooldown;
+        currentWeapon.cooldown = message.fullCooldown;
+        this.currentTps = message.tps;
+        calculateOverlayDimensions();
+    }
+
+    /**
+     * Receives weapon config from the server
+     * @param message
+     */
+    public void handleWeaponTypesPacket(WeaponTypesToClientPacket message) {
+        defaultWeaponState = message.defaultState;
+        loadedWeaponStates = message.loadedWeaponStates;
+        if(Minecraft.getMinecraft().thePlayer != null) {
+            currentWeapon.changeItem(Minecraft.getMinecraft().thePlayer.getHeldItem());
+        } else {
+            currentWeapon.setToDefaultStats();
         }
     }
 }
