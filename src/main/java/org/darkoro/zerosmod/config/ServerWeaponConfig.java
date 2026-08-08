@@ -3,10 +3,14 @@ package org.darkoro.zerosmod.config;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import org.darkoro.zerosmod.config.defaults.WeaponTypesDefaults;
 import org.darkoro.zerosmod.zsweapons.CachedWeaponState;
+import org.darkoro.zerosmod.zsweapons.WeaponConfigKey;
+import org.darkoro.zerosmod.zsweapons.WeaponTypeId;
 
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.darkoro.zerosmod.zsweapons.WeaponTypeId.*;
 
 public class ServerWeaponConfig {
     private static final String CONFIG_FILE_NAME = "weapon_server.cfg";
@@ -80,7 +84,7 @@ public class ServerWeaponConfig {
     private static void readPathFile() {
         BufferedReader reader = null;
         ENABLED = true;
-        defaultWeaponState = new CachedWeaponState("default");
+        defaultWeaponState = new CachedWeaponState(DEFAULT);
         loadedWeaponStates.clear();
 
         try {
@@ -113,10 +117,10 @@ public class ServerWeaponConfig {
                     ENABLED = !value.equalsIgnoreCase("1");
                 }
                 else if(section.equalsIgnoreCase(WeaponTypesDefaults.header[0])) {
-                    if(normalizedKey.equals("type")) {
+                    if(normalizedKey.equals(WeaponConfigKey.TYPE.key)) {
                         currentWeaponType = ConfigHandler.normalizeKey(value);
-                        if(currentWeaponType.equals("default")) {
-                            defaultWeaponState = new CachedWeaponState("default");
+                        if(currentWeaponType.equals(DEFAULT)) {
+                            defaultWeaponState = new CachedWeaponState(DEFAULT);
                         } else {
                             CachedWeaponState weaponState = new CachedWeaponState(currentWeaponType);
                             weaponState.copy(defaultWeaponState);
@@ -124,7 +128,7 @@ public class ServerWeaponConfig {
                         }
                     }
                     if(!currentWeaponType.isEmpty()) {
-                        CachedWeaponState state = currentWeaponType.equals("default") ?
+                        CachedWeaponState state = currentWeaponType.equals(DEFAULT) ?
                                 defaultWeaponState : loadedWeaponStates.get(currentWeaponType);
                         loadWeaponState(state, normalizedKey, value);
                     }
@@ -142,41 +146,43 @@ public class ServerWeaponConfig {
 
     public static void loadWeaponState(CachedWeaponState state, String key, String value) {
         if (state == null) return;
-        switch(key) {
-            case "type":
+        WeaponConfigKey configKey = WeaponConfigKey.fromKey(key);
+        if (configKey == null) return;
+        switch(configKey) {
+            case TYPE:
                 state.type = value;
                 break;
-            case "attackcooldown":
+            case ATTACK_COOLDOWN:
                 state.blockCooldown = state.cooldown = Integer.parseInt(value);
                 break;
-            case "meleemultiplier":
+            case MELEE_MULTIPLIER:
                 state.attackMultiplier = Float.parseFloat(value);
                 break;
-            case "meleerange":
+            case MELEE_RANGE:
                 state.setRange(Float.parseFloat(value));
                 break;
-            case "canchargeki":
+            case CAN_CHARGE_KI:
                 state.canChargeKi = Boolean.parseBoolean(value);
                 break;
-            case "kiadditivedamage":
+            case KI_ADDITIVE_DAMAGE:
                 state.kiAdditive = Integer.parseInt(value);
                 break;
-            case "kimultiplier":
+            case KI_MULTIPLIER:
                 state.kiMultiplier = Float.parseFloat(value);
                 break;
-            case "sweetspot":
+            case SWEET_SPOT:
                 state.sweetSpot = Float.parseFloat(value);
                 break;
-            case "canblock":
+            case CAN_BLOCK:
                 state.canBlock = Boolean.parseBoolean(value);
                 break;
-            case "blockdexpercent":
+            case BLOCK_DEX_PERCENT:
                 state.blockReduction = Float.parseFloat(value);
                 break;
-            case "blockcostmultiplier":
+            case BLOCK_COST_MULTIPLIER:
                 state.blockCostMultiplier = Float.parseFloat(value);
                 break;
-            case "blockcooldown":
+            case BLOCK_COOLDOWN:
                 state.blockCooldown = Integer.parseInt(value);
                 break;
         }

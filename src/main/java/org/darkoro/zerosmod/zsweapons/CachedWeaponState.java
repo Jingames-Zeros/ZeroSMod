@@ -9,6 +9,9 @@ import org.darkoro.zerosmod.zsweapons.client.ClientWeaponHandler;
 
 import java.util.Map;
 
+import static org.darkoro.zerosmod.zsweapons.WeaponNBTKey.*;
+import static org.darkoro.zerosmod.zsweapons.WeaponTypeId.*;
+
 
 public class CachedWeaponState {
     public ItemStack currentItem;
@@ -43,9 +46,9 @@ public class CachedWeaponState {
      */
     public void changeItem(ItemStack item) {
         currentItem = item;
-        if(item != null && item.getTagCompound() != null && item.getTagCompound().hasKey("zsweapon")) {
-            NBTTagCompound zsweaponNbt = item.getTagCompound().getCompoundTag("zsweapon");
-            String type = ConfigHandler.normalizeKey(zsweaponNbt.getString("type"));
+        if(item != null && item.getTagCompound() != null && item.getTagCompound().hasKey(ZSWEAPON.key)) {
+            NBTTagCompound zsweaponNbt = item.getTagCompound().getCompoundTag(ZSWEAPON.key);
+            String type = ConfigHandler.normalizeKey(zsweaponNbt.getString(TYPE.key));
             Map<String, CachedWeaponState> loadedMap = (FMLCommonHandler.instance().getSide().isClient() ? ClientWeaponHandler.loadedWeaponStates : ServerWeaponConfig.loadedWeaponStates);
             if(loadedMap == null) {
                 setToDefaultStats();
@@ -53,7 +56,7 @@ public class CachedWeaponState {
             }
             if(!type.isEmpty() && loadedMap.containsKey(type)) {
                 copy(loadedMap.get(type));
-            } else if(type.equals("special")) {
+            } else if(type.equals(SPECIAL)) {
                 readStatsFromCompound(zsweaponNbt);
             } else {
                 setToDefaultStats();
@@ -87,18 +90,18 @@ public class CachedWeaponState {
      * @param compound - zsweapon compound
      */
     public void readStatsFromCompound(NBTTagCompound compound) {
-        cooldown = compound.hasKey("attackcooldown") ? compound.getInteger("attackcooldown") : 20;
-        attackMultiplier = compound.hasKey("attackmultiplier") ? compound.getFloat("attackmultiplier") : 1.0F;
-        sweetSpot = compound.hasKey("sweetspot") ? compound.getFloat("sweetspot") : 0.0F;
-        canChargeKi = !compound.hasKey("cancharge") || compound.getBoolean("cancharge");
-        kiMultiplier = compound.hasKey("kimultiplier") ? compound.getFloat("kimultiplier") : 1.0F;
-        kiAdditive = compound.hasKey("kiadditive") ? compound.getInteger("kiadditive") : 0;
-        canBlock = !compound.hasKey("canblock") || compound.getBoolean("canblock");
-        blockReduction = compound.hasKey("blockreduction") ? compound.getFloat("blockreduction") : 0.5F;
-        blockCostMultiplier = compound.hasKey("blockcostmultiplier") ? compound.getFloat("blockcostmultiplier") : 1.0F;
-        blockCooldown = compound.hasKey("blockcooldown") ? compound.getInteger("blockcooldown") : cooldown;
+        cooldown = compound.hasKey(ATTACK_COOLDOWN.key) ? compound.getInteger(ATTACK_COOLDOWN.key) : 20;
+        attackMultiplier = compound.hasKey(ATTACK_MULTIPLIER.key) ? compound.getFloat(ATTACK_MULTIPLIER.key) : 1.0F;
+        sweetSpot = compound.hasKey(SWEET_SPOT.key) ? compound.getFloat(SWEET_SPOT.key) : 0.0F;
+        canChargeKi = !compound.hasKey(CAN_CHARGE.key) || compound.getBoolean(CAN_CHARGE.key);
+        kiMultiplier = compound.hasKey(KI_MULTIPLIER.key) ? compound.getFloat(KI_MULTIPLIER.key) : 1.0F;
+        kiAdditive = compound.hasKey(KI_ADDITIVE.key) ? compound.getInteger(KI_ADDITIVE.key) : 0;
+        canBlock = !compound.hasKey(CAN_BLOCK.key) || compound.getBoolean(CAN_BLOCK.key);
+        blockReduction = compound.hasKey(BLOCK_REDUCTION.key) ? compound.getFloat(BLOCK_REDUCTION.key) : 0.5F;
+        blockCostMultiplier = compound.hasKey(BLOCK_COST_MULTIPLIER.key) ? compound.getFloat(BLOCK_COST_MULTIPLIER.key) : 1.0F;
+        blockCooldown = compound.hasKey(BLOCK_COOLDOWN.key) ? compound.getInteger(BLOCK_COOLDOWN.key) : cooldown;
 
-        setRange(compound.hasKey("range") ? compound.getFloat("range") : 3.0F);
+        setRange(compound.hasKey(RANGE.key) ? compound.getFloat(RANGE.key) : 3.0F);
     }
 
     /**
@@ -119,7 +122,7 @@ public class CachedWeaponState {
     }
 
     private void applyBuiltInDefaults() {
-        this.type = "default";
+        this.type = DEFAULT;
         this.cooldown = 20;
         this.attackMultiplier = 1.0F;
         setRange(3.0F);
