@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import static org.darkoro.zerosmod.zsweapons.WeaponTypeId.*;
+
 public class WeaponTypesToClientPacket implements IMessage {
     public CachedWeaponState defaultState;
     public Map<String, CachedWeaponState> loadedWeaponStates = new HashMap<>();
@@ -43,7 +45,7 @@ public class WeaponTypesToClientPacket implements IMessage {
      */
     private void writeState(ByteBuf buf, CachedWeaponState state) {
         if(state == null) {
-            state = new CachedWeaponState("default");
+            state = new CachedWeaponState(DEFAULT);
         }
         int typeSize = state.type.length();
         // Write type
@@ -77,7 +79,7 @@ public class WeaponTypesToClientPacket implements IMessage {
     private CachedWeaponState readState(ByteBuf buf) {
         CachedWeaponState state;
         if(defaultState == null) {
-            state = new CachedWeaponState("default");
+            state = new CachedWeaponState(DEFAULT);
         } else {
             state = new CachedWeaponState();
         }
