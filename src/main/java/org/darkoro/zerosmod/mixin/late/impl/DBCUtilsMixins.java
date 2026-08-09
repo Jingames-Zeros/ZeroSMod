@@ -25,7 +25,7 @@ public class DBCUtilsMixins {
             index = 36
     )
     private static float updateBlockPercentSource(float def, @Local(name = "player") EntityPlayer player) {
-        return (int) (def * getState(player).blockReduction);
+        return (int) (def * getState(player).blockDexMultiplier);
     }
 
     @ModifyVariable(
@@ -37,7 +37,7 @@ public class DBCUtilsMixins {
             index = 32
     )
     private static float updateBlockPercentStatDamage(float def, @Local(name = "player") EntityPlayer player) {
-        return (int) (def * getState(player).blockReduction);
+        return (int) (def * getState(player).blockDexMultiplier);
     }
 
     @ModifyExpressionValue(

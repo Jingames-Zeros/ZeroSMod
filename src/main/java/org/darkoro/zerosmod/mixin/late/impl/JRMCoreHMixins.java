@@ -35,7 +35,7 @@ public class JRMCoreHMixins {
             index = 34
     )
     private static int updateBlockPercent(int def, @Local(name = "player") EntityPlayer player) {
-        return (int) (def * getState(player).blockReduction);
+        return (int) (def * getState(player).blockDexMultiplier);
     }
 
     private static CachedWeaponState getState(EntityPlayer player) {

@@ -7,11 +7,9 @@ import org.darkoro.zerosmod.config.ConfigHandler;
 import org.darkoro.zerosmod.config.ServerWeaponConfig;
 import org.darkoro.zerosmod.zsweapons.CachedWeaponState;
 import org.darkoro.zerosmod.zsweapons.ZSWeaponUtils;
-
-import java.util.Map;
-
 import static org.darkoro.zerosmod.zsweapons.enums.WeaponNBTKey.*;
 import static org.darkoro.zerosmod.zsweapons.enums.WeaponTypeId.*;
+import java.util.Map;
 
 public class WeaponAPI {
 
