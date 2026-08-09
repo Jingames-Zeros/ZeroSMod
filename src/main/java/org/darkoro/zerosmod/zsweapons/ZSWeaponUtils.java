@@ -1,11 +1,16 @@
 package org.darkoro.zerosmod.zsweapons;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import kamkeel.npcdbc.util.DBCUtils;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
+import org.darkoro.zerosmod.config.ServerWeaponConfig;
+import org.darkoro.zerosmod.zsweapons.client.ClientWeaponHandler;
+import static org.darkoro.zerosmod.zsweapons.enums.WeaponNBTKey.*;
+import java.util.Map;
 
 public class ZSWeaponUtils {
     /**
@@ -64,5 +69,34 @@ public class ZSWeaponUtils {
         double dz = attacker.posZ - z;
 
         return dx * dx + dy * dy + dz * dz;
+    }
+
+    /**
+     * Returns default state for appropriate side
+     */
+    public static CachedWeaponState getDefaultState() {
+        if(FMLCommonHandler.instance().getSide().isClient()) {
+            return ClientWeaponHandler.defaultWeaponState;
+        } else {
+            return ServerWeaponConfig.defaultWeaponState;
+        }
+    }
+
+    /**
+     * Returns loaded states for appropriate side
+     */
+    public static Map<String, CachedWeaponState> getLoadedStates() {
+        if(FMLCommonHandler.instance().getSide().isClient()) {
+            return ClientWeaponHandler.loadedWeaponStates;
+        } else {
+            return ServerWeaponConfig.loadedWeaponStates;
+        }
+    }
+
+    /**
+     * Checks if an item has a ZSWEAPON key
+     */
+    public static boolean hasZSWeaponTag(ItemStack item) {
+        return item != null && item.hasTagCompound() && item.getTagCompound().hasKey(ZSWEAPON.key);
     }
 }
