@@ -5,10 +5,12 @@ import kamkeel.npcdbc.util.DBCUtils;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
 import org.darkoro.zerosmod.config.ServerWeaponConfig;
 import org.darkoro.zerosmod.zsweapons.client.ClientWeaponHandler;
+import static org.darkoro.zerosmod.zsweapons.enums.WeaponTypeId.*;
 import static org.darkoro.zerosmod.zsweapons.enums.WeaponNBTKey.*;
 import java.util.Map;
 
@@ -98,5 +100,20 @@ public class ZSWeaponUtils {
      */
     public static boolean hasZSWeaponTag(ItemStack item) {
         return item != null && item.hasTagCompound() && item.getTagCompound().hasKey(ZSWEAPON.key);
+    }
+
+    /**
+     * Returns existing ZSWeapon
+     * @param item .
+     * @return Item's ZSWeapon Compound or default
+     */
+    public static NBTTagCompound getZSWeaponTag(ItemStack item) {
+        if(hasZSWeaponTag(item)) {
+            return item.getTagCompound().getCompoundTag(ZSWEAPON.key);
+        } else {
+            NBTTagCompound nbt = new NBTTagCompound();
+            nbt.setString(TYPE.key, DEFAULT);
+            return nbt;
+        }
     }
 }

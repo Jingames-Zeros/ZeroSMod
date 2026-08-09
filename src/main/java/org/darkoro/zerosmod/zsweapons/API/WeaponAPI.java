@@ -1,10 +1,12 @@
 package org.darkoro.zerosmod.zsweapons.API;
 
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.item.IItemStack;
 import org.darkoro.zerosmod.config.ConfigHandler;
 import org.darkoro.zerosmod.config.ServerWeaponConfig;
 import org.darkoro.zerosmod.zsweapons.CachedWeaponState;
+import org.darkoro.zerosmod.zsweapons.ZSWeaponUtils;
 
 import java.util.Map;
 
@@ -15,34 +17,26 @@ public class WeaponAPI {
 
     /**
      * Reads weapon type from an item
-     * @param item
+     * @param item .
      * @return String type
      */
     public String getWeaponType(IItemStack item) {
-        NBTTagCompound nbt = item.getMCNbt();
-        if(nbt != null && nbt.hasKey(ZSWEAPON.key) && nbt.getCompoundTag(ZSWEAPON.key).hasKey(TYPE.key)) {
-            return nbt.getCompoundTag(ZSWEAPON.key).getString(TYPE.key);
+        ItemStack mcItem = item.getMCItemStack();
+        if(ZSWeaponUtils.hasZSWeaponTag(mcItem) && ZSWeaponUtils.getZSWeaponTag(mcItem).hasKey(TYPE.key)) {
+            return ZSWeaponUtils.getZSWeaponTag(mcItem).getString(TYPE.key);
         }
         return DEFAULT;
     }
 
     /**
      * Sets item type
-     * @param type
-     * @param item
+     * @param type Loaded weapon type
+     * @param item .
      */
     public void setWeaponType(String type, IItemStack item) {
-        type = ConfigHandler.normalizeKey(type);
-        NBTTagCompound nbt = item.getMCNbt();
-        if(nbt == null) nbt = new NBTTagCompound();
-        if(nbt.hasKey(ZSWEAPON.key)) {
-            nbt.getCompoundTag(ZSWEAPON.key).setString(TYPE.key, type);
-        } else {
-            NBTTagCompound zsweapon = new NBTTagCompound();
-            zsweapon.setString(TYPE.key, type);
-            nbt.setTag(ZSWEAPON.key, zsweapon);
-        }
-        item.setMCNbt(nbt);
+        NBTTagCompound nbt = ZSWeaponUtils.hasZSWeaponTag(item.getMCItemStack()) ? item.getMCNbt().getCompoundTag(ZSWEAPON.key) : new NBTTagCompound();
+        nbt.setString(TYPE.key, ConfigHandler.normalizeKey(type));
+        item.getMCNbt().setTag(ZSWEAPON.key, nbt);
     }
 
     public String[] getLoadedWeaponTypeNames() {
