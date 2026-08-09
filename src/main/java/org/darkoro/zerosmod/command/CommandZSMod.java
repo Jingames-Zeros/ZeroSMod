@@ -12,13 +12,11 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
 import org.darkoro.zerosmod.ZeroSMod;
-import org.darkoro.zerosmod.config.BiomeConfig;
-import org.darkoro.zerosmod.config.DimensionConfig;
-import org.darkoro.zerosmod.config.KiAttackConfig;
-import org.darkoro.zerosmod.config.PathConfig;
+import org.darkoro.zerosmod.config.*;
 import org.darkoro.zerosmod.event.SaiyanMasteryMergeEvent;
 import org.darkoro.zerosmod.network.BiomeVisualSyncUtil;
 import org.darkoro.zerosmod.network.SyncDimensionConfigPacket;
+import org.darkoro.zerosmod.zsweapons.network.packets.WeaponTypesToClientPacket;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -261,10 +259,14 @@ public class CommandZSMod extends CommandBase {
       BiomeConfig.reload();
       DimensionConfig.reload();
       KiAttackConfig.reload();
+      ServerWeaponConfig.reload();
 
       IMessage pkt = BiomeVisualSyncUtil.buildFullPacket();
       ZeroSMod.network.sendToAll(pkt);
       ZeroSMod.network.sendToAll(SyncDimensionConfigPacket.buildCurrent());
+
+      WeaponTypesToClientPacket weaponTypesPacket = new WeaponTypesToClientPacket(ServerWeaponConfig.defaultWeaponState, ServerWeaponConfig.loadedWeaponStates);
+      ZeroSMod.network.sendToAll(weaponTypesPacket);
 
       int players = MinecraftServer.getServer().getConfigurationManager().playerEntityList.size();
       sender.addChatMessage(new ChatComponentText(
