@@ -1,4 +1,4 @@
-package org.darkoro.zerosmod.zsweapons;
+package org.darkoro.zerosmod.zsweapons.enums;
 
 /**
  * Config file key strings used when parsing the weapon_server.cfg file.
@@ -21,7 +21,7 @@ public enum WeaponConfigKey {
 
     // Block-related
     CAN_BLOCK("canblock"),
-    BLOCK_DEX_PERCENT("blockdexpercent"),
+    BLOCK_DEX_MULTIPLIER("blockdexmultiplier"),
     BLOCK_COST_MULTIPLIER("blockcostmultiplier"),
     BLOCK_COOLDOWN("blockcooldown");
 

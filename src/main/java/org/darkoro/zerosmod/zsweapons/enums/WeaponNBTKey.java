@@ -1,4 +1,4 @@
-package org.darkoro.zerosmod.zsweapons;
+package org.darkoro.zerosmod.zsweapons.enums;
 
 /**
  * NBT key strings used to read/write weapon data on item compounds.
@@ -23,7 +23,7 @@ public enum WeaponNBTKey {
 
     // Block
     CAN_BLOCK("canblock"),
-    BLOCK_REDUCTION("blockreduction"),
+    BLOCK_DEX_MULTIPLIER("blockdexmultiplier"),
     BLOCK_COST_MULTIPLIER("blockcostmultiplier"),
     BLOCK_COOLDOWN("blockcooldown");
 

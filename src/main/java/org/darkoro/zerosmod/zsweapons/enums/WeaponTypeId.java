@@ -1,4 +1,4 @@
-package org.darkoro.zerosmod.zsweapons;
+package org.darkoro.zerosmod.zsweapons.enums;
 
 /**
  * Built-in sentinel weapon type identifiers.
