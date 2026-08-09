@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import static org.darkoro.zerosmod.zsweapons.WeaponTypeId.*;
+import static org.darkoro.zerosmod.zsweapons.enums.WeaponTypeId.*;
 
 public class WeaponTypesToClientPacket implements IMessage {
     public CachedWeaponState defaultState;
@@ -67,7 +67,7 @@ public class WeaponTypesToClientPacket implements IMessage {
 
         // Block
         buf.writeBoolean(state.canBlock);
-        buf.writeFloat(state.blockReduction);
+        buf.writeFloat(state.blockDexMultiplier);
         buf.writeFloat(state.blockCostMultiplier);
         buf.writeInt(state.blockCooldown);
     }
@@ -106,7 +106,7 @@ public class WeaponTypesToClientPacket implements IMessage {
 
         // Block
         state.canBlock = buf.readBoolean();
-        state.blockReduction = buf.readFloat();
+        state.blockDexMultiplier = buf.readFloat();
         state.blockCostMultiplier = buf.readFloat();
         state.blockCooldown = buf.readInt();
         return state;

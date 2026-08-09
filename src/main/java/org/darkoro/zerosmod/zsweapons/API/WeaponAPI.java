@@ -1,17 +1,15 @@
 package org.darkoro.zerosmod.zsweapons.API;
 
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.item.IItemStack;
 import org.darkoro.zerosmod.config.ConfigHandler;
 import org.darkoro.zerosmod.config.ServerWeaponConfig;
 import org.darkoro.zerosmod.zsweapons.CachedWeaponState;
-import org.darkoro.zerosmod.zsweapons.WeaponNBTKey;
-import org.darkoro.zerosmod.zsweapons.WeaponTypeId;
+
 import java.util.Map;
 
-import static org.darkoro.zerosmod.zsweapons.WeaponNBTKey.*;
-import static org.darkoro.zerosmod.zsweapons.WeaponTypeId.*;
+import static org.darkoro.zerosmod.zsweapons.enums.WeaponNBTKey.*;
+import static org.darkoro.zerosmod.zsweapons.enums.WeaponTypeId.*;
 
 public class WeaponAPI {
 

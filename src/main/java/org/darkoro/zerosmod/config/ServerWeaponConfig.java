@@ -3,14 +3,11 @@ package org.darkoro.zerosmod.config;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import org.darkoro.zerosmod.config.defaults.WeaponTypesDefaults;
 import org.darkoro.zerosmod.zsweapons.CachedWeaponState;
-import org.darkoro.zerosmod.zsweapons.WeaponConfigKey;
-import org.darkoro.zerosmod.zsweapons.WeaponTypeId;
-
+import org.darkoro.zerosmod.zsweapons.enums.WeaponConfigKey;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.darkoro.zerosmod.zsweapons.WeaponTypeId.*;
+import static org.darkoro.zerosmod.zsweapons.enums.WeaponTypeId.*;
 
 public class ServerWeaponConfig {
     private static final String CONFIG_FILE_NAME = "weapon_server.cfg";
@@ -176,8 +173,8 @@ public class ServerWeaponConfig {
             case CAN_BLOCK:
                 state.canBlock = Boolean.parseBoolean(value);
                 break;
-            case BLOCK_DEX_PERCENT:
-                state.blockReduction = Float.parseFloat(value);
+            case BLOCK_DEX_MULTIPLIER:
+                state.blockDexMultiplier = Float.parseFloat(value);
                 break;
             case BLOCK_COST_MULTIPLIER:
                 state.blockCostMultiplier = Float.parseFloat(value);
