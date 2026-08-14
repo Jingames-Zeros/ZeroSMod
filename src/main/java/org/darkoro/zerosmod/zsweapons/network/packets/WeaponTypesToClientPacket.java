@@ -1,114 +1,105 @@
 package org.darkoro.zerosmod.zsweapons.network.packets;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import org.darkoro.zerosmod.zsweapons.cache.CachedWeaponStats;
 import io.netty.buffer.ByteBuf;
-import org.darkoro.zerosmod.zsweapons.CachedWeaponState;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import static org.darkoro.zerosmod.zsweapons.enums.WeaponTypeId.*;
-
 public class WeaponTypesToClientPacket implements IMessage {
-    public CachedWeaponState defaultState;
-    public Map<String, CachedWeaponState> loadedWeaponStates = new HashMap<>();
+    public Map<String, CachedWeaponStats> loadedWeaponStats = new HashMap<>();
 
     public WeaponTypesToClientPacket() {}
-    public WeaponTypesToClientPacket(CachedWeaponState defaultState, Map<String, CachedWeaponState> loadedWeaponStates) {
-        this.defaultState = defaultState;
-        this.loadedWeaponStates = loadedWeaponStates;
+    public WeaponTypesToClientPacket(Map<String, CachedWeaponStats> loadedWeaponStats) {
+        this.loadedWeaponStats = loadedWeaponStats;
     }
 
     @Override public void fromBytes(ByteBuf buf) {
-        while(buf.isReadable()) {
-            if(defaultState == null) {
-                defaultState = readState(buf);
-            } else {
-                CachedWeaponState state = readState(buf);
-                loadedWeaponStates.put(state.type, state);
+        try {
+            while (buf.isReadable()) {
+                CachedWeaponStats stats = readState(buf);
+                loadedWeaponStats.put(stats.getType(), stats);
             }
-        }
+        } catch (CachedWeaponStats.ProtectedWeaponTypeException ignored) {}
     }
 
     @Override public void toBytes(ByteBuf buf) {
-        writeState(buf, defaultState);
-        for(Entry<String, CachedWeaponState> entry : loadedWeaponStates.entrySet()) {
+        for(Entry<String, CachedWeaponStats> entry : loadedWeaponStats.entrySet()) {
             writeState(buf, entry.getValue());
         }
     }
 
     /**
-     * Writes a cached weapon state to buffer
+     * Writes a cached weapon stats to buffer
      * @param buf - ByteBuf
-     * @param state - Weapon State
+     * @param stats - Weapon State
      */
-    private void writeState(ByteBuf buf, CachedWeaponState state) {
-        if(state == null) {
-            state = new CachedWeaponState(DEFAULT);
-        }
-        int typeSize = state.type.length();
+    private void writeState(ByteBuf buf, CachedWeaponStats stats) {
+        if (stats == null) return;
+
+        String type = stats.getType();
+        int typeSize = type.length();
+
         // Write type
         buf.writeShort(typeSize);
-        for(int i = 0; i < typeSize; i++) {
-            buf.writeChar(state.type.charAt(i));
+        for (int i = 0; i < typeSize; i++) {
+            buf.writeChar(type.charAt(i));
         }
 
         // General settings
-        buf.writeInt(state.cooldown);
-        buf.writeFloat(state.attackMultiplier);
-        buf.writeFloat(state.getRange());
-        buf.writeFloat(state.sweetSpot);
+        buf.writeInt(stats.getCooldown());
+        buf.writeFloat(stats.getAttackMultiplier());
+        buf.writeFloat(stats.getRange());
+        buf.writeFloat(stats.getSweetSpot());
 
         // Ki
-        buf.writeBoolean(state.canChargeKi);
-        buf.writeFloat(state.kiMultiplier);
-        buf.writeInt(state.kiAdditive);
+        buf.writeBoolean(stats.canChargeKi());
+        buf.writeFloat(stats.getKiMultiplier());
+        buf.writeInt(stats.getKiAdditive());
+        buf.writeFloat(stats.getKiCostMultiplier());
 
         // Block
-        buf.writeBoolean(state.canBlock);
-        buf.writeFloat(state.blockDexMultiplier);
-        buf.writeFloat(state.blockCostMultiplier);
-        buf.writeInt(state.blockCooldown);
+        buf.writeBoolean(stats.canBlock());
+        buf.writeFloat(stats.getBlockDexMultiplier());
+        buf.writeFloat(stats.getBlockCostMultiplier());
+        buf.writeInt(stats.getBlockCooldown());
     }
 
     /**
-     * Reads a weapon state from the buffer
+     * Reads a weapon stats from the buffer
      * @param buf
      */
-    private CachedWeaponState readState(ByteBuf buf) {
-        CachedWeaponState state;
-        if(defaultState == null) {
-            state = new CachedWeaponState(DEFAULT);
-        } else {
-            state = new CachedWeaponState();
-        }
-
+    private CachedWeaponStats readState(ByteBuf buf) throws CachedWeaponStats.ProtectedWeaponTypeException {
+        CachedWeaponStats stats;
         // Read weapon type
         short typeLength = buf.readShort();
-        char typeChars[] = new char[typeLength];
-        for(int i = 0; i < typeLength; i++) {
+        char[] typeChars = new char[typeLength];
+
+        for (int i = 0; i < typeLength; i++) {
             typeChars[i] = buf.readChar();
         }
-        String type = new String(typeChars);
-        state.type = type;
+
+        stats = new CachedWeaponStats(new String(typeChars));
 
         // General
-        state.cooldown = buf.readInt();
-        state.attackMultiplier = buf.readFloat();
-        state.setRange(buf.readFloat());
-        state.sweetSpot = buf.readFloat();
+        stats.setCooldown(buf.readInt());
+        stats.setAttackMultiplier(buf.readFloat());
+        stats.setRange(buf.readFloat());
+        stats.setSweetSpot(buf.readFloat());
 
         // Ki
-        state.canChargeKi = buf.readBoolean();
-        state.kiMultiplier = buf.readFloat();
-        state.kiAdditive = buf.readInt();
+        stats.setCanChargeKi(buf.readBoolean());
+        stats.setKiMultiplier(buf.readFloat());
+        stats.setKiAdditive(buf.readInt());
+        stats.setKiCostMultiplier(buf.readFloat());
 
         // Block
-        state.canBlock = buf.readBoolean();
-        state.blockDexMultiplier = buf.readFloat();
-        state.blockCostMultiplier = buf.readFloat();
-        state.blockCooldown = buf.readInt();
-        return state;
+        stats.setCanBlock(buf.readBoolean());
+        stats.setBlockDexMultiplier(buf.readFloat());
+        stats.setBlockCostMultiplier(buf.readFloat());
+        stats.setBlockCooldown(buf.readInt());
+
+        return stats;
     }
 }

@@ -18,6 +18,7 @@ public enum WeaponConfigKey {
     CAN_CHARGE_KI("canchargeki"),
     KI_ADDITIVE_DAMAGE("kiadditivedamage"),
     KI_MULTIPLIER("kimultiplier"),
+    KI_COST_MULTIPLIER("kicostmultiplier"),
 
     // Block-related
     CAN_BLOCK("canblock"),

@@ -2,7 +2,8 @@ package org.darkoro.zerosmod.config;
 
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import org.darkoro.zerosmod.config.defaults.WeaponTypesDefaults;
-import org.darkoro.zerosmod.zsweapons.CachedWeaponState;
+import org.darkoro.zerosmod.zsweapons.PlayerCombatState;
+import org.darkoro.zerosmod.zsweapons.cache.CachedWeaponStats;
 import org.darkoro.zerosmod.zsweapons.enums.WeaponConfigKey;
 import java.io.*;
 import java.util.HashMap;
@@ -12,8 +13,7 @@ import static org.darkoro.zerosmod.zsweapons.enums.WeaponTypeId.*;
 public class ServerWeaponConfig {
     private static final String CONFIG_FILE_NAME = "weapon_server.cfg";
     private static boolean ENABLED;
-    public static CachedWeaponState defaultWeaponState;
-    public static Map<String, CachedWeaponState> loadedWeaponStates = new HashMap<>();
+    public static Map<String, CachedWeaponStats> loadedWeaponStats = new HashMap<>();
 
     private static final String[] fileHeader = {
             "# ZeroSMod server Weapon System config",
@@ -81,8 +81,7 @@ public class ServerWeaponConfig {
     private static void readPathFile() {
         BufferedReader reader = null;
         ENABLED = true;
-        defaultWeaponState = new CachedWeaponState(DEFAULT);
-        loadedWeaponStates.clear();
+        loadedWeaponStats.clear();
 
         try {
             reader = new BufferedReader(new FileReader(ServerWeaponConfigFile));
@@ -116,22 +115,17 @@ public class ServerWeaponConfig {
                 else if(section.equalsIgnoreCase(WeaponTypesDefaults.header[0])) {
                     if(normalizedKey.equals(WeaponConfigKey.TYPE.key)) {
                         currentWeaponType = ConfigHandler.normalizeKey(value);
-                        if(currentWeaponType.equals(DEFAULT)) {
-                            defaultWeaponState = new CachedWeaponState(DEFAULT);
-                        } else {
-                            CachedWeaponState weaponState = new CachedWeaponState(currentWeaponType);
-                            weaponState.copy(defaultWeaponState);
-                            loadedWeaponStates.put(currentWeaponType, weaponState);
-                        }
+                        CachedWeaponStats stats = new CachedWeaponStats(currentWeaponType);
+                        stats.copy(loadedWeaponStats.get(DEFAULT));
+                        loadedWeaponStats.put(currentWeaponType, stats);
                     }
                     if(!currentWeaponType.isEmpty()) {
-                        CachedWeaponState state = currentWeaponType.equals(DEFAULT) ?
-                                defaultWeaponState : loadedWeaponStates.get(currentWeaponType);
-                        loadWeaponState(state, normalizedKey, value);
+                        CachedWeaponStats stats = loadedWeaponStats.get(currentWeaponType);
+                        loadWeaponState(stats, normalizedKey, value);
                     }
                 }
             }
-        } catch (IOException ignored) {
+        } catch (IOException | CachedWeaponStats.ProtectedWeaponTypeException ignored) {
         } finally {
             if (reader != null) {
                 try {
@@ -141,46 +135,58 @@ public class ServerWeaponConfig {
         }
     }
 
-    public static void loadWeaponState(CachedWeaponState state, String key, String value) {
-        if (state == null) return;
+    public static void loadWeaponState(CachedWeaponStats stats, String key, String value) throws CachedWeaponStats.ProtectedWeaponTypeException {
+        if (stats == null) return;
         WeaponConfigKey configKey = WeaponConfigKey.fromKey(key);
         if (configKey == null) return;
         switch(configKey) {
-            case TYPE:
-                state.type = value;
-                break;
             case ATTACK_COOLDOWN:
-                state.blockCooldown = state.cooldown = Integer.parseInt(value);
+                stats.setCooldown(Integer.parseInt(value));
+                stats.setBlockCooldown(Integer.parseInt(value));
                 break;
+
             case MELEE_MULTIPLIER:
-                state.attackMultiplier = Float.parseFloat(value);
+                stats.setAttackMultiplier(Float.parseFloat(value));
                 break;
+
             case MELEE_RANGE:
-                state.setRange(Float.parseFloat(value));
+                stats.setRange(Float.parseFloat(value));
                 break;
+
             case CAN_CHARGE_KI:
-                state.canChargeKi = Boolean.parseBoolean(value);
+                stats.setCanChargeKi(Boolean.parseBoolean(value));
                 break;
+
             case KI_ADDITIVE_DAMAGE:
-                state.kiAdditive = Integer.parseInt(value);
+                stats.setKiAdditive(Integer.parseInt(value));
                 break;
+
             case KI_MULTIPLIER:
-                state.kiMultiplier = Float.parseFloat(value);
+                stats.setKiMultiplier(Float.parseFloat(value));
                 break;
+
+            case KI_COST_MULTIPLIER:
+                stats.setKiCostMultiplier(Float.parseFloat(value));
+                break;
+
             case SWEET_SPOT:
-                state.sweetSpot = Float.parseFloat(value);
+                stats.setSweetSpot(Float.parseFloat(value));
                 break;
+
             case CAN_BLOCK:
-                state.canBlock = Boolean.parseBoolean(value);
+                stats.setCanBlock(Boolean.parseBoolean(value));
                 break;
+
             case BLOCK_DEX_MULTIPLIER:
-                state.blockDexMultiplier = Float.parseFloat(value);
+                stats.setBlockDexMultiplier(Float.parseFloat(value));
                 break;
+
             case BLOCK_COST_MULTIPLIER:
-                state.blockCostMultiplier = Float.parseFloat(value);
+                stats.setBlockCostMultiplier(Float.parseFloat(value));
                 break;
+
             case BLOCK_COOLDOWN:
-                state.blockCooldown = Integer.parseInt(value);
+                stats.setBlockCooldown(Integer.parseInt(value));
                 break;
         }
     }

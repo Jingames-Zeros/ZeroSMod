@@ -20,6 +20,7 @@ public enum WeaponNBTKey {
     CAN_CHARGE("cancharge"),
     KI_MULTIPLIER("kimultiplier"),
     KI_ADDITIVE("kiadditive"),
+    KI_COST_MULTIPLIER("kicostmultiplier"),
 
     // Block
     CAN_BLOCK("canblock"),

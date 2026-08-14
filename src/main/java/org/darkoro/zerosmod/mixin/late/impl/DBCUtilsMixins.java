@@ -4,9 +4,11 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import kamkeel.npcdbc.util.DBCUtils;
 import net.minecraft.entity.player.EntityPlayer;
-import org.darkoro.zerosmod.zsweapons.CachedWeaponState;
+import org.darkoro.zerosmod.zsweapons.PlayerCombatState;
+import org.darkoro.zerosmod.zsweapons.cache.CachedWeaponStats;
 import org.darkoro.zerosmod.zsweapons.server.ServerWeaponHandler;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
@@ -25,7 +27,7 @@ public class DBCUtilsMixins {
             index = 36
     )
     private static float updateBlockPercentSource(float def, @Local(name = "player") EntityPlayer player) {
-        return (int) (def * getState(player).blockDexMultiplier);
+        return (int) (def * getStats(player).getBlockDexMultiplier());
     }
 
     @ModifyVariable(
@@ -37,7 +39,7 @@ public class DBCUtilsMixins {
             index = 32
     )
     private static float updateBlockPercentStatDamage(float def, @Local(name = "player") EntityPlayer player) {
-        return (int) (def * getState(player).blockDexMultiplier);
+        return (int) (def * getStats(player).getBlockDexMultiplier());
     }
 
     @ModifyExpressionValue(
@@ -47,7 +49,7 @@ public class DBCUtilsMixins {
                     args = "floatValue=0.05F")
     )
     private static float updateBlockStaminaCostSource(float original, @Local(name = "player") EntityPlayer player) {
-        return original * getState(player).blockCostMultiplier;
+        return original * getStats(player).getBlockCostMultiplier();
     }
 
     @ModifyExpressionValue(
@@ -57,12 +59,13 @@ public class DBCUtilsMixins {
                     args = "floatValue=0.05F")
     )
     private static float updateBlockStaminaCostStatDamage(float original, @Local(name = "player") EntityPlayer player) {
-        CachedWeaponState state = getState(player);
-        state.blockEvent();
-        return original * state.blockCostMultiplier;
+        CachedWeaponStats stats = getStats(player);
+        ServerWeaponHandler.INSTANCE.getPlayerState(player).blockEvent();
+        return original * stats.getBlockCostMultiplier();
     }
 
-    private static CachedWeaponState getState(EntityPlayer player) {
-        return ServerWeaponHandler.INSTANCE.getPlayerState(player);
+    @Unique
+    private static CachedWeaponStats getStats(EntityPlayer player) {
+        return ServerWeaponHandler.INSTANCE.getPlayerState(player).getItemStats();
     }
 }

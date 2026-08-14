@@ -265,7 +265,7 @@ public class CommandZSMod extends CommandBase {
       ZeroSMod.network.sendToAll(pkt);
       ZeroSMod.network.sendToAll(SyncDimensionConfigPacket.buildCurrent());
 
-      WeaponTypesToClientPacket weaponTypesPacket = new WeaponTypesToClientPacket(ServerWeaponConfig.defaultWeaponState, ServerWeaponConfig.loadedWeaponStates);
+      WeaponTypesToClientPacket weaponTypesPacket = new WeaponTypesToClientPacket(ServerWeaponConfig.loadedWeaponStats);
       ZeroSMod.network.sendToAll(weaponTypesPacket);
 
       int players = MinecraftServer.getServer().getConfigurationManager().playerEntityList.size();

@@ -13,7 +13,7 @@ import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import noppes.npcs.scripted.event.NpcEvent;
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.config.ServerWeaponConfig;
-import org.darkoro.zerosmod.zsweapons.CachedWeaponState;
+import org.darkoro.zerosmod.zsweapons.PlayerCombatState;
 import org.darkoro.zerosmod.zsweapons.network.packets.CooldownToClientPacket;
 import org.darkoro.zerosmod.zsweapons.network.packets.TargetEntityToServerPacket;
 import org.darkoro.zerosmod.zsweapons.network.packets.WeaponTypesToClientPacket;
@@ -25,7 +25,7 @@ import static org.darkoro.zerosmod.zsweapons.ZSWeaponUtils.*;
 
 public class ServerWeaponHandler {
     public static final ServerWeaponHandler INSTANCE = new ServerWeaponHandler();
-    private final Map<UUID, CachedWeaponState> stateMap = new HashMap<>();
+    private final Map<UUID, PlayerCombatState> stateMap = new HashMap<>();
 
     @SubscribeEvent
     public void login(PlayerEvent.PlayerLoggedInEvent event) {
@@ -43,7 +43,7 @@ public class ServerWeaponHandler {
     public void hitEvent(AttackEntityEvent event) {
         EntityPlayer player = event.entityPlayer;
         if(player.worldObj.isRemote) return;
-        CachedWeaponState state = getPlayerState(player);
+        PlayerCombatState state = getPlayerState(player);
         // Cancel event if attack is invalid
         if(!(event.target instanceof EntityLivingBase target) || !isValidAttack(state, player, target)) {
             event.setCanceled(true);
@@ -55,33 +55,33 @@ public class ServerWeaponHandler {
     }
 
     // Add on weapon multiplier damage on npc hits
-    @SubscribeEvent
+    /*@SubscribeEvent
     public void damageNpc(NpcEvent.DamagedEvent event) {
         if(event.getSource() == null || !(event.getSource().getMCEntity() instanceof EntityPlayer player)) return;
         if(player.worldObj.isRemote) return;
-        CachedWeaponState state = getPlayerState(player);
-        if(state.attackMultiplier == 1.0F) return;
-        float extraDamage = getMultiplierBonusDamage(player, state.attackMultiplier);
+        PlayerCombatState state = getPlayerState(player);
+        if(state.getItemStats().getAttackMultiplier() == 1.0F) return;
+        float extraDamage = getMultiplierBonusDamage(player, state.getItemStats().getAttackMultiplier());
         event.setDamage(event.getDamage() + extraDamage);
-    }
+    }*/
 
     @SubscribeEvent
     public void tick(TickEvent.PlayerTickEvent event) {
         if(event.side.isClient()) return;
         EntityPlayer player = event.player;
-        CachedWeaponState state = stateMap.computeIfAbsent(player.getUniqueID(), k -> new CachedWeaponState());
+        PlayerCombatState state = stateMap.computeIfAbsent(player.getUniqueID(), k -> new PlayerCombatState());
 
         // Run combat tick at the start of the tick
         if(event.phase == TickEvent.Phase.START) {
-            state.tick();
+            state.tick(1.0D);
             // Periodically send cooldown to resync with server
-            if(state.remainingCooldown > 0 && state.remainingCooldown % 5 == 0) {
+            if(state.getRemainingAttackCooldown() > 0 && state.getRemainingAttackCooldown() % 5 == 0) {
                 sendCooldownPacketToClient((EntityPlayerMP) player, state);
             }
         } else {
             // Detect item slot change and update attack cooldown
             ItemStack newItem = player.getHeldItem();
-            if(!(itemsAreEqual(state.currentItem, newItem))) {
+            if(!(itemsAreEqual(state.getCurrentItem(), newItem))) {
                 state.changeItem(newItem);
                 startCooldown((EntityPlayerMP) player, state);
             }
@@ -93,7 +93,7 @@ public class ServerWeaponHandler {
      * @param player client to send to
      * @param state state to reset cooldown of
      */
-    public void startCooldown(EntityPlayerMP player, CachedWeaponState state) {
+    public void startCooldown(EntityPlayerMP player, PlayerCombatState state) {
         state.resetCooldown();
         sendCooldownPacketToClient(player, state);
     }
@@ -103,8 +103,8 @@ public class ServerWeaponHandler {
      * @param player
      * @return CachedWeaponState
      */
-    public CachedWeaponState getPlayerState(EntityPlayer player) {
-        return stateMap.computeIfAbsent(player.getUniqueID(), k -> new CachedWeaponState());
+    public PlayerCombatState getPlayerState(EntityPlayer player) {
+        return stateMap.computeIfAbsent(player.getUniqueID(), k -> new PlayerCombatState());
     }
 
     /**
@@ -112,7 +112,7 @@ public class ServerWeaponHandler {
      * @param player client to send to
      * @param state client's combat state
      */
-    private void sendCooldownPacketToClient(EntityPlayerMP player, CachedWeaponState state) {
+    private void sendCooldownPacketToClient(EntityPlayerMP player, PlayerCombatState state) {
         // Calculate current server tps
         long sum = 0L;
         long[] tickTimeArray = MinecraftServer.getServer().tickTimeArray;
@@ -122,7 +122,7 @@ public class ServerWeaponHandler {
         double meanTPS = Math.min(1000.0/meanTickTime, 20);
         
         // Build and send packet
-        CooldownToClientPacket packet = new CooldownToClientPacket(state.cooldown, state.remainingCooldown, meanTPS);
+        CooldownToClientPacket packet = new CooldownToClientPacket(state.getRemainingAttackCooldown(), meanTPS);
         ZeroSMod.network.sendTo(packet, player);
     }
 
@@ -131,7 +131,7 @@ public class ServerWeaponHandler {
      * @param player - MP player
      */
     private void sendWeaponTypesPacketToClient(EntityPlayerMP player) {
-        WeaponTypesToClientPacket packet = new WeaponTypesToClientPacket(ServerWeaponConfig.defaultWeaponState, ServerWeaponConfig.loadedWeaponStates);
+        WeaponTypesToClientPacket packet = new WeaponTypesToClientPacket(ServerWeaponConfig.loadedWeaponStats);
         ZeroSMod.network.sendTo(packet, player);
     }
 
@@ -143,7 +143,7 @@ public class ServerWeaponHandler {
     public void handleTargetEntityPacket(TargetEntityToServerPacket message, MessageContext ctx) {
         EntityPlayer player = ctx.getServerHandler().playerEntity;
         EntityLivingBase target = (EntityLivingBase) player.worldObj.getEntityByID(message.entityId);
-        CachedWeaponState state = getPlayerState(player);
+        PlayerCombatState state = getPlayerState(player);
         if(!isValidAttack(state, player, target)) return;
         player.attackTargetEntityWithCurrentItem(target);
     }

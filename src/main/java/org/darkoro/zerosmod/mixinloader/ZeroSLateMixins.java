@@ -19,10 +19,12 @@ public final class ZeroSLateMixins implements ILateMixinLoader {
     if (loadedMods.contains("jinryuujrmcore") && loadedMods.contains("jinryuudragonblockc")) {
       mixins.add("dbc.MixinEntityEnergyAtt");
       mixins.add("JRMCoreHMixins");
+      mixins.add("DBCPacketHandlerServerMixins");
       if (FMLCommonHandler.instance().getSide().isClient()) {
         mixins.add("dbc.client.MixinRenderEnergyAttackKi");
         mixins.add("DBCClientTickHandlerMixins");
         mixins.add("JRMCoreHCMixins");
+        mixins.add("JRMCoreGuiBarsMixins");
       }
       if (loadedMods.contains("customnpcs")) {
         mixins.add("dbc.MixinEntityInstantTransmission");

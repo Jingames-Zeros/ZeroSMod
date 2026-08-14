@@ -54,7 +54,7 @@ public class CommonProxy {
     FMLCommonHandler.instance().bus().register(KiAttackGuard.INSTANCE);
     NpcAPI.EVENT_BUS.register(saiyanMasteryMergeEvent);
     NpcAPI.Instance().addGlobalObject("ZSAPI", AbstractZeroSAPI.Instance());
-    NpcAPI.Instance().addGlobalObject("WeaponAPI", new WeaponAPI());
+    NpcAPI.Instance().addGlobalObject("WeaponAPI", WeaponAPI.INSTANCE);
     registerScriptHooks();
     MinecraftForge.EVENT_BUS.register(KiAttackGuard.INSTANCE);
     if (ServerWeaponConfig.isEnabled()) {

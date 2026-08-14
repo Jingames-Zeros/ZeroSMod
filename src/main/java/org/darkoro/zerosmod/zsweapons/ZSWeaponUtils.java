@@ -9,7 +9,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
 import org.darkoro.zerosmod.config.ServerWeaponConfig;
+import org.darkoro.zerosmod.zsweapons.cache.CachedWeaponStats;
 import org.darkoro.zerosmod.zsweapons.client.ClientWeaponHandler;
+import org.darkoro.zerosmod.zsweapons.server.ServerWeaponHandler;
+
 import static org.darkoro.zerosmod.zsweapons.enums.WeaponTypeId.*;
 import static org.darkoro.zerosmod.zsweapons.enums.WeaponNBTKey.*;
 import java.util.Map;
@@ -43,14 +46,14 @@ public class ZSWeaponUtils {
      * @param target Target of the attack
      * @return Boolean
      */
-    public static boolean isValidAttack(CachedWeaponState state, EntityPlayer player, EntityLivingBase target) {
+    public static boolean isValidAttack(PlayerCombatState state, EntityPlayer player, EntityLivingBase target) {
         return (
                 player != null &&
                 target != null &&
                 state != null &&
-                state.remainingCooldown <= 0 &&
-                distanceSqToHitBox(player, target) < state.getRangeSq() &&
-                itemsAreEqual(state.currentItem, player.getHeldItem())
+                state.getRemainingAttackCooldown() <= 0 &&
+                distanceSqToHitBox(player, target) < state.getItemStats().getRangeSq()) &&
+                itemsAreEqual(state.getCurrentItem(), player.getHeldItem()
         );
     }
 
@@ -76,22 +79,24 @@ public class ZSWeaponUtils {
     /**
      * Returns default state for appropriate side
      */
-    public static CachedWeaponState getDefaultState() {
+    public static CachedWeaponStats getDefaultStats() {
         if(FMLCommonHandler.instance().getSide().isClient()) {
-            return ClientWeaponHandler.defaultWeaponState;
+            if(ClientWeaponHandler.loadedWeaponStats == null) return null;
+            return ClientWeaponHandler.loadedWeaponStats.get(DEFAULT);
         } else {
-            return ServerWeaponConfig.defaultWeaponState;
+            if(ServerWeaponConfig.loadedWeaponStats == null) return null;
+            return ServerWeaponConfig.loadedWeaponStats.get(DEFAULT);
         }
     }
 
     /**
      * Returns loaded states for appropriate side
      */
-    public static Map<String, CachedWeaponState> getLoadedStates() {
+    public static Map<String, CachedWeaponStats> getLoadedStats() {
         if(FMLCommonHandler.instance().getSide().isClient()) {
-            return ClientWeaponHandler.loadedWeaponStates;
+            return ClientWeaponHandler.loadedWeaponStats;
         } else {
-            return ServerWeaponConfig.loadedWeaponStates;
+            return ServerWeaponConfig.loadedWeaponStats;
         }
     }
 
@@ -116,4 +121,10 @@ public class ZSWeaponUtils {
             return nbt;
         }
     }
+
+    public static boolean clientStateIsNull() { return ClientWeaponHandler.INSTANCE.clientCombatState == null; }
+    public static boolean clientStatsAreNull() { return clientStateIsNull() && ClientWeaponHandler.INSTANCE.clientCombatState.getItemStats() == null; }
+
+    public static boolean playerStateIsNull(EntityPlayer player) { return ServerWeaponHandler.INSTANCE.getPlayerState(player) == null; }
+    public static boolean playerStatsAreNull(EntityPlayer player) { return playerStateIsNull(player) && ServerWeaponHandler.INSTANCE.getPlayerState(player).getItemStats() == null; }
 }

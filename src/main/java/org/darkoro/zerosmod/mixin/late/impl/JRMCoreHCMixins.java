@@ -24,7 +24,7 @@ public class JRMCoreHCMixins {
     )
     private static ItemStack heldItemCanBlock(InventoryPlayer instance) {
         ItemStack item = instance.getCurrentItem();
-        if(item == null || ClientWeaponHandler.INSTANCE.currentWeapon.canBlock) return null;
+        if(item == null || ClientWeaponHandler.INSTANCE.clientCombatState.getItemStats().canBlock()) return null;
         return item;
     }
 }
