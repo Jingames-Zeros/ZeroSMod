@@ -4,6 +4,25 @@ public class WeaponTypesDefaults {
     public static String[] header = {
             "[Weapon Types]",
             "# Any missing attributes will be filled from default stats.",
+            "# A new weapon type is started once a type is defined. All stats after type definition are attributed to that type.",
+            "# Stat order does not matter except for 'Attack Cooldown' which will overwrite 'Block Cooldown'.",
+            "",
+            "# STAT FORMATS",
+            "# All stats follow a 'key : value' format where the key is trimmed, stripped and case insensitive",
+            "# E.g. 'Attack Cooldown : 10' is valid, 'atTACkcooLDOWN : 10' is also valid, 'Attack Speed' is not valid",
+            "# AVAILABLE STATS",
+            "# Type : STRING",
+            "# Attack Cooldown : INTEGER",
+            "# Melee Multiplier : FLOAT",
+            "# Melee Range : FLOAT",
+            "# Sweet Spot : FLOAT",
+            "# Can Charge Ki : BOOLEAN",
+            "# Ki Additive Damage : INTEGER",
+            "# Ki Multiplier : FLOAT",
+            "# Can Block : BOOLEAN",
+            "# Block Dex Percent : FLOAT",
+            "# Block Cost Multiplier : FLOAT",
+            "# Block Cooldown : INTEGER",
             ""
     };
 
@@ -13,6 +32,7 @@ public class WeaponTypesDefaults {
             "Attack Cooldown : 10",
             "Melee Multiplier : 1.0",
             "Melee Range : 3.0",
+            "Sweet Spot : 2.0",
             "Can Charge Ki : true",
             "Ki Additive Damage : 0",
             "Ki Multiplier : 1.0",
@@ -23,7 +43,16 @@ public class WeaponTypesDefaults {
             ""
     };
 
+    public static String[] fist = {
+            "# Fist type - Identical to default weapon type but allows blocking and ki charging",
+            "Type : Fist",
+            "Can Charge Ki : true",
+            "Can Block : true",
+            ""
+    };
+
     public static String[] sword = {
+          "# Sword type - Used for testing",
           "Type : Sword",
           "Attack Cooldown : 20",
           "Melee Multiplier : 2.0",
@@ -38,5 +67,5 @@ public class WeaponTypesDefaults {
     };
 
     // ADD ALL DEFAULTS TO HERE
-    public static String[][] values = {header, defaultStats, sword};
+    public static String[][] values = {header, defaultStats, fist, sword};
 }
