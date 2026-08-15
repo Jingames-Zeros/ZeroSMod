@@ -7,8 +7,7 @@ import org.darkoro.zerosmod.zsweapons.ZSWeaponUtils;
 import java.util.Map;
 import static org.darkoro.zerosmod.zsweapons.enums.WeaponNBTKey.*;
 import static org.darkoro.zerosmod.zsweapons.enums.WeaponNBTKey.KI_ADDITIVE;
-import static org.darkoro.zerosmod.zsweapons.enums.WeaponTypeId.DEFAULT;
-import static org.darkoro.zerosmod.zsweapons.enums.WeaponTypeId.SPECIAL;
+import static org.darkoro.zerosmod.zsweapons.enums.WeaponTypeId.*;
 
 public class CachedWeaponStats {
     private ItemStack item;
@@ -54,7 +53,12 @@ public class CachedWeaponStats {
     public void changeItem(ItemStack item) {
         this.item = item;
         // Read type from item tag
-        if(ZSWeaponUtils.hasZSWeaponTag(item)) {
+        if(item == null) {
+            Map<String, CachedWeaponStats> loadedMap = ZSWeaponUtils.getLoadedStats();
+            if(loadedMap != null) {
+                copy(loadedMap.get(FIST));
+            }
+        } else if(ZSWeaponUtils.hasZSWeaponTag(item)) {
             NBTTagCompound zsweaponNbt = item.getTagCompound().getCompoundTag(ZSWEAPON.key);
             String type = ConfigHandler.normalizeKey(zsweaponNbt.getString(TYPE.key));
             Map<String, CachedWeaponStats> loadedMap = ZSWeaponUtils.getLoadedStats();

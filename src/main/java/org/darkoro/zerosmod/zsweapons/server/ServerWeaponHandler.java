@@ -16,7 +16,6 @@ import org.darkoro.zerosmod.zsweapons.PlayerCombatState;
 import org.darkoro.zerosmod.zsweapons.network.packets.CooldownToClientPacket;
 import org.darkoro.zerosmod.zsweapons.network.packets.TargetEntityToServerPacket;
 import org.darkoro.zerosmod.zsweapons.network.packets.WeaponTypesToClientPacket;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -58,7 +57,7 @@ public class ServerWeaponHandler {
     public void tick(TickEvent.PlayerTickEvent event) {
         if(event.side.isClient()) return;
         EntityPlayer player = event.player;
-        PlayerCombatState state = stateMap.computeIfAbsent(player.getUniqueID(), k -> new PlayerCombatState());
+        PlayerCombatState state = getPlayerState(player);
 
         // Run combat tick at the start of the tick
         if(event.phase == TickEvent.Phase.START) {

@@ -7,7 +7,7 @@ import static org.darkoro.zerosmod.zsweapons.enums.WeaponTypeId.DEFAULT;
 
 public class PlayerCombatState {
     private ItemStack currentItem;
-    private final CachedWeaponStats itemStats = new CachedWeaponStats( DEFAULT );
+    private final CachedWeaponStats itemStats = new CachedWeaponStats();
     private double remainingAttackCooldown = 0;
 
     public PlayerCombatState() {}

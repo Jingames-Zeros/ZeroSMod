@@ -9,8 +9,13 @@ package org.darkoro.zerosmod.zsweapons.enums;
  * </p>
  */
 public final class WeaponTypeId {
-    /** Fallback type used for bare fists and when no weapon type is set */
+    /** Fallback type used when no weapon type is set */
     public static final String DEFAULT = "default";
+
+    /**
+     * Type used for fists - Requires separate definition due to fists being a null item
+     */
+    public static final String FIST = "fist";
 
     /**
      * Special type whose stats are read directly from the item's NBT compound
