@@ -110,7 +110,7 @@ public class ClientWeaponHandler {
     public void updateOverlay(double remainingCooldown, double lastCooldown) {
         // Add shadow
         Gui.drawRect(x1 - 1, y1 - 1, x2 + 1, y2 + 1, config.progressBarShadowColour);
-        Gui.drawRect(x1, y1, x1 + (int) ((x2 - x1) * remainingCooldown / lastCooldown), y2, config.progressBarColour);
+        Gui.drawRect(x1, y1, x1 + (int) ((x2 - x1) * Math.min(remainingCooldown / lastCooldown, 1)), y2, config.progressBarColour);
     }
 
     /**
