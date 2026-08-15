@@ -1,4 +1,4 @@
-package org.darkoro.zerosmod.mixin.late.impl.dbc;
+package org.darkoro.zerosmod.mixin.mixins.late.impl.dbc;
 
 import JinRyuu.JRMCore.JRMCoreH;
 import JinRyuu.JRMCore.entity.EntityEnAttacks;

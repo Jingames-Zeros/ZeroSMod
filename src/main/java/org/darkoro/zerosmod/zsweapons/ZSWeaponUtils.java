@@ -19,17 +19,6 @@ import java.util.Map;
 
 public class ZSWeaponUtils {
     /**
-     * Calculates additional damage from multiplier
-     * @param player .
-     * @param multiplier float multiplier
-     * @return float
-     */
-    public static float getMultiplierBonusDamage(EntityPlayer player, float multiplier) {
-        float meleeDamage = DBCUtils.calculateAttackStat(player, 0, DamageSource.causePlayerDamage(player));
-        return meleeDamage * multiplier - meleeDamage;
-    }
-
-    /**
      * Compares two item stacks and their NBTs
      * @param item1 ItemStack
      * @param item2 ItemStack
@@ -122,9 +111,30 @@ public class ZSWeaponUtils {
         }
     }
 
+    /**
+     * Returns player stats depending on effective side
+     * @param player .
+     * @return player stats
+     */
+    public static CachedWeaponStats getWeaponStats(EntityPlayer player) {
+        if(FMLCommonHandler.instance().getEffectiveSide().isServer()) {
+            if(playerStatsAreNull(player)) return null;
+            return ServerWeaponHandler.INSTANCE.getPlayerState(player).getItemStats();
+        } else {
+            if(clientStatsAreNull()) return null;
+            return ClientWeaponHandler.INSTANCE.clientCombatState.getItemStats();
+        }
+    }
+
+    /**
+     * Client combat null checks
+     */
     public static boolean clientStateIsNull() { return ClientWeaponHandler.INSTANCE.clientCombatState == null; }
     public static boolean clientStatsAreNull() { return clientStateIsNull() && ClientWeaponHandler.INSTANCE.clientCombatState.getItemStats() == null; }
 
+    /**
+     * Server combat null checks
+     */
     public static boolean playerStateIsNull(EntityPlayer player) { return ServerWeaponHandler.INSTANCE.getPlayerState(player) == null; }
     public static boolean playerStatsAreNull(EntityPlayer player) { return playerStateIsNull(player) && ServerWeaponHandler.INSTANCE.getPlayerState(player).getItemStats() == null; }
 }

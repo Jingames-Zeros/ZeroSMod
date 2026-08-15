@@ -1,4 +1,4 @@
-package org.darkoro.zerosmod.mixinloader;
+package org.darkoro.zerosmod.mixin.loaders;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import com.gtnewhorizon.gtnhmixins.ILateMixinLoader;
@@ -18,17 +18,15 @@ public final class ZeroSLateMixins implements ILateMixinLoader {
     List<String> mixins = new ArrayList<String>();
     if (loadedMods.contains("jinryuujrmcore") && loadedMods.contains("jinryuudragonblockc")) {
       mixins.add("dbc.MixinEntityEnergyAtt");
-      mixins.add("JRMCoreHMixins");
-      mixins.add("DBCPacketHandlerServerMixins");
+      mixins.add("dbc.JRMCoreHMixins");
       if (FMLCommonHandler.instance().getSide().isClient()) {
         mixins.add("dbc.client.MixinRenderEnergyAttackKi");
-        mixins.add("DBCClientTickHandlerMixins");
-        mixins.add("JRMCoreHCMixins");
-        mixins.add("JRMCoreGuiBarsMixins");
+        mixins.add("dbc.client.DBCClientTickHandlerMixins");
+        mixins.add("dbc.JRMCoreHCMixins");
       }
       if (loadedMods.contains("customnpcs")) {
         mixins.add("dbc.MixinEntityInstantTransmission");
-        mixins.add("DBCUtilsMixins");
+        mixins.add("npc.DBCUtilsMixins");
         mixins.add("npc.MixinScriptEntityKi");
         mixins.add("npc.MixinScriptEntityInstantTransmission");
         mixins.add("npc.MixinScriptLivingBaseKi");

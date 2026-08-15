@@ -1,4 +1,4 @@
-package org.darkoro.zerosmod.mixin.late.impl.npc;
+package org.darkoro.zerosmod.mixin.mixins.late.impl.npc;
 
 import java.util.HashSet;
 import java.util.List;

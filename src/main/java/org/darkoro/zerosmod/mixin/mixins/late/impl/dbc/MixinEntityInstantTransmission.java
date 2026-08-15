@@ -1,4 +1,4 @@
-package org.darkoro.zerosmod.mixin.late.impl.dbc;
+package org.darkoro.zerosmod.mixin.mixins.late.impl.dbc;
 
 import JinRyuu.DragonBC.common.Entitys.EntityInstantTransmission;
 import net.minecraft.entity.Entity;

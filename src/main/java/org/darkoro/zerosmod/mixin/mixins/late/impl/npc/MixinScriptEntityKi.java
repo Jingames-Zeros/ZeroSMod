@@ -1,4 +1,4 @@
-package org.darkoro.zerosmod.mixin.late.impl.npc;
+package org.darkoro.zerosmod.mixin.mixins.late.impl.npc;
 
 import net.minecraft.entity.Entity;
 import noppes.npcs.api.entity.IEntity;

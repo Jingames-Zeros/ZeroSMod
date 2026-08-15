@@ -1,4 +1,4 @@
-package org.darkoro.zerosmod.mixin.late.impl.dbc.client;
+package org.darkoro.zerosmod.mixin.mixins.late.impl.dbc.client;
 
 import JinRyuu.JRMCore.entity.EntityEnergyAtt;
 import JinRyuu.JRMCore.entity.RenderEnergyAttackKi;

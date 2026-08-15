@@ -1,30 +1,28 @@
-package org.darkoro.zerosmod.mixin.late.impl;
+package org.darkoro.zerosmod.mixin.mixins.late.impl.dbc.client;
 
-import JinRyuu.JRMCore.JRMCoreHC;
+import JinRyuu.DragonBC.common.DBCClientTickHandler;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
-import org.darkoro.zerosmod.zsweapons.client.ClientWeaponHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import static org.darkoro.zerosmod.mixin.utils.WeaponHandlerMixins.getChargeItem;
 
 @Mixin(
-        value = {JRMCoreHC.class},
+        value = DBCClientTickHandler.class,
         remap = false
 )
-public class JRMCoreHCMixins {
+public class DBCClientTickHandlerMixins {
 
     @Redirect(
-            method = "Blocking()V",
+            method = "onTickInGame()V",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/player/InventoryPlayer;getCurrentItem()Lnet/minecraft/item/ItemStack;"
             ),
             remap = true
     )
-    private static ItemStack heldItemCanBlock(InventoryPlayer instance) {
-        ItemStack item = instance.getCurrentItem();
-        if(item == null || ClientWeaponHandler.INSTANCE.clientCombatState.getItemStats().canBlock()) return null;
-        return item;
+    private ItemStack heldItemCanChargeKi(InventoryPlayer instance) {
+        return getChargeItem(instance.getCurrentItem());
     }
 }

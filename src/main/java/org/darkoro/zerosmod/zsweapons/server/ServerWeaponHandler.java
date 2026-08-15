@@ -10,7 +10,6 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
-import noppes.npcs.scripted.event.NpcEvent;
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.config.ServerWeaponConfig;
 import org.darkoro.zerosmod.zsweapons.PlayerCombatState;
@@ -29,8 +28,9 @@ public class ServerWeaponHandler {
 
     @SubscribeEvent
     public void login(PlayerEvent.PlayerLoggedInEvent event) {
-        if(event.player instanceof EntityPlayerMP) {
-            sendWeaponTypesPacketToClient((EntityPlayerMP) event.player);
+        if(event.player instanceof EntityPlayerMP player) {
+            getPlayerState(player).getItemStats().changeItem(player.getHeldItem());
+            sendWeaponTypesPacketToClient(player);
         }
     }
 
@@ -53,17 +53,6 @@ public class ServerWeaponHandler {
         state.handleAttack();
         sendCooldownPacketToClient((EntityPlayerMP) player, state);
     }
-
-    // Add on weapon multiplier damage on npc hits
-    /*@SubscribeEvent
-    public void damageNpc(NpcEvent.DamagedEvent event) {
-        if(event.getSource() == null || !(event.getSource().getMCEntity() instanceof EntityPlayer player)) return;
-        if(player.worldObj.isRemote) return;
-        PlayerCombatState state = getPlayerState(player);
-        if(state.getItemStats().getAttackMultiplier() == 1.0F) return;
-        float extraDamage = getMultiplierBonusDamage(player, state.getItemStats().getAttackMultiplier());
-        event.setDamage(event.getDamage() + extraDamage);
-    }*/
 
     @SubscribeEvent
     public void tick(TickEvent.PlayerTickEvent event) {
@@ -100,7 +89,7 @@ public class ServerWeaponHandler {
 
     /**
      * Returns player's current combat state
-     * @param player
+     * @param player .
      * @return CachedWeaponState
      */
     public PlayerCombatState getPlayerState(EntityPlayer player) {

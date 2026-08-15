@@ -60,7 +60,6 @@ public class CommonProxy {
     if (ServerWeaponConfig.isEnabled()) {
       FMLCommonHandler.instance().bus().register(ServerWeaponHandler.INSTANCE);
       MinecraftForge.EVENT_BUS.register(ServerWeaponHandler.INSTANCE);
-      NpcAPI.EVENT_BUS.register(ServerWeaponHandler.INSTANCE);
     }
     if (ZeroSMod.LOGGER != null) {
       ZeroSMod.LOGGER.info("Registered Saiyan mastery merge handler on FML and CNPC event busses.");

@@ -1,4 +1,4 @@
-package org.darkoro.zerosmod.mixin.late.impl.npc;
+package org.darkoro.zerosmod.mixin.mixins.late.impl.npc;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import noppes.npcs.scripted.entity.ScriptPlayer;

@@ -1,8 +1,8 @@
 package org.darkoro.zerosmod.zsweapons.client;
 
+import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
-import cpw.mods.fml.common.network.FMLNetworkEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
@@ -15,6 +15,7 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.config.ClientWeaponConfig;
 import org.darkoro.zerosmod.zsweapons.PlayerCombatState;
@@ -33,7 +34,7 @@ public class ClientWeaponHandler {
     public static final ClientWeaponHandler INSTANCE = new ClientWeaponHandler();
 
     public static Map<String, CachedWeaponStats> loadedWeaponStats;
-    public PlayerCombatState clientCombatState = new PlayerCombatState();;
+    public PlayerCombatState clientCombatState = new PlayerCombatState();
 
     private final ClientWeaponConfig.hudConfig config = ClientWeaponConfig.getHudConfig();
     private double currentTps = 20.0D;
@@ -44,6 +45,12 @@ public class ClientWeaponHandler {
 
 
     public ClientWeaponHandler() {}
+
+    @SubscribeEvent
+    public void login(EntityJoinWorldEvent event) {
+        if(!event.entity.worldObj.isRemote || FMLClientHandler.instance().getClient().thePlayer != event.entity) return;
+        clientCombatState.changeItem(((EntityPlayer) event.entity).getHeldItem());
+    }
 
     @SubscribeEvent
     public void mouseClick(MouseEvent event) {
@@ -158,7 +165,7 @@ public class ClientWeaponHandler {
 
     /**
      * Receives cooldown from the server
-     * @param message
+     * @param message .
      */
     public void handleCooldownPacket(CooldownToClientPacket message) {
         clientCombatState.setRemainingAttackCooldown(message.cooldown);
@@ -168,7 +175,7 @@ public class ClientWeaponHandler {
 
     /**
      * Receives weapon config from the server
-     * @param message
+     * @param message .
      */
     public void handleWeaponTypesPacket(WeaponTypesToClientPacket message) {
         loadedWeaponStats = message.loadedWeaponStats;
