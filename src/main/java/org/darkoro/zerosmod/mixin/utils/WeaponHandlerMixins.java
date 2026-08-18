@@ -1,6 +1,7 @@
 package org.darkoro.zerosmod.mixin.utils;
 
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.relauncher.Side;
 import kamkeel.npcdbc.CommonProxy;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -8,6 +9,8 @@ import net.minecraft.item.ItemStack;
 import org.darkoro.zerosmod.zsweapons.cache.CachedWeaponStats;
 import org.darkoro.zerosmod.zsweapons.client.ClientWeaponHandler;
 import org.darkoro.zerosmod.zsweapons.enums.DBCStatIds;
+import org.darkoro.zerosmod.zsweapons.server.ServerWeaponHandler;
+
 import static org.darkoro.zerosmod.zsweapons.ZSWeaponUtils.getWeaponStats;
 
 public class WeaponHandlerMixins {
@@ -49,6 +52,11 @@ public class WeaponHandlerMixins {
     public static float calculateUpdatedBlockDex(EntityPlayer player, float def) {
         CachedWeaponStats stats = getWeaponStats(player);
         if(stats == null) return def;
+        if(FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) {
+            ServerWeaponHandler.INSTANCE.getPlayerState(player).blockEvent();
+        } else {
+            ClientWeaponHandler.INSTANCE.clientCombatState.blockEvent();
+        }
         return def * stats.getBlockDexMultiplier();
     }
 
