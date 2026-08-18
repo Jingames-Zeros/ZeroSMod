@@ -1,11 +1,14 @@
 package org.darkoro.zerosmod.zsweapons;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.scripted.item.ScriptItemStack;
+import org.darkoro.zerosmod.api.ScriptPlayerCombatState;
+import org.darkoro.zerosmod.api.ScriptZSWeapon;
 import org.darkoro.zerosmod.zsweapons.cache.CachedWeaponStats;
-import static org.darkoro.zerosmod.zsweapons.enums.WeaponTypeId.DEFAULT;
 
-public class PlayerCombatState {
+public class PlayerCombatState implements ScriptPlayerCombatState {
     private ItemStack currentItem;
     private final CachedWeaponStats itemStats = new CachedWeaponStats();
     private double remainingAttackCooldown = 0;
@@ -20,6 +23,7 @@ public class PlayerCombatState {
         this.currentItem = item;
         this.itemStats.changeItem(item);
     }
+    public void changeItem(IItemStack item) { changeItem(item.getMCItemStack()); }
 
     /**
      * Sets item stats independent of item
@@ -30,6 +34,30 @@ public class PlayerCombatState {
         this.itemStats.copy(itemStats);
         if(resetCooldown) resetCooldown();
     }
+    public void setCurrentZSWeapon(ScriptZSWeapon itemStats, boolean resetCooldown) { setItemStats((CachedWeaponStats) itemStats, resetCooldown); }
+
+    /**
+     * Refreshes the player's current item if it is the same as the given item
+     * @param item Item to compare to current
+     */
+    public void refreshItem(ItemStack item) {
+        NBTTagCompound newNbt = item.getTagCompound();
+        NBTTagCompound curNbt = currentItem.getTagCompound();
+        // Why and how are you running this on a non-linked item
+        if(
+                newNbt == null ||
+                !newNbt.hasKey("ItemData") ||
+                !newNbt.getCompoundTag("ItemData").hasKey("Id") ||
+                curNbt == null ||
+                !curNbt.hasKey("ItemData") ||
+                !curNbt.getCompoundTag("ItemData").hasKey("Id")
+        ) return;
+        if(newNbt.getCompoundTag("ItemData").getInteger("Id") == curNbt.getCompoundTag("ItemData").getInteger("Id")) {
+            changeItem(item);
+            resetCooldown();
+        }
+    }
+    public void refreshItem(IItemStack item) { refreshItem(item.getMCItemStack()); }
 
     /**
      * Handles combat state ticks
@@ -63,8 +91,10 @@ public class PlayerCombatState {
 
     // Getters
     public double getRemainingAttackCooldown() { return remainingAttackCooldown; }
+    public ScriptZSWeapon getCurrentZSWeapon() { return itemStats; }
     public CachedWeaponStats getItemStats() { return itemStats; }
     public ItemStack getCurrentItem() { return currentItem; }
+    public IItemStack getCurrentScriptItem() { return new ScriptItemStack(currentItem); }
 
     // Setters
     public void setRemainingAttackCooldown(double remainingAttackCooldown) { this.remainingAttackCooldown = remainingAttackCooldown; }

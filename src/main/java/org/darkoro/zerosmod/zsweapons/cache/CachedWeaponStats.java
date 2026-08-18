@@ -2,6 +2,11 @@ package org.darkoro.zerosmod.zsweapons.cache;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import noppes.npcs.api.INbt;
+import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.scripted.ScriptNbt;
+import noppes.npcs.scripted.item.ScriptItemStack;
+import org.darkoro.zerosmod.api.ScriptZSWeapon;
 import org.darkoro.zerosmod.config.ConfigHandler;
 import org.darkoro.zerosmod.zsweapons.ZSWeaponUtils;
 import java.util.Map;
@@ -9,7 +14,7 @@ import static org.darkoro.zerosmod.zsweapons.enums.WeaponNBTKey.*;
 import static org.darkoro.zerosmod.zsweapons.enums.WeaponNBTKey.KI_ADDITIVE;
 import static org.darkoro.zerosmod.zsweapons.enums.WeaponTypeId.*;
 
-public class CachedWeaponStats {
+public class CachedWeaponStats implements ScriptZSWeapon {
     private ItemStack item;
     private String type = DEFAULT;
     private final boolean isPrimitive;
@@ -90,6 +95,15 @@ public class CachedWeaponStats {
     }
 
     /**
+     * Sets an item type to special
+     */
+    public void setSpecial() {
+        this.type = SPECIAL;
+        readStatsFromCompound(ZSWeaponUtils.getZSWeaponTag(item));
+        saveToItem();
+    }
+
+    /**
      * Copies states from an existing weapon stats
      */
     public void copy(CachedWeaponStats stats) {
@@ -121,7 +135,7 @@ public class CachedWeaponStats {
      */
     public void readStatsFromCompound(NBTTagCompound compound) {
         CachedWeaponStats defaultStats = ZSWeaponUtils.getDefaultStats();
-        if(defaultStats == null) return;
+        if(compound == null || defaultStats == null) return;
 
         // General
         this.type = compound.hasKey(TYPE.key) ? compound.getString(TYPE.key) : defaultStats.getType();
@@ -174,6 +188,26 @@ public class CachedWeaponStats {
     }
 
     /**
+     * Saves item stats to item's nbt
+     */
+    public void saveToItem() {
+        NBTTagCompound nbt = item.getTagCompound();
+        if(nbt == null) {
+            nbt = new NBTTagCompound();
+        }
+        nbt.setTag(ZSWEAPON.key, saveStatsToCompound());
+        item.setTagCompound(nbt);
+    }
+
+    /**
+     * Saves current cached stats to a new NBT compound
+     * Will I ever need this? Probably not.
+     */
+    public INbt saveStatsToNbt() {
+        return new ScriptNbt(saveStatsToCompound());
+    }
+
+    /**
      * Sets stats to default values
      */
     public void setToDefaultStats() {
@@ -184,7 +218,8 @@ public class CachedWeaponStats {
     public float getRange() { return range; }
     public float getRangeSq() { return rangeSq; }
     public int getCooldown() { return cooldown; }
-    public ItemStack getItem() { return item; }
+    public ItemStack getItemStack() { return item; }
+    public IItemStack getItem() { return new ScriptItemStack(item); }
     public String getType() { return type; }
     public float getAttackMultiplier() { return attackMultiplier; }
     public float getSweetSpot() { return sweetSpot; }

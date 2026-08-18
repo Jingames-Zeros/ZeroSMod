@@ -1,5 +1,6 @@
 package org.darkoro.zerosmod.api;
 
+import noppes.npcs.api.item.IItemStack;
 import org.darkoro.zerosmod.ZeroSMod;
 
 import cpw.mods.fml.common.Loader;
@@ -193,4 +194,8 @@ public abstract class AbstractZeroSAPI {
    * @return true when the color was changed
    */
   public abstract boolean setKiColor(IEntity kiAttack, String color);
+
+  public abstract ScriptPlayerCombatState getPlayerCombatState(IPlayer player);
+
+  public abstract ScriptZSWeapon getZSWeapon(IItemStack item);
 }
