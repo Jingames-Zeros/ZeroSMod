@@ -1,8 +1,8 @@
 package org.darkoro.zerosmod.config;
 
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import org.darkoro.zerosmod.config.defaults.GeneralWeaponSettings;
 import org.darkoro.zerosmod.config.defaults.WeaponTypesDefaults;
-import org.darkoro.zerosmod.zsweapons.PlayerCombatState;
 import org.darkoro.zerosmod.zsweapons.cache.CachedWeaponStats;
 import org.darkoro.zerosmod.zsweapons.enums.WeaponConfigKey;
 import java.io.*;
@@ -14,17 +14,16 @@ public class ServerWeaponConfig {
     private static final String CONFIG_FILE_NAME = "weapon_server.cfg";
     private static boolean ENABLED;
     public static Map<String, CachedWeaponStats> loadedWeaponStats = new HashMap<>();
+    public static GeneralSettings generalSettings = new GeneralSettings();
 
     private static final String[] fileHeader = {
             "# ZeroSMod server Weapon System config",
             "#",
-            "# This currently .",
+            "# This currently contains general weapon settings and predefined weapon types.",
             "#",
             "# Format:",
             "# [FEATURE]",
             "# setting = value",
-            "#",
-            "# colour accepts ARGB values between FFFFFFFF and 00000000.",
             "#",
             "# Matching ignores case and extra spaces.",
             ""
@@ -37,6 +36,8 @@ public class ServerWeaponConfig {
             "All Combat Modules = 1",
             ""
     };
+
+    private static final String[][] essentialDefaults = {fileHeader, enableConfig};
 
     private static File ServerWeaponConfigFile;
 
@@ -62,20 +63,24 @@ public class ServerWeaponConfig {
         if (ServerWeaponConfigFile.exists()) return;
         try {
             PrintWriter writer = new PrintWriter(new FileWriter(ServerWeaponConfigFile));
-            for(String line : fileHeader) {
-                writer.println(line);
-            }
-            for(String line : enableConfig) {
-                writer.println(line);
-            }
-            for(String[] section : WeaponTypesDefaults.values) {
-                for(String line : section) {
-                    writer.println(line);
-                }
-            }
-
+            writeSection(essentialDefaults, writer);
+            writeSection(GeneralWeaponSettings.values, writer);
+            writeSection(WeaponTypesDefaults.values, writer);
             writer.close();
         } catch (IOException ignored) {}
+    }
+
+    /**
+     * Writes defaults from a defaults string array
+     * @param defaults String array containing an array of defaults arrays
+     * @param writer .
+     */
+    private static void writeSection(String[][] defaults, PrintWriter writer) {
+        for(String[] section : defaults) {
+            for(String line : section) {
+                writer.println(line);
+            }
+        }
     }
 
     private static void readPathFile() {
@@ -109,9 +114,18 @@ public class ServerWeaponConfig {
                 String value = line.substring(separator + 1).trim().toLowerCase();
                 if(section.equals(enableConfig[2]) && normalizedKey.equals("allcombatmodules")) {
                     ENABLED = value.equalsIgnoreCase("1");
-                } else if(section.equals(enableConfig[2]) && normalizedKey.equals("disableallmodules")) {
-                    ENABLED = !value.equalsIgnoreCase("1");
                 }
+                else if(section.equals(GeneralWeaponSettings.generalSettings[0])) {
+                    switch(normalizedKey) {
+                        case "sweetspotfalloffspeed":
+                            generalSettings.sweetSpotFalloff = Float.parseFloat(value);
+                            break;
+                        case "sweetspotmaxdamageincrease":
+                            generalSettings.sweetSpotDamage = Float.parseFloat(value);
+                            break;
+                    }
+                }
+
                 else if(section.equalsIgnoreCase(WeaponTypesDefaults.header[0])) {
                     if(normalizedKey.equals(WeaponConfigKey.TYPE.key)) {
                         currentWeaponType = ConfigHandler.normalizeKey(value);
@@ -191,5 +205,19 @@ public class ServerWeaponConfig {
         }
     }
 
+    /**
+     * @return If weapon system is enabled
+     */
     public static boolean isEnabled() { return ENABLED; }
+
+    /**
+     * General combat settings used for sweet spot etc
+     */
+    public static class GeneralSettings {
+        private float sweetSpotFalloff = 1.0F;
+        private float sweetSpotDamage = 0.25F;
+
+        public float getSweetSpotDamage() { return sweetSpotDamage; }
+        public float getSweetSpotFalloff() { return sweetSpotFalloff; }
+    }
 }

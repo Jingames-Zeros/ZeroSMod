@@ -1,7 +1,7 @@
 package org.darkoro.zerosmod.config.defaults;
 
 public class WeaponTypesDefaults {
-    public static String[] header = {
+    public final static String[] header = {
             "[Weapon Types]",
             "# Any missing attributes will be filled from default stats.",
             "# A new weapon type is started once a type is defined. All stats after type definition are attributed to that type.",
@@ -26,7 +26,7 @@ public class WeaponTypesDefaults {
             ""
     };
 
-    public static String[] defaultStats = {
+    public final static String[] defaultStats = {
             "# Default stats used for fist and to fill blanks",
             "Type : Default",
             "Attack Cooldown : 10",
@@ -43,7 +43,7 @@ public class WeaponTypesDefaults {
             ""
     };
 
-    public static String[] fist = {
+    public final static String[] fist = {
             "# Fist type - Identical to default weapon type but allows blocking and ki charging",
             "Type : Fist",
             "Can Charge Ki : true",
@@ -51,7 +51,7 @@ public class WeaponTypesDefaults {
             ""
     };
 
-    public static String[] sword = {
+    public final static String[] sword = {
           "# Sword type - Used for testing",
           "Type : Sword",
           "Attack Cooldown : 20",
@@ -67,5 +67,5 @@ public class WeaponTypesDefaults {
     };
 
     // ADD ALL DEFAULTS TO HERE
-    public static String[][] values = {header, defaultStats, fist, sword};
+    public final static String[][] values = {header, defaultStats, fist, sword};
 }

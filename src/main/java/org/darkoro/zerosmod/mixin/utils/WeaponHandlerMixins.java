@@ -10,7 +10,6 @@ import org.darkoro.zerosmod.zsweapons.cache.CachedWeaponStats;
 import org.darkoro.zerosmod.zsweapons.client.ClientWeaponHandler;
 import org.darkoro.zerosmod.zsweapons.enums.DBCStatIds;
 import org.darkoro.zerosmod.zsweapons.server.ServerWeaponHandler;
-
 import static org.darkoro.zerosmod.zsweapons.ZSWeaponUtils.getWeaponStats;
 
 public class WeaponHandlerMixins {
@@ -36,11 +35,18 @@ public class WeaponHandlerMixins {
         CachedWeaponStats weaponStats = getWeaponStats(ep);
         DBCStatIds stat = DBCStatIds.values()[statId];
 
-        return switch (stat) {
-            case MELEE -> (int) (original * weaponStats.getAttackMultiplier());
-            case ENERGY_POWER -> (int) (original * weaponStats.getKiMultiplier()) + weaponStats.getKiAdditive();
-            default -> original;
-        };
+        switch (stat) {
+            case MELEE:
+                float sweetSpotMulti = 1.0F;
+                if(isServerSide()) {
+                    sweetSpotMulti = ServerWeaponHandler.INSTANCE.getPlayerState(ep).resolveAttack();
+                }
+                return (int) (original * weaponStats.getAttackMultiplier() * sweetSpotMulti);
+            case ENERGY_POWER:
+                return (int) (original * weaponStats.getKiMultiplier()) + weaponStats.getKiAdditive();
+            default:
+                return original;
+        }
     }
 
     /**
@@ -52,7 +58,7 @@ public class WeaponHandlerMixins {
     public static float calculateUpdatedBlockDex(EntityPlayer player, float def) {
         CachedWeaponStats stats = getWeaponStats(player);
         if(stats == null) return def;
-        if(FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) {
+        if(isServerSide()) {
             ServerWeaponHandler.INSTANCE.getPlayerState(player).blockEvent();
         } else {
             ClientWeaponHandler.INSTANCE.clientCombatState.blockEvent();
@@ -89,5 +95,12 @@ public class WeaponHandlerMixins {
     public static ItemStack getChargeItem(ItemStack item) {
         if(item == null || ClientWeaponHandler.INSTANCE.clientCombatState.getItemStats().canChargeKi()) return null;
         return item;
+    }
+
+    /**
+     * Util function used to check effective side
+     */
+    private static boolean isServerSide() {
+        return FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER;
     }
 }

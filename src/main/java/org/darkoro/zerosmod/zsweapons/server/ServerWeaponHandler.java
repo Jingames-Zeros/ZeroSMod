@@ -49,7 +49,7 @@ public class ServerWeaponHandler {
             return;
         }
         // Reset cooldown if event is valid
-        state.handleAttack();
+        state.handleAttack(player.getDistanceToEntity(target));
         sendCooldownPacketToClient((EntityPlayerMP) player, state);
     }
 
@@ -133,6 +133,7 @@ public class ServerWeaponHandler {
         EntityLivingBase target = (EntityLivingBase) player.worldObj.getEntityByID(message.entityId);
         PlayerCombatState state = getPlayerState(player);
         if(!isValidAttack(state, player, target)) return;
+        state.handleAttack(player.getDistanceToEntity(target));
         player.attackTargetEntityWithCurrentItem(target);
     }
 }

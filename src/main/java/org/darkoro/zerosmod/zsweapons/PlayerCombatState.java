@@ -6,12 +6,15 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.scripted.item.ScriptItemStack;
 import org.darkoro.zerosmod.api.ScriptPlayerCombatState;
 import org.darkoro.zerosmod.api.ScriptZSWeapon;
+import org.darkoro.zerosmod.config.ServerWeaponConfig;
 import org.darkoro.zerosmod.zsweapons.cache.CachedWeaponStats;
 
 public class PlayerCombatState implements ScriptPlayerCombatState {
     private ItemStack currentItem;
     private final CachedWeaponStats itemStats = new CachedWeaponStats();
     private double remainingAttackCooldown = 0;
+    private boolean waitingToAttack = false;
+    private float distanceToTarget = 0.0F;
 
     public PlayerCombatState() {}
 
@@ -71,8 +74,10 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
     /**
      * Handles combat state attacks
      */
-    public void handleAttack() {
+    public void handleAttack(float distanceToTarget) {
         resetCooldown();
+        this.distanceToTarget = distanceToTarget;
+        waitingToAttack = true;
     }
 
     /**
@@ -89,12 +94,28 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
         remainingAttackCooldown = itemStats.getCooldown();
     }
 
+    /**
+     * Resolves sweet spot of an attack returning the extra sweet spot multiplier
+     * @return Sweet spot multiplier
+     */
+    public float resolveAttack() {
+        if(!waitingToAttack) return 1.0F;
+        waitingToAttack = false;
+        float distanceFromSweetSpot = Math.abs(distanceToTarget - itemStats.getSweetSpot());
+        float sweetSpotFalloff = ServerWeaponConfig.generalSettings.getSweetSpotFalloff();
+        if(distanceFromSweetSpot < sweetSpotFalloff) {
+            return ServerWeaponConfig.generalSettings.getSweetSpotDamage() * (1 - distanceFromSweetSpot / sweetSpotFalloff);
+        }
+        return 1.0F;
+    }
+
     // Getters
     public double getRemainingAttackCooldown() { return remainingAttackCooldown; }
     public ScriptZSWeapon getCurrentZSWeapon() { return itemStats; }
     public CachedWeaponStats getItemStats() { return itemStats; }
     public ItemStack getCurrentItem() { return currentItem; }
     public IItemStack getCurrentScriptItem() { return new ScriptItemStack(currentItem); }
+
 
     // Setters
     public void setRemainingAttackCooldown(double remainingAttackCooldown) { this.remainingAttackCooldown = remainingAttackCooldown; }
