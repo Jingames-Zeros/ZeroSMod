@@ -14,13 +14,15 @@ import org.darkoro.zerosmod.api.ScriptZSWeapon;
 import org.darkoro.zerosmod.config.ConfigHandler;
 import org.darkoro.zerosmod.zsweapons.ZSWeaponUtils;
 import org.darkoro.zerosmod.zsweapons.attributes.AttributeBuilder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import static org.darkoro.zerosmod.zsweapons.enums.WeaponNBTKey.*;
 import static org.darkoro.zerosmod.zsweapons.enums.WeaponTypeId.*;
 
 public class CachedWeaponStats implements ScriptZSWeapon {
+    private static final String WEAPON_TYPE_PREFIX = EnumChatFormatting.RESET + "Weapon Type: ";
+    private static final String CAN_BLOCK_LORE = EnumChatFormatting.RESET + "Can Block";
+    private static final String CAN_CHARGE_KI_LORE = EnumChatFormatting.RESET + "Can Charge Ki";
+
     private ItemStack item;
     private String type = DEFAULT;
     private final boolean isPrimitive;
@@ -143,48 +145,72 @@ public class CachedWeaponStats implements ScriptZSWeapon {
         this.blockCooldown = stats.getBlockCooldown();
 
         // Only display custom stats if item is not default type
-        if(applyStats) {
+        if (applyStats) {
+            CachedWeaponStats defaultStats = ZSWeaponUtils.getDefaultStats();
+            if (defaultStats == null) return;
+
             AttributeItemUtil.applyAttribute(item, AttributeBuilder.ATTACK_COOLDOWN_KEY, stats.getCooldown());
             AttributeItemUtil.applyAttribute(item, AttributeBuilder.RANGE_KEY, stats.getRange());
-            AttributeItemUtil.applyAttribute(item, AttributeBuilder.ATTACK_PERCENT_KEY, stats.getAttackPercent());
             AttributeItemUtil.applyAttribute(item, AttributeBuilder.SWEET_SPOT_KEY, stats.getSweetSpot());
-            AttributeItemUtil.applyAttribute(item, AttributeBuilder.KI_PERCENT_KEY, stats.getKiPercent());
-            AttributeItemUtil.applyAttribute(item, AttributeBuilder.KI_ADDITIVE_KEY, stats.getKiAdditive());
-            AttributeItemUtil.applyAttribute(item, AttributeBuilder.KI_COST_PERCENT_KEY, stats.getKiCostPercent());
-            AttributeItemUtil.applyAttribute(item, AttributeBuilder.BLOCK_DEX_PERCENT_KEY, stats.getBlockDexPercent());
-            AttributeItemUtil.applyAttribute(item, AttributeBuilder.BLOCK_COST_PERCENT_KEY, stats.getBlockCostPercent());
-            AttributeItemUtil.applyAttribute(item, AttributeBuilder.BLOCK_COOLDOWN_KEY, stats.getBlockCooldown());
-
+            applyIfDifferent(AttributeBuilder.ATTACK_PERCENT_KEY, stats.getAttackPercent(), defaultStats.getAttackPercent());
+            applyIfDifferent(AttributeBuilder.KI_PERCENT_KEY, stats.getKiPercent(), defaultStats.getKiPercent());
+            applyIfDifferent(AttributeBuilder.KI_ADDITIVE_KEY, stats.getKiAdditive(), 0);
+            applyIfDifferent(AttributeBuilder.KI_COST_PERCENT_KEY, stats.getKiCostPercent(), defaultStats.getKiCostPercent());
+            applyIfDifferent(AttributeBuilder.BLOCK_DEX_PERCENT_KEY, stats.getBlockDexPercent(), defaultStats.getBlockDexPercent());
+            applyIfDifferent(AttributeBuilder.BLOCK_COST_PERCENT_KEY, stats.getBlockCostPercent(), defaultStats.getBlockCostPercent());
+            applyIfDifferent(AttributeBuilder.BLOCK_COOLDOWN_KEY, stats.getBlockCooldown(), cooldown);
             saveToItem();
             updateItemLore();
         }
     }
 
-    private void updateItemLore() {
-        List<String> loreList = new ArrayList<>();
-        loreList.add(EnumChatFormatting.RESET + "Weapon Type: " + type);
-        loreList.add("");
-        if(canBlock) loreList.add(EnumChatFormatting.RESET + "Can Block");
-        if(canChargeKi) loreList.add(EnumChatFormatting.RESET + "Can Charge Ki");
-        String[] lore = loreList.toArray(new String[0]);
+    /**
+     * Helper to apply attributes
+     * @param key Attribute string key
+     * @param value Value to set attribute to
+     * @param defaultValue Default stat value
+     */
+    private void applyIfDifferent(String key, float value, float defaultValue) {
+        if (value != defaultValue) {
+            AttributeItemUtil.applyAttribute(item, key, value);
+        } else {
+            AttributeItemUtil.removeAttribute(item, key);
+        }
+    }
 
-        // Lore adding code grabbed from CNPC+
-        NBTTagCompound compound = this.item.getTagCompound();
+    /**
+     * Updates item lore to include the new weapon type and block/ki stats
+     */
+    private void updateItemLore() {
+        // Grab existing lore
+        NBTTagCompound compound = item.getTagCompound();
         if (compound == null) {
-            this.item.setTagCompound(compound = new NBTTagCompound());
+            item.setTagCompound(compound = new NBTTagCompound());
         }
 
         NBTTagCompound display = compound.getCompoundTag("display");
-        NBTTagList nbtlist = new NBTTagList();
-        String[] var5 = lore;
-        int var6 = lore.length;
+        NBTTagList oldLore = display.hasKey("Lore") ? display.getTagList("Lore", 8) : new NBTTagList();
 
-        for(int var7 = 0; var7 < var6; ++var7) {
-            String s = var5[var7];
-            nbtlist.appendTag(new NBTTagString(s));
+        // Remove existing Weapon type lines
+        NBTTagList newLore = new NBTTagList();
+        for(int i = 0; i < oldLore.tagCount(); i++) {
+            String line = oldLore.getStringTagAt(i);
+            if(
+                    line.startsWith(WEAPON_TYPE_PREFIX) ||
+                    line.equals(CAN_BLOCK_LORE) ||
+                    line.equals(CAN_CHARGE_KI_LORE)
+               ) {
+                continue;
+            }
+            newLore.appendTag(new NBTTagString(line));
         }
 
-        display.setTag("Lore", nbtlist);
+        // Add new weapon type lines
+        newLore.appendTag(new NBTTagString(EnumChatFormatting.RESET + "Weapon Type: " + type));
+        if(canBlock) newLore.appendTag(new NBTTagString(EnumChatFormatting.RESET + "Can Block"));
+        if(canChargeKi) newLore.appendTag(new NBTTagString(EnumChatFormatting.RESET + "Can Charge Ki"));
+
+        display.setTag("Lore", newLore);
         compound.setTag("display", display);
     }
 
