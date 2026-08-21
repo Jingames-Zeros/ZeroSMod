@@ -12,21 +12,12 @@ public enum WeaponNBTKey {
 
     // General
     ATTACK_COOLDOWN("attackcooldown"),
-    ATTACK_MULTIPLIER("attackmultiplier"),
-    SWEET_SPOT("sweetspot"),
-    RANGE("range"),
 
     // Ki
     CAN_CHARGE("cancharge"),
-    KI_MULTIPLIER("kimultiplier"),
-    KI_ADDITIVE("kiadditive"),
-    KI_COST_MULTIPLIER("kicostmultiplier"),
 
     // Block
-    CAN_BLOCK("canblock"),
-    BLOCK_DEX_MULTIPLIER("blockdexmultiplier"),
-    BLOCK_COST_MULTIPLIER("blockcostmultiplier"),
-    BLOCK_COOLDOWN("blockcooldown");
+    CAN_BLOCK("canblock");
 
     /** The exact string value written to / read from NBT */
     public final String key;

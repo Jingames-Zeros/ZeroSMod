@@ -10,7 +10,7 @@ public interface ScriptZSWeapon {
      * Sets item weapon type
      * @param type Valid string weapon type
      */
-    void setType(String type);
+    void setType(String type) throws CachedWeaponStats.UnknownWeaponTypeException;
 
     /**
      * Saves item stats to an INbt
@@ -39,28 +39,28 @@ public interface ScriptZSWeapon {
     int getCooldown();
     IItemStack getItem();
     String getType();
-    float getAttackMultiplier();
+    float getAttackPercent();
     float getSweetSpot();
     boolean canChargeKi();
-    float getKiMultiplier();
+    float getKiPercent();
     int getKiAdditive();
-    float getKiCostMultiplier();
+    float getKiCostPercent();
     boolean canBlock();
-    float getBlockDexMultiplier();
-    float getBlockCostMultiplier();
+    float getBlockDexPercent();
+    float getBlockCostPercent();
     int getBlockCooldown();
 
     // Setters
     void setCooldown(int cooldown) throws CachedWeaponStats.ProtectedWeaponTypeException;
-    void setAttackMultiplier(float attackMultiplier) throws CachedWeaponStats.ProtectedWeaponTypeException;
+    void setAttackPercent(float attackPercent) throws CachedWeaponStats.ProtectedWeaponTypeException;
     void setSweetSpot(float sweetSpot) throws CachedWeaponStats.ProtectedWeaponTypeException;
     void setCanChargeKi(boolean canChargeKi) throws CachedWeaponStats.ProtectedWeaponTypeException;
-    void setKiMultiplier(float kiMultiplier) throws CachedWeaponStats.ProtectedWeaponTypeException;
+    void setKiPercent(float kiPercent) throws CachedWeaponStats.ProtectedWeaponTypeException;
     void setKiAdditive(int kiAdditive) throws CachedWeaponStats.ProtectedWeaponTypeException;
-    void setKiCostMultiplier(float kiCostMultiplier) throws CachedWeaponStats.ProtectedWeaponTypeException;
+    void setKiCostPercent(float kiCostPercent) throws CachedWeaponStats.ProtectedWeaponTypeException;
     void setCanBlock(boolean canBlock) throws CachedWeaponStats.ProtectedWeaponTypeException;
-    void setBlockDexMultiplier(float blockDexMultiplier) throws CachedWeaponStats.ProtectedWeaponTypeException;
-    void setBlockCostMultiplier(float blockCostMultiplier) throws CachedWeaponStats.ProtectedWeaponTypeException;
+    void setBlockDexPercent(float blockDexPercent) throws CachedWeaponStats.ProtectedWeaponTypeException;
+    void setBlockCostPercent(float blockCostPercent) throws CachedWeaponStats.ProtectedWeaponTypeException;
     void setBlockCooldown(int blockCooldown) throws CachedWeaponStats.ProtectedWeaponTypeException;
     void setRange(float range) throws CachedWeaponStats.ProtectedWeaponTypeException;
 }

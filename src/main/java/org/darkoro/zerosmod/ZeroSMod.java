@@ -38,7 +38,7 @@ import org.darkoro.zerosmod.network.SyncZSTabDataPacketHandler;
 import org.darkoro.zerosmod.proxy.CommonProxy;
 import org.darkoro.zerosmod.zsweapons.network.WeaponSystemPacketHandler;
 
-@Mod(modid = ZeroSMod.MODID, version = ZeroSMod.VERSION, acceptableRemoteVersions = ZeroSMod.ACCEPTABLE_REMOTE_VERSIONS)
+@Mod(modid = ZeroSMod.MODID, version = ZeroSMod.VERSION, acceptableRemoteVersions = ZeroSMod.ACCEPTABLE_REMOTE_VERSIONS, dependencies = "required-after:customnpcs")
 public class ZeroSMod {
 
 	public static Logger LOGGER;

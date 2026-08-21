@@ -20,7 +20,7 @@ public class WeaponHandlerMixins {
      */
     public static int calculateUpdatedKiCost(int original) {
         CachedWeaponStats stats = FMLCommonHandler.instance().getEffectiveSide().isServer() ? getWeaponStats(CommonProxy.getCurrentJRMCTickPlayer()) : ClientWeaponHandler.INSTANCE.clientCombatState.getItemStats();
-        return (int) (original * (stats == null ? 1 : stats.getKiCostMultiplier()));
+        return (int) (original * (stats == null ? 1 : stats.getKiCostPercent() / 100));
     }
 
     /**
@@ -41,9 +41,9 @@ public class WeaponHandlerMixins {
                 if(isServerSide()) {
                     sweetSpotMulti = ServerWeaponHandler.INSTANCE.getPlayerState(ep).resolveAttack();
                 }
-                return (int) (original * weaponStats.getAttackMultiplier() * sweetSpotMulti);
+                return (int) (original * weaponStats.getAttackPercent() / 100 * sweetSpotMulti);
             case ENERGY_POWER:
-                return (int) (original * weaponStats.getKiMultiplier()) + weaponStats.getKiAdditive();
+                return (int) (original * weaponStats.getKiPercent() / 100) + weaponStats.getKiAdditive();
             default:
                 return original;
         }
@@ -63,7 +63,7 @@ public class WeaponHandlerMixins {
         } else {
             ClientWeaponHandler.INSTANCE.clientCombatState.blockEvent();
         }
-        return def * stats.getBlockDexMultiplier();
+        return def * stats.getBlockDexPercent() / 100;
     }
 
     /**
@@ -74,7 +74,7 @@ public class WeaponHandlerMixins {
      */
     public static float calculateUpdatedBlockCost(EntityPlayer player, float original) {
         if(player == null || getWeaponStats(player) == null) return original;
-        return original * getWeaponStats(player).getBlockCostMultiplier();
+        return original * getWeaponStats(player).getBlockCostPercent() / 100;
     }
 
     /**

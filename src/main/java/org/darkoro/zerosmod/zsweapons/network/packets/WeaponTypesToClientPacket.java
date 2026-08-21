@@ -49,20 +49,20 @@ public class WeaponTypesToClientPacket implements IMessage {
 
         // General settings
         buf.writeInt(stats.getCooldown());
-        buf.writeFloat(stats.getAttackMultiplier());
+        buf.writeFloat(stats.getAttackPercent());
         buf.writeFloat(stats.getRange());
         buf.writeFloat(stats.getSweetSpot());
 
         // Ki
         buf.writeBoolean(stats.canChargeKi());
-        buf.writeFloat(stats.getKiMultiplier());
+        buf.writeFloat(stats.getKiPercent());
         buf.writeInt(stats.getKiAdditive());
-        buf.writeFloat(stats.getKiCostMultiplier());
+        buf.writeFloat(stats.getKiCostPercent());
 
         // Block
         buf.writeBoolean(stats.canBlock());
-        buf.writeFloat(stats.getBlockDexMultiplier());
-        buf.writeFloat(stats.getBlockCostMultiplier());
+        buf.writeFloat(stats.getBlockDexPercent());
+        buf.writeFloat(stats.getBlockCostPercent());
         buf.writeInt(stats.getBlockCooldown());
     }
 
@@ -84,20 +84,20 @@ public class WeaponTypesToClientPacket implements IMessage {
 
         // General
         stats.setCooldown(buf.readInt());
-        stats.setAttackMultiplier(buf.readFloat());
+        stats.setAttackPercent(buf.readFloat());
         stats.setRange(buf.readFloat());
         stats.setSweetSpot(buf.readFloat());
 
         // Ki
         stats.setCanChargeKi(buf.readBoolean());
-        stats.setKiMultiplier(buf.readFloat());
+        stats.setKiPercent(buf.readFloat());
         stats.setKiAdditive(buf.readInt());
-        stats.setKiCostMultiplier(buf.readFloat());
+        stats.setKiCostPercent(buf.readFloat());
 
         // Block
         stats.setCanBlock(buf.readBoolean());
-        stats.setBlockDexMultiplier(buf.readFloat());
-        stats.setBlockCostMultiplier(buf.readFloat());
+        stats.setBlockDexPercent(buf.readFloat());
+        stats.setBlockCostPercent(buf.readFloat());
         stats.setBlockCooldown(buf.readInt());
 
         return stats;

@@ -10,20 +10,20 @@ public enum WeaponConfigKey {
 
     // General
     ATTACK_COOLDOWN("attackcooldown"),
-    MELEE_MULTIPLIER("meleemultiplier"),
+    MELEE_PERCENT("meleepercent"),
     MELEE_RANGE("meleerange"),
     SWEET_SPOT("sweetspot"),
 
     // Ki
     CAN_CHARGE_KI("canchargeki"),
     KI_ADDITIVE_DAMAGE("kiadditivedamage"),
-    KI_MULTIPLIER("kimultiplier"),
-    KI_COST_MULTIPLIER("kicostmultiplier"),
+    KI_PERCENT("kipercent"),
+    KI_COST_PERCENT("kicostpercent"),
 
     // Block-related
     CAN_BLOCK("canblock"),
-    BLOCK_DEX_MULTIPLIER("blockdexmultiplier"),
-    BLOCK_COST_MULTIPLIER("blockcostmultiplier"),
+    BLOCK_DEX_PERCENT("blockdexpercent"),
+    BLOCK_COST_PERCENT("blockcostpercent"),
     BLOCK_COOLDOWN("blockcooldown");
 
     /** The exact normalized string matched against config file keys */

@@ -34,7 +34,7 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
      * @param resetCooldown If item cooldown should be reset upon setting stats
      */
     public void setItemStats(CachedWeaponStats itemStats, boolean resetCooldown) {
-        this.itemStats.copy(itemStats);
+        this.itemStats.copy(itemStats, false);
         if(resetCooldown) resetCooldown();
     }
     public void setCurrentZSWeapon(ScriptZSWeapon itemStats, boolean resetCooldown) { setItemStats((CachedWeaponStats) itemStats, resetCooldown); }
@@ -104,7 +104,7 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
         float distanceFromSweetSpot = Math.abs(distanceToTarget - itemStats.getSweetSpot());
         float sweetSpotFalloff = ServerWeaponConfig.generalSettings.getSweetSpotFalloff();
         if(distanceFromSweetSpot < sweetSpotFalloff) {
-            return ServerWeaponConfig.generalSettings.getSweetSpotDamage() * (1 - distanceFromSweetSpot / sweetSpotFalloff);
+            return 1.0F + ServerWeaponConfig.generalSettings.getSweetSpotDamage() * (1 - distanceFromSweetSpot / sweetSpotFalloff);
         }
         return 1.0F;
     }

@@ -130,7 +130,7 @@ public class ServerWeaponConfig {
                     if(normalizedKey.equals(WeaponConfigKey.TYPE.key)) {
                         currentWeaponType = ConfigHandler.normalizeKey(value);
                         CachedWeaponStats stats = new CachedWeaponStats(currentWeaponType);
-                        stats.copy(loadedWeaponStats.get(DEFAULT));
+                        stats.copy(loadedWeaponStats.get(DEFAULT), false);
                         loadedWeaponStats.put(currentWeaponType, stats);
                     }
                     if(!currentWeaponType.isEmpty()) {
@@ -159,8 +159,8 @@ public class ServerWeaponConfig {
                 stats.setBlockCooldown(Integer.parseInt(value));
                 break;
 
-            case MELEE_MULTIPLIER:
-                stats.setAttackMultiplier(Float.parseFloat(value));
+            case MELEE_PERCENT:
+                stats.setAttackPercent(Float.parseFloat(value));
                 break;
 
             case MELEE_RANGE:
@@ -175,12 +175,12 @@ public class ServerWeaponConfig {
                 stats.setKiAdditive(Integer.parseInt(value));
                 break;
 
-            case KI_MULTIPLIER:
-                stats.setKiMultiplier(Float.parseFloat(value));
+            case KI_PERCENT:
+                stats.setKiPercent(Float.parseFloat(value));
                 break;
 
-            case KI_COST_MULTIPLIER:
-                stats.setKiCostMultiplier(Float.parseFloat(value));
+            case KI_COST_PERCENT:
+                stats.setKiCostPercent(Float.parseFloat(value));
                 break;
 
             case SWEET_SPOT:
@@ -191,12 +191,12 @@ public class ServerWeaponConfig {
                 stats.setCanBlock(Boolean.parseBoolean(value));
                 break;
 
-            case BLOCK_DEX_MULTIPLIER:
-                stats.setBlockDexMultiplier(Float.parseFloat(value));
+            case BLOCK_DEX_PERCENT:
+                stats.setBlockDexPercent(Float.parseFloat(value));
                 break;
 
-            case BLOCK_COST_MULTIPLIER:
-                stats.setBlockCostMultiplier(Float.parseFloat(value));
+            case BLOCK_COST_PERCENT:
+                stats.setBlockCostPercent(Float.parseFloat(value));
                 break;
 
             case BLOCK_COOLDOWN:
