@@ -112,6 +112,7 @@ public class ServerWeaponConfig {
                 String key = line.substring(0, separator).trim().toLowerCase();
                 String normalizedKey = ConfigHandler.normalizeKey(key);
                 String value = line.substring(separator + 1).trim().toLowerCase();
+                String unnormalisedValue = line.substring(separator + 1).trim();
                 if(section.equals(enableConfig[2]) && normalizedKey.equals("allcombatmodules")) {
                     ENABLED = value.equalsIgnoreCase("1");
                 }
@@ -128,7 +129,7 @@ public class ServerWeaponConfig {
 
                 else if(section.equalsIgnoreCase(WeaponTypesDefaults.header[0])) {
                     if(normalizedKey.equals(WeaponConfigKey.TYPE.key)) {
-                        currentWeaponType = ConfigHandler.normalizeKey(value);
+                        currentWeaponType = unnormalisedValue;
                         CachedWeaponStats stats = new CachedWeaponStats(currentWeaponType);
                         stats.copy(loadedWeaponStats.get(DEFAULT), false);
                         loadedWeaponStats.put(currentWeaponType, stats);

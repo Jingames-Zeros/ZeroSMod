@@ -27,8 +27,8 @@ public class WeaponTypesDefaults {
     };
 
     public final static String[] defaultStats = {
-            "# Default stats used for fist and to fill blanks",
-            "Type : Default",
+            "# Default stats used for fist and to fill blanks - THIS NEEDS TO BE LOWERCASE",
+            "Type : default",
             "Attack Cooldown : 10",
             "Melee Multiplier : 1.0",
             "Melee Range : 3.0",
@@ -44,8 +44,8 @@ public class WeaponTypesDefaults {
     };
 
     public final static String[] fist = {
-            "# Fist type - Identical to default weapon type but allows blocking and ki charging",
-            "Type : Fist",
+            "# Fist type - Identical to default weapon type but allows blocking and ki charging - THIS NEEDS TO BE LOWERCASE - THANKS",
+            "Type : fist",
             "Can Charge Ki : true",
             "Can Block : true",
             ""

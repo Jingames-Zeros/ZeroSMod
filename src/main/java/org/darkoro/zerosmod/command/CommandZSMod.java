@@ -282,7 +282,7 @@ public class CommandZSMod extends CommandBase {
   private class SetItemTypeCommand extends ZSSubCommand {
 
     private SetItemTypeCommand() {
-      super("weapons", "/zsmod weapons [types, setItemType] [TYPE]", "Sets item type of currently held item.", 2);
+      super("weapons", "/zsmod weapons [types, setitemtype] [TYPE]", "Sets item type of currently held item.", 2);
     }
 
     @Override
@@ -290,7 +290,7 @@ public class CommandZSMod extends CommandBase {
       if (args.length == 1) {
         List<String> options = new ArrayList<>();
         options.add("types");
-        options.add("setItemType");
+        options.add("setitemtype");
         return options;
       } else if (args.length == 2) {
         return new ArrayList<>(ZSWeaponUtils.getLoadedStats().keySet());
@@ -301,7 +301,7 @@ public class CommandZSMod extends CommandBase {
 
     @Override
     protected void process(ICommandSender sender, String[] args) {
-      if (args.length < 1 || args.length > 2) {
+      if (args.length < 1) {
         throw new WrongUsageException(getUsage());
       }
 
@@ -327,14 +327,21 @@ public class CommandZSMod extends CommandBase {
             return;
           }
 
+          StringBuilder typeBuilder = new StringBuilder();
+          for(int i = 1; i < args.length; i++ ) {
+            typeBuilder.append(args[i]).append(' ');
+          }
+          typeBuilder.deleteCharAt(typeBuilder.length() - 1);
+          String type = typeBuilder.toString();
+
           try {
             ScriptZSWeapon weapon = ZeroSAPI.Instance().getZSWeapon(new ScriptItemStack(heldItem));
-            weapon.setType(args[1]);
+            weapon.setType(type);
             ZeroSAPI.Instance().getPlayerCombatState((IPlayer) NpcAPI.Instance().getIEntity(player)).setCurrentZSWeapon(weapon, true);
             sender.addChatMessage(new ChatComponentText(
-                    PREFIX + EnumChatFormatting.GRAY + "Item type successfully set to " + args[1]));
+                    PREFIX + EnumChatFormatting.GRAY + "Item type successfully set to " + type));
           } catch (CachedWeaponStats.UnknownWeaponTypeException e) {
-            sender.addChatMessage(new ChatComponentText(PREFIX + EnumChatFormatting.RED + "Unknown weapon type: " + args[1]));
+            sender.addChatMessage(new ChatComponentText(PREFIX + EnumChatFormatting.RED + "Unknown weapon type: " + type));
           }
           break;
       }
