@@ -152,6 +152,10 @@ public class CachedWeaponStats implements ScriptZSWeapon {
             AttributeItemUtil.applyAttribute(item, AttributeBuilder.ATTACK_COOLDOWN_KEY, stats.getCooldown());
             AttributeItemUtil.applyAttribute(item, AttributeBuilder.RANGE_KEY, stats.getRange());
             AttributeItemUtil.applyAttribute(item, AttributeBuilder.SWEET_SPOT_KEY, stats.getSweetSpot());
+            if(stats.canBlock()) AttributeItemUtil.applyAttribute(item, AttributeBuilder.CAN_BLOCK_KEY, 1);
+            else AttributeItemUtil.removeAttribute(item, AttributeBuilder.CAN_BLOCK_KEY);
+            if(stats.canBlock()) AttributeItemUtil.applyAttribute(item, AttributeBuilder.CAN_CHARGE_KI_KEY, 1);
+            else AttributeItemUtil.removeAttribute(item, AttributeBuilder.CAN_CHARGE_KI_KEY);
             applyIfDifferent(AttributeBuilder.ATTACK_PERCENT_KEY, stats.getAttackPercent(), defaultStats.getAttackPercent());
             applyIfDifferent(AttributeBuilder.KI_PERCENT_KEY, stats.getKiPercent(), defaultStats.getKiPercent());
             applyIfDifferent(AttributeBuilder.KI_ADDITIVE_KEY, stats.getKiAdditive(), 0);
@@ -196,9 +200,7 @@ public class CachedWeaponStats implements ScriptZSWeapon {
         for(int i = 0; i < oldLore.tagCount(); i++) {
             String line = oldLore.getStringTagAt(i);
             if(
-                    line.startsWith(WEAPON_TYPE_PREFIX) ||
-                    line.equals(CAN_BLOCK_LORE) ||
-                    line.equals(CAN_CHARGE_KI_LORE)
+                    line.startsWith(WEAPON_TYPE_PREFIX)
                ) {
                 continue;
             }
@@ -207,8 +209,6 @@ public class CachedWeaponStats implements ScriptZSWeapon {
 
         // Add new weapon type lines
         newLore.appendTag(new NBTTagString(EnumChatFormatting.RESET + "Weapon Type: " + type));
-        if(canBlock) newLore.appendTag(new NBTTagString(EnumChatFormatting.RESET + "Can Block"));
-        if(canChargeKi) newLore.appendTag(new NBTTagString(EnumChatFormatting.RESET + "Can Charge Ki"));
 
         display.setTag("Lore", newLore);
         compound.setTag("display", display);
@@ -233,13 +233,13 @@ public class CachedWeaponStats implements ScriptZSWeapon {
         this.rangeSq = range * range;
 
         // Ki
-        this.canChargeKi = compound.hasKey(CAN_CHARGE.key) ? compound.getBoolean(CAN_CHARGE.key) : defaultStats.canChargeKi();
+        this.canChargeKi = attributes.containsKey(AttributeBuilder.CAN_BLOCK_KEY);
         this.kiPercent = attributes.getOrDefault(AttributeBuilder.KI_PERCENT_KEY, defaultStats.getKiPercent());
         this.kiAdditive = Math.round(attributes.getOrDefault(AttributeBuilder.KI_ADDITIVE_KEY, (float) defaultStats.getKiAdditive()));
         this.kiCostPercent = attributes.getOrDefault(AttributeBuilder.KI_COST_PERCENT_KEY, defaultStats.getKiCostPercent());
 
         // Block
-        this.canBlock = compound.hasKey(CAN_BLOCK.key) ? compound.getBoolean(CAN_BLOCK.key) : defaultStats.canBlock();
+        this.canBlock = attributes.containsKey(AttributeBuilder.ATTACK_PERCENT_KEY);;
         this.blockDexPercent = attributes.getOrDefault(AttributeBuilder.BLOCK_DEX_PERCENT_KEY, defaultStats.getBlockDexPercent());
         this.blockCostPercent = attributes.getOrDefault(AttributeBuilder.BLOCK_COST_PERCENT_KEY, defaultStats.getBlockCostPercent());
         this.blockCooldown = Math.round(attributes.getOrDefault(AttributeBuilder.BLOCK_COOLDOWN_KEY, (float) defaultStats.getBlockCooldown()));
