@@ -133,7 +133,6 @@ public class ServerWeaponHandler {
         EntityLivingBase target = (EntityLivingBase) player.worldObj.getEntityByID(message.entityId);
         PlayerCombatState state = getPlayerState(player);
         if(!isValidAttack(state, player, target)) return;
-        state.handleAttack(player.getDistanceToEntity(target));
         player.attackTargetEntityWithCurrentItem(target);
     }
 }
