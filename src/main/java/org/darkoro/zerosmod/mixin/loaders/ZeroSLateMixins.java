@@ -26,6 +26,7 @@ public final class ZeroSLateMixins implements ILateMixinLoader {
       }
       if (loadedMods.contains("customnpcs")) {
         mixins.add("dbc.MixinEntityInstantTransmission");
+        mixins.add("npc.AttributeItemUtilMixins");
         mixins.add("npc.DBCUtilsMixins");
         mixins.add("npc.MixinScriptEntityKi");
         mixins.add("npc.MixinScriptEntityInstantTransmission");
