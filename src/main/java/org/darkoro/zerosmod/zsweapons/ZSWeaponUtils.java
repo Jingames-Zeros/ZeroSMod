@@ -66,6 +66,21 @@ public class ZSWeaponUtils {
     }
 
     /**
+     * Calculates the amount of sweet spot multiplier from the current distance to target
+     * @param distanceToTarget Distance to target in blocks
+     * @param sweetSpotDistance Sweet spot stat distance
+     * @return Amount to multiply damage by
+     */
+    public static float calculateSweetSpotMulti(float distanceToTarget, float sweetSpotDistance) {
+        float distanceFromSweetSpot = Math.abs(distanceToTarget - sweetSpotDistance);
+        float sweetSpotFalloff = ServerWeaponConfig.generalSettings.getSweetSpotFalloff();
+        if(distanceFromSweetSpot < sweetSpotFalloff) {
+            return 1.0F + ServerWeaponConfig.generalSettings.getSweetSpotDamage() * (1 - distanceFromSweetSpot / sweetSpotFalloff);
+        }
+        return 1.0F;
+    }
+
+    /**
      * Returns default state for appropriate side
      */
     public static CachedWeaponStats getDefaultStats() {

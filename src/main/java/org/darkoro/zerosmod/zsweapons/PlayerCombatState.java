@@ -101,12 +101,7 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
     public float resolveAttack() {
         if(!waitingToAttack) return 1.0F;
         waitingToAttack = false;
-        float distanceFromSweetSpot = Math.abs(distanceToTarget - itemStats.getSweetSpot());
-        float sweetSpotFalloff = ServerWeaponConfig.generalSettings.getSweetSpotFalloff();
-        if(distanceFromSweetSpot < sweetSpotFalloff) {
-            return 1.0F + ServerWeaponConfig.generalSettings.getSweetSpotDamage() * (1 - distanceFromSweetSpot / sweetSpotFalloff);
-        }
-        return 1.0F;
+        return ZSWeaponUtils.calculateSweetSpotMulti(distanceToTarget, itemStats.getSweetSpot());
     }
 
     // Getters
