@@ -31,17 +31,17 @@ public class AttributeBuilder {
     public static AttributeDefinition BLOCK_COOLDOWN;
 
     public AttributeBuilder() {
-        ATTACK_COOLDOWN = AttributeController.registerAttribute(ATTACK_COOLDOWN_KEY, "Attack Cooldown", 'c', AttributeValueType.FLAT, AttributeDefinition.AttributeSection.INFO);
+        ATTACK_COOLDOWN = AttributeController.registerAttribute(ATTACK_COOLDOWN_KEY, "Attack Cooldown", '7', AttributeValueType.FLAT, AttributeDefinition.AttributeSection.INFO);
         ATTACK_PERCENT = AttributeController.registerAttribute(ATTACK_PERCENT_KEY, "Attack Multiplier", 'c', AttributeValueType.PERCENT, AttributeDefinition.AttributeSection.MODIFIER);
-        RANGE = AttributeController.registerAttribute(RANGE_KEY, "Attack Range", '4', AttributeValueType.FLAT, AttributeDefinition.AttributeSection.INFO);
-        SWEET_SPOT = AttributeController.registerAttribute(SWEET_SPOT_KEY, "Sweet Spot Distance", '4', AttributeValueType.FLAT, AttributeDefinition.AttributeSection.INFO);
+        RANGE = AttributeController.registerAttribute(RANGE_KEY, "Attack Range", '7', AttributeValueType.FLAT, AttributeDefinition.AttributeSection.EXTRA);
+        SWEET_SPOT = AttributeController.registerAttribute(SWEET_SPOT_KEY, "Sweet Spot Distance", '7', AttributeValueType.FLAT, AttributeDefinition.AttributeSection.EXTRA);
         CAN_CHARGE_KI = AttributeController.registerAttribute(CAN_CHARGE_KI_KEY, "Can Charge Ki", '6', AttributeValueType.FLAT, AttributeDefinition.AttributeSection.INFO);
-        KI_PERCENT = AttributeController.registerAttribute(KI_PERCENT_KEY, "Ki Power Multiplier", '6', AttributeValueType.PERCENT, AttributeDefinition.AttributeSection.MODIFIER);
+        KI_PERCENT = AttributeController.registerAttribute(KI_PERCENT_KEY, "Ki Power Multiplier", '6', AttributeValueType.PERCENT, AttributeDefinition.AttributeSection.STATS);
         KI_ADDITIVE = AttributeController.registerAttribute(KI_ADDITIVE_KEY, "Ki Power", '6', AttributeValueType.FLAT, AttributeDefinition.AttributeSection.BASE);
-        KI_COST_PERCENT = AttributeController.registerAttribute(KI_COST_PERCENT_KEY, "Ki Cost Multiplier", '6', AttributeValueType.PERCENT, AttributeDefinition.AttributeSection.MODIFIER);
+        KI_COST_PERCENT = AttributeController.registerAttribute(KI_COST_PERCENT_KEY, "Ki Cost Multiplier", '6', AttributeValueType.PERCENT, AttributeDefinition.AttributeSection.STATS);
         CAN_BLOCK = AttributeController.registerAttribute(CAN_BLOCK_KEY, "Can Block", '3', AttributeValueType.FLAT, AttributeDefinition.AttributeSection.INFO);
         BLOCK_DEX_PERCENT = AttributeController.registerAttribute(BLOCK_DEX_PERCENT_KEY, "Block Dex Multiplier", '3', AttributeValueType.PERCENT, AttributeDefinition.AttributeSection.MODIFIER);
         BLOCK_COST_PERCENT = AttributeController.registerAttribute(BLOCK_COST_PERCENT_KEY, "Block Cost Multiplier", '3', AttributeValueType.PERCENT, AttributeDefinition.AttributeSection.MODIFIER);
-        BLOCK_COOLDOWN = AttributeController.registerAttribute(BLOCK_COOLDOWN_KEY, "Block Cooldown", '3', AttributeValueType.FLAT, AttributeDefinition.AttributeSection.INFO);
+        BLOCK_COOLDOWN = AttributeController.registerAttribute(BLOCK_COOLDOWN_KEY, "Block Cooldown", '7', AttributeValueType.FLAT, AttributeDefinition.AttributeSection.INFO);
     }
 }
