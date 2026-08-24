@@ -3,10 +3,13 @@ package org.darkoro.zerosmod.mixin.utils;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import kamkeel.npcdbc.CommonProxy;
+import kamkeel.npcs.CustomAttributes;
+import kamkeel.npcs.controllers.data.attribute.tracker.PlayerAttributeTracker;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import noppes.npcs.config.ConfigMain;
 import org.darkoro.zerosmod.zsweapons.ZSWeaponUtils;
 import org.darkoro.zerosmod.zsweapons.cache.CachedWeaponStats;
 import org.darkoro.zerosmod.zsweapons.client.ClientWeaponHandler;
@@ -53,17 +56,32 @@ public class WeaponHandlerMixins {
         }
     }
 
-    /**
-     * Calculates sweet spot damage for weapon damage specifically
-     * @param original original weapon damage
-     * @param player attacking player
-     * @param target target
-     * @return New weapon damage
-     */
+
     public static float calculateSweetSpotWeaponDamage(float original, EntityPlayer player, EntityLivingBase target) {
         CachedWeaponStats stats = ZSWeaponUtils.getWeaponStats(player);
         if(stats == null) return original;
         return original * calculateSweetSpotMulti(player.getDistanceToEntity(target), stats.getSweetSpot());
+    }
+
+    /**
+     * Calculates sweet spot damage for weapon damage specifically
+     * @param damage original weapon damage
+     * @param distanceToTarget Distance from player to target
+     * @param player attacking player
+     * @param tracker Player attribute tracker used for getting attributes
+     * @return New weapon damage
+     */
+    public static float calculateModifiedMainAttack(float damage, float distanceToTarget, EntityPlayer player, PlayerAttributeTracker tracker) {
+        if (ConfigMain.AttributesEnabled) {
+            CachedWeaponStats stats = ZSWeaponUtils.getWeaponStats(player);
+            float sweetSpotMulti = 1.0F;
+            if(stats != null) sweetSpotMulti =  calculateSweetSpotMulti(distanceToTarget, stats.getSweetSpot());
+            float mainAttack = tracker.getAttributeValue(CustomAttributes.MAIN_ATTACK) * sweetSpotMulti;
+            float mainBoost = tracker.getAttributeValue(CustomAttributes.MAIN_BOOST) / 100.0F;
+            damage = damage * (1.0F + mainBoost) + mainAttack;
+        }
+
+        return damage;
     }
 
     /**
