@@ -47,6 +47,13 @@ public class WeaponTypesToClientPacket implements IMessage {
             buf.writeChar(type.charAt(i));
         }
 
+        String formattedType = stats.getFormattedType();
+        int formattedSize = formattedType.length();
+        buf.writeShort(formattedSize);
+        for(int i = 0; i < formattedSize; i++) {
+            buf.writeChar(formattedType.charAt(i));
+        }
+
         // General settings
         buf.writeInt(stats.getCooldown());
         buf.writeFloat(stats.getAttackPercent());
@@ -75,12 +82,17 @@ public class WeaponTypesToClientPacket implements IMessage {
         // Read weapon type
         short typeLength = buf.readShort();
         char[] typeChars = new char[typeLength];
-
         for (int i = 0; i < typeLength; i++) {
             typeChars[i] = buf.readChar();
         }
-
         stats = new CachedWeaponStats(new String(typeChars));
+
+        short formatLength = buf.readShort();
+        char[] formattedTypeChars = new char[formatLength];
+        for(int i = 0; i < formatLength; i++) {
+            formattedTypeChars[i] = buf.readChar();
+        }
+        stats.setFormattedType(new String(formattedTypeChars));
 
         // General
         stats.setCooldown(buf.readInt());

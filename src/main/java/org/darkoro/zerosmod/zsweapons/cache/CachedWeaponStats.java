@@ -20,11 +20,10 @@ import static org.darkoro.zerosmod.zsweapons.enums.WeaponTypeId.*;
 
 public class CachedWeaponStats implements ScriptZSWeapon {
     private static final String WEAPON_TYPE_PREFIX = EnumChatFormatting.RESET + "Weapon Type: ";
-    private static final String CAN_BLOCK_LORE = EnumChatFormatting.RESET + "Can Block";
-    private static final String CAN_CHARGE_KI_LORE = EnumChatFormatting.RESET + "Can Charge Ki";
 
     private ItemStack item;
     private String type = DEFAULT;
+    private String formattedType = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE;
     private final boolean isPrimitive;
 
     private int cooldown = 10;
@@ -126,6 +125,7 @@ public class CachedWeaponStats implements ScriptZSWeapon {
 
         // General
         if(!isPrimitive) this.type = stats.getType();
+        if(!isPrimitive) this.formattedType = stats.getFormattedType();
         this.cooldown = stats.getCooldown();
         this.range = stats.getRange();
         this.rangeSq = range * range;
@@ -208,7 +208,7 @@ public class CachedWeaponStats implements ScriptZSWeapon {
         }
 
         // Add new weapon type lines
-        newLore.appendTag(new NBTTagString(EnumChatFormatting.RESET + "Weapon Type: " + type));
+        newLore.appendTag(new NBTTagString(WEAPON_TYPE_PREFIX + formattedType));
 
         display.setTag("Lore", newLore);
         compound.setTag("display", display);
@@ -293,6 +293,7 @@ public class CachedWeaponStats implements ScriptZSWeapon {
     public ItemStack getItemStack() { return item; }
     public IItemStack getItem() { return new ScriptItemStack(item); }
     public String getType() { return type; }
+    public String getFormattedType() { return formattedType; }
     public float getAttackPercent() { return attackPercent; }
     public float getSweetSpot() { return sweetSpot; }
     public boolean canChargeKi() { return canChargeKi; }
@@ -363,6 +364,11 @@ public class CachedWeaponStats implements ScriptZSWeapon {
         checkMutable();
         this.range = range;
         this.rangeSq = range * range;
+    }
+
+    public void setFormattedType(String format) throws ProtectedWeaponTypeException {
+        checkMutable();
+        this.formattedType = format;
     }
 
     /**

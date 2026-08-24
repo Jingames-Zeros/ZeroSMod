@@ -7,6 +7,7 @@ package org.darkoro.zerosmod.zsweapons.enums;
  */
 public enum WeaponConfigKey {
     TYPE("type"),
+    FORMATTED_TYPE("formattedtype"),
 
     // General
     ATTACK_COOLDOWN("attackcooldown"),

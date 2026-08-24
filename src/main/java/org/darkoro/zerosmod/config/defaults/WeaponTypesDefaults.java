@@ -12,6 +12,7 @@ public class WeaponTypesDefaults {
             "# E.g. 'Attack Cooldown : 10' is valid, 'atTACkcooLDOWN : 10' is also valid, 'Attack Speed' is not valid",
             "# AVAILABLE STATS",
             "# Type : STRING",
+            "# Formatted Type : STRING",
             "# Attack Cooldown : INTEGER",
             "# Melee Multiplier : FLOAT",
             "# Melee Range : FLOAT",
@@ -29,6 +30,7 @@ public class WeaponTypesDefaults {
     public final static String[] defaultStats = {
             "# Default stats used for fist and to fill blanks - THIS NEEDS TO BE LOWERCASE",
             "Type : default",
+            "Formatted Type : §7default",
             "Attack Cooldown : 10",
             "Melee Multiplier : 1.0",
             "Melee Range : 3.0",
@@ -46,6 +48,7 @@ public class WeaponTypesDefaults {
     public final static String[] fist = {
             "# Fist type - Identical to default weapon type but allows blocking and ki charging - THIS NEEDS TO BE LOWERCASE - THANKS",
             "Type : fist",
+            "Formatted Type : §7fist",
             "Can Charge Ki : true",
             "Can Block : true",
             ""
@@ -54,6 +57,7 @@ public class WeaponTypesDefaults {
     public final static String[] sword = {
           "# Sword type - Used for testing",
           "Type : Sword",
+          "Formatted Type : §dSword",
           "Attack Cooldown : 20",
           "Melee Multiplier : 2.0",
           "Melee Range : 4.0",

@@ -8,6 +8,8 @@ import org.darkoro.zerosmod.zsweapons.enums.WeaponConfigKey;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.darkoro.zerosmod.zsweapons.enums.WeaponConfigKey.FORMATTED_TYPE;
 import static org.darkoro.zerosmod.zsweapons.enums.WeaponTypeId.*;
 
 public class ServerWeaponConfig {
@@ -129,14 +131,18 @@ public class ServerWeaponConfig {
 
                 else if(section.equalsIgnoreCase(WeaponTypesDefaults.header[0])) {
                     if(normalizedKey.equals(WeaponConfigKey.TYPE.key)) {
-                        currentWeaponType = unnormalisedValue;
+                        currentWeaponType = ConfigHandler.normalizeKey(value);
                         CachedWeaponStats stats = new CachedWeaponStats(currentWeaponType);
                         stats.copy(loadedWeaponStats.get(DEFAULT), false);
                         loadedWeaponStats.put(currentWeaponType, stats);
                     }
                     if(!currentWeaponType.isEmpty()) {
                         CachedWeaponStats stats = loadedWeaponStats.get(currentWeaponType);
-                        loadWeaponState(stats, normalizedKey, value);
+                        if(normalizedKey.equals(FORMATTED_TYPE.key)) {
+                            loadWeaponState(stats, normalizedKey, unnormalisedValue);
+                        } else {
+                            loadWeaponState(stats, normalizedKey, value);
+                        }
                     }
                 }
             }
@@ -202,6 +208,10 @@ public class ServerWeaponConfig {
 
             case BLOCK_COOLDOWN:
                 stats.setBlockCooldown(Integer.parseInt(value));
+                break;
+
+            case FORMATTED_TYPE:
+                stats.setFormattedType(value);
                 break;
         }
     }
