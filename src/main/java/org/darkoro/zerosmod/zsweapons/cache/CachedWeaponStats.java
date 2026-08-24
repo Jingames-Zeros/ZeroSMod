@@ -69,6 +69,7 @@ public class CachedWeaponStats implements ScriptZSWeapon {
             if(loadedMap != null) {
                 copy(loadedMap.get(FIST), false);
             }
+            return;
         } else if(ZSWeaponUtils.hasZSWeaponTag(item)) {
             NBTTagCompound zsweaponNbt = item.getTagCompound().getCompoundTag(ZSWEAPON.key);
             String type = ConfigHandler.normalizeKey(zsweaponNbt.getString(TYPE.key));
@@ -87,6 +88,7 @@ public class CachedWeaponStats implements ScriptZSWeapon {
         else {
             setToDefaultStats();
         }
+        // TODO: LOAD ATTACK DAMAGE AND KI POWER
     }
 
     /**

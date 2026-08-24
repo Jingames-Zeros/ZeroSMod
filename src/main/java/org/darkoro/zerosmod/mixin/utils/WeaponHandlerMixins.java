@@ -7,7 +7,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import noppes.npcs.entity.EntityNPCInterface;
 import org.darkoro.zerosmod.zsweapons.ZSWeaponUtils;
 import org.darkoro.zerosmod.zsweapons.cache.CachedWeaponStats;
 import org.darkoro.zerosmod.zsweapons.client.ClientWeaponHandler;
@@ -58,7 +57,7 @@ public class WeaponHandlerMixins {
      * Calculates sweet spot damage for weapon damage specifically
      * @param original original weapon damage
      * @param player attacking player
-     * @param npc target
+     * @param target target
      * @return New weapon damage
      */
     public static float calculateSweetSpotWeaponDamage(float original, EntityPlayer player, EntityLivingBase target) {
