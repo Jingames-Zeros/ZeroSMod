@@ -178,10 +178,6 @@ public class ServerWeaponConfig {
                 stats.setCanChargeKi(Boolean.parseBoolean(value));
                 break;
 
-            case KI_ADDITIVE_DAMAGE:
-                stats.setKiAdditive(Integer.parseInt(value));
-                break;
-
             case KI_PERCENT:
                 stats.setKiPercent(Float.parseFloat(value));
                 break;

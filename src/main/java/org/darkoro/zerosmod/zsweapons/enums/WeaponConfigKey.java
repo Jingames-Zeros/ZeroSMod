@@ -17,7 +17,6 @@ public enum WeaponConfigKey {
 
     // Ki
     CAN_CHARGE_KI("canchargeki"),
-    KI_ADDITIVE_DAMAGE("kiadditivedamage"),
     KI_PERCENT("kipercent"),
     KI_COST_PERCENT("kicostpercent"),
 

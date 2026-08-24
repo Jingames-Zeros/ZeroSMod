@@ -135,7 +135,6 @@ public class CachedWeaponStats implements ScriptZSWeapon {
         // Ki
         this.canChargeKi = stats.canChargeKi();
         this.kiPercent = stats.getKiPercent();
-        this.kiAdditive = stats.getKiAdditive();
         this.kiCostPercent = stats.getKiCostPercent();
 
         // Block
@@ -154,11 +153,10 @@ public class CachedWeaponStats implements ScriptZSWeapon {
             AttributeItemUtil.applyAttribute(item, AttributeBuilder.SWEET_SPOT_KEY, stats.getSweetSpot());
             if(stats.canBlock()) AttributeItemUtil.applyAttribute(item, AttributeBuilder.CAN_BLOCK_KEY, 1);
             else AttributeItemUtil.removeAttribute(item, AttributeBuilder.CAN_BLOCK_KEY);
-            if(stats.canBlock()) AttributeItemUtil.applyAttribute(item, AttributeBuilder.CAN_CHARGE_KI_KEY, 1);
+            if(stats.canChargeKi()) AttributeItemUtil.applyAttribute(item, AttributeBuilder.CAN_CHARGE_KI_KEY, 1);
             else AttributeItemUtil.removeAttribute(item, AttributeBuilder.CAN_CHARGE_KI_KEY);
             applyIfDifferent(AttributeBuilder.ATTACK_PERCENT_KEY, stats.getAttackPercent(), defaultStats.getAttackPercent());
             applyIfDifferent(AttributeBuilder.KI_PERCENT_KEY, stats.getKiPercent(), defaultStats.getKiPercent());
-            applyIfDifferent(AttributeBuilder.KI_ADDITIVE_KEY, stats.getKiAdditive(), 0);
             applyIfDifferent(AttributeBuilder.KI_COST_PERCENT_KEY, stats.getKiCostPercent(), defaultStats.getKiCostPercent());
             applyIfDifferent(AttributeBuilder.BLOCK_DEX_PERCENT_KEY, stats.getBlockDexPercent(), defaultStats.getBlockDexPercent());
             applyIfDifferent(AttributeBuilder.BLOCK_COST_PERCENT_KEY, stats.getBlockCostPercent(), defaultStats.getBlockCostPercent());
@@ -235,7 +233,6 @@ public class CachedWeaponStats implements ScriptZSWeapon {
         // Ki
         this.canChargeKi = attributes.containsKey(AttributeBuilder.CAN_BLOCK_KEY);
         this.kiPercent = attributes.getOrDefault(AttributeBuilder.KI_PERCENT_KEY, defaultStats.getKiPercent());
-        this.kiAdditive = Math.round(attributes.getOrDefault(AttributeBuilder.KI_ADDITIVE_KEY, (float) defaultStats.getKiAdditive()));
         this.kiCostPercent = attributes.getOrDefault(AttributeBuilder.KI_COST_PERCENT_KEY, defaultStats.getKiCostPercent());
 
         // Block
@@ -331,7 +328,7 @@ public class CachedWeaponStats implements ScriptZSWeapon {
         this.kiPercent = kiPercent;
     }
 
-    public void setKiAdditive(int kiAdditive) throws ProtectedWeaponTypeException {
+    public void setKiAdditive(int kiAdditive) {
         this.kiAdditive = kiAdditive;
     }
 
