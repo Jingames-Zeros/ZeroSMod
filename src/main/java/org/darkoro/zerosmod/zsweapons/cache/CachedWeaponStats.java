@@ -213,7 +213,7 @@ public class CachedWeaponStats implements ScriptZSWeapon {
 
         // Add new weapon type lines
         newLore.appendTag(new NBTTagString(WEAPON_TYPE_PREFIX + formattedType));
-        newLore.appendTag(new NBTTagString(LEVEL_REQ_PREFIX + formattedType));
+        newLore.appendTag(new NBTTagString(LEVEL_REQ_PREFIX + levelReq));
 
         display.setTag("Lore", newLore);
         compound.setTag("display", display);
