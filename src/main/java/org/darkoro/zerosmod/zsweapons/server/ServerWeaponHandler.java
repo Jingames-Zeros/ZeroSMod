@@ -141,6 +141,7 @@ public class ServerWeaponHandler {
      * Reloads all player combat states on the server
      */
     public void reload() {
+        if(MinecraftServer.getServer() == null || MinecraftServer.getServer().getConfigurationManager() == null) return;
         List<EntityPlayerMP> players = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
         for(EntityPlayerMP player : players) {
             PlayerCombatState newState = new PlayerCombatState();

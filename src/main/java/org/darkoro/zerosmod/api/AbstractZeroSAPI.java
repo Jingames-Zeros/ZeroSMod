@@ -195,7 +195,17 @@ public abstract class AbstractZeroSAPI {
    */
   public abstract boolean setKiColor(IEntity kiAttack, String color);
 
+  /**
+   * Gets player's current combat state
+   * @param player combat player
+   * @return .
+   */
   public abstract ScriptPlayerCombatState getPlayerCombatState(IPlayer player);
 
+  /**
+   * Gets item's current ZSWeapon stats
+   * @param item item to retrieve stats from
+   * @return .
+   */
   public abstract ScriptZSWeapon getZSWeapon(IItemStack item);
 }

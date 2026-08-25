@@ -45,10 +45,10 @@ public class ZeroSMod {
 
 	public static final String MODID = "zerosmod";
 	// Bump VERSION only when clients must update. Forge uses this for the client/server mod handshake.
-	public static final String VERSION = "2.0.0-beta41";
+	public static final String VERSION = "2.0.0-beta42";
 	public static final String ACCEPTABLE_REMOTE_VERSIONS = "[" + VERSION + "]";
 	// Bump this for server-only emergency builds that should still allow clients on VERSION.
-	public static final String SERVER_BUILD_VERSION = "2.0.0-beta41";
+	public static final String SERVER_BUILD_VERSION = "2.0.0-beta42";
 	public static SimpleNetworkWrapper network;
 
 	@Instance(MODID)
