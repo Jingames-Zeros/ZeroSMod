@@ -7,7 +7,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import noppes.npcs.entity.EntityNPCInterface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.darkoro.zerosmod.mixin.utils.WeaponHandlerMixins;
 import org.spongepowered.asm.mixin.injection.Redirect;
 

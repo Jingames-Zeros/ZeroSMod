@@ -1,5 +1,6 @@
 package org.darkoro.zerosmod.zsweapons.cache;
 
+import kamkeel.npcs.CustomAttributes;
 import kamkeel.npcs.util.AttributeItemUtil;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -28,6 +29,7 @@ public class CachedWeaponStats implements ScriptZSWeapon {
 
     private int cooldown = 10;
     private float attackPercent = 1.0F;
+    private int attackAdditive = 0;
     private float range = 3;
     private float rangeSq = 9;
     private float sweetSpot = 1.5F;
@@ -88,7 +90,9 @@ public class CachedWeaponStats implements ScriptZSWeapon {
         else {
             setToDefaultStats();
         }
-        // TODO: LOAD ATTACK DAMAGE AND KI POWER
+        Map<String, Float> stats = AttributeItemUtil.readAttributes(item);
+        this.attackAdditive = Math.round(stats.getOrDefault(CustomAttributes.MAIN_ATTACK_KEY, 0.0F));
+        this.kiAdditive = Math.round(stats.getOrDefault(AttributeBuilder.KI_ADDITIVE_KEY, 0.0F));
     }
 
     /**
@@ -96,6 +100,7 @@ public class CachedWeaponStats implements ScriptZSWeapon {
      * @param type Type name
      */
     public void setType(String type) throws UnknownWeaponTypeException {
+        type = type.toLowerCase().trim();
         if(type.equals(SPECIAL)) {
             readStatsFromItem();
             this.type = type;
@@ -228,12 +233,14 @@ public class CachedWeaponStats implements ScriptZSWeapon {
         this.type = SPECIAL;
         this.cooldown = Math.round(attributes.getOrDefault(AttributeBuilder.ATTACK_COOLDOWN_KEY, (float) defaultStats.getCooldown()));
         this.attackPercent = attributes.getOrDefault(AttributeBuilder.ATTACK_PERCENT_KEY, defaultStats.getAttackPercent());
+        this.attackAdditive = Math.round(attributes.getOrDefault(CustomAttributes.MAIN_ATTACK_KEY, 0.0F));
         this.sweetSpot = attributes.getOrDefault(AttributeBuilder.SWEET_SPOT_KEY, defaultStats.getSweetSpot());
         this.range = attributes.getOrDefault(AttributeBuilder.RANGE_KEY, defaultStats.getRange());
         this.rangeSq = range * range;
 
         // Ki
         this.canChargeKi = attributes.containsKey(AttributeBuilder.CAN_BLOCK_KEY);
+        this.kiAdditive = Math.round(attributes.getOrDefault(AttributeBuilder.KI_ADDITIVE_KEY, (float) defaultStats.getKiAdditive()));
         this.kiPercent = attributes.getOrDefault(AttributeBuilder.KI_PERCENT_KEY, defaultStats.getKiPercent());
         this.kiCostPercent = attributes.getOrDefault(AttributeBuilder.KI_COST_PERCENT_KEY, defaultStats.getKiCostPercent());
 
@@ -294,6 +301,7 @@ public class CachedWeaponStats implements ScriptZSWeapon {
     public String getType() { return type; }
     public String getFormattedType() { return formattedType; }
     public float getAttackPercent() { return attackPercent; }
+    public int getAttackAdditive() { return attackAdditive; }
     public float getSweetSpot() { return sweetSpot; }
     public boolean canChargeKi() { return canChargeKi; }
     public float getKiPercent() { return kiPercent; }
@@ -332,6 +340,12 @@ public class CachedWeaponStats implements ScriptZSWeapon {
 
     public void setKiAdditive(int kiAdditive) {
         this.kiAdditive = kiAdditive;
+        AttributeItemUtil.applyAttribute(item, AttributeBuilder.KI_ADDITIVE_KEY, kiAdditive);
+    }
+
+    public void setAttackAdditive(int attack) {
+        this.attackAdditive = attack;
+        AttributeItemUtil.applyAttribute(item, CustomAttributes.MAIN_ATTACK_KEY, attack);
     }
 
     public void setCanBlock(boolean canBlock) throws ProtectedWeaponTypeException {
