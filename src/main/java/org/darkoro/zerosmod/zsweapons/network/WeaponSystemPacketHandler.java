@@ -6,6 +6,7 @@ import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
 import org.darkoro.zerosmod.zsweapons.client.ClientWeaponHandler;
+import org.darkoro.zerosmod.zsweapons.network.packets.ReloadToClientPacket;
 import org.darkoro.zerosmod.zsweapons.network.packets.WeaponTypesToClientPacket;
 import org.darkoro.zerosmod.zsweapons.network.packets.CooldownToClientPacket;
 import org.darkoro.zerosmod.zsweapons.network.packets.TargetEntityToServerPacket;
@@ -14,10 +15,11 @@ import org.darkoro.zerosmod.zsweapons.server.ServerWeaponHandler;
 public class WeaponSystemPacketHandler {
 
     public static void registerPackets(SimpleNetworkWrapper network, int cooldownDiscriminator,
-        int targetDiscriminator, int weaponTypesDiscriminator) {
+        int targetDiscriminator, int weaponTypesDiscriminator, int reloadDiscriminator) {
         network.registerMessage(CooldownToClientHandler.class, CooldownToClientPacket.class, cooldownDiscriminator, Side.CLIENT);
         network.registerMessage(TargetEntityToServerHandler.class, TargetEntityToServerPacket.class, targetDiscriminator, Side.SERVER);
         network.registerMessage(WeaponTypesToClientHandler.class, WeaponTypesToClientPacket.class, weaponTypesDiscriminator, Side.CLIENT);
+        network.registerMessage(ReloadToClientHandler.class, ReloadToClientPacket.class, reloadDiscriminator, Side.CLIENT);
     }
 
     public static final class CooldownToClientHandler implements IMessageHandler<CooldownToClientPacket, IMessage> {
@@ -37,6 +39,13 @@ public class WeaponSystemPacketHandler {
     public static final class WeaponTypesToClientHandler implements IMessageHandler<WeaponTypesToClientPacket, IMessage> {
         @Override public IMessage onMessage(WeaponTypesToClientPacket message, MessageContext ctx) {
             ClientWeaponHandler.INSTANCE.handleWeaponTypesPacket(message);
+            return null;
+        }
+    }
+
+    public static final class ReloadToClientHandler implements IMessageHandler<ReloadToClientPacket, IMessage> {
+        @Override public IMessage onMessage(ReloadToClientPacket message, MessageContext ctx) {
+            ClientWeaponHandler.INSTANCE.reload();
             return null;
         }
     }

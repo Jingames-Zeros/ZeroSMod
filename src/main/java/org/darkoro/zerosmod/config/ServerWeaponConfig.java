@@ -5,6 +5,8 @@ import org.darkoro.zerosmod.config.defaults.GeneralWeaponSettings;
 import org.darkoro.zerosmod.config.defaults.WeaponTypesDefaults;
 import org.darkoro.zerosmod.zsweapons.cache.CachedWeaponStats;
 import org.darkoro.zerosmod.zsweapons.enums.WeaponConfigKey;
+import org.darkoro.zerosmod.zsweapons.server.ServerWeaponHandler;
+
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,6 +61,7 @@ public class ServerWeaponConfig {
 
         ensureDefaultFile();
         readPathFile();
+        ServerWeaponHandler.INSTANCE.reload();
     }
 
     private static void ensureDefaultFile() {

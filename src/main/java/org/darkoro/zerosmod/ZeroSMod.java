@@ -74,7 +74,7 @@ public class ZeroSMod {
 		network.registerMessage(SyncBiomeVisualsPacketHandler.class, SyncBiomeVisualsPacket.class, 1, Side.CLIENT);
 		network.registerMessage(RequestZSTabDataPacketHandler.class, RequestZSTabDataPacket.class, 2, Side.SERVER);
 		network.registerMessage(SyncZSTabDataPacketHandler.class, SyncZSTabDataPacket.class, 3, Side.CLIENT);
-		WeaponSystemPacketHandler.registerPackets(network, 4, 5, 9);
+		WeaponSystemPacketHandler.registerPackets(network, 4, 5, 9, 10);
 		network.registerMessage(SyncDimensionConfigPacketHandler.class, SyncDimensionConfigPacket.class, 6, Side.CLIENT);
 		network.registerMessage(SyncKiAttackColorPacketHandler.class, SyncKiAttackColorPacket.class, 7, Side.CLIENT);
 		network.registerMessage(SyncKiAttackStatePacketHandler.class, SyncKiAttackStatePacket.class, 8, Side.CLIENT);

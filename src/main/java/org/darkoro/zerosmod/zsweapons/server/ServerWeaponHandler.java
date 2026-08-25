@@ -17,6 +17,7 @@ import org.darkoro.zerosmod.zsweapons.network.packets.CooldownToClientPacket;
 import org.darkoro.zerosmod.zsweapons.network.packets.TargetEntityToServerPacket;
 import org.darkoro.zerosmod.zsweapons.network.packets.WeaponTypesToClientPacket;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import static org.darkoro.zerosmod.zsweapons.ZSWeaponUtils.*;
@@ -134,5 +135,18 @@ public class ServerWeaponHandler {
         PlayerCombatState state = getPlayerState(player);
         if(!isValidAttack(state, player, target)) return;
         player.attackTargetEntityWithCurrentItem(target);
+    }
+
+    /**
+     * Reloads all player combat states on the server
+     */
+    public void reload() {
+        List<EntityPlayerMP> players = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
+        for(EntityPlayerMP player : players) {
+            PlayerCombatState newState = new PlayerCombatState();
+            newState.changeItem(player.getHeldItem());
+            startCooldown(player, newState);
+            stateMap.put(player.getUniqueID(), new PlayerCombatState());
+        }
     }
 }
