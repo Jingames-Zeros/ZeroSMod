@@ -21,22 +21,32 @@ import static org.darkoro.zerosmod.zsweapons.enums.WeaponTypeId.*;
 
 public class CachedWeaponStats implements ScriptZSWeapon {
     private static final String WEAPON_TYPE_PREFIX = EnumChatFormatting.RESET + "Weapon Type: ";
+    private static final String LEVEL_REQ_PREFIX = EnumChatFormatting.RESET + "Level Req: ";
 
+    // General
     private ItemStack item;
     private String type = DEFAULT;
+    private int levelReq = 0;
     private String formattedType = EnumChatFormatting.RESET.toString() + EnumChatFormatting.WHITE;
     private final boolean isPrimitive;
 
+    // Melee
     private int cooldown = 10;
     private float attackPercent = 1.0F;
     private int attackAdditive = 0;
+
+    // Range
     private float range = 3;
     private float rangeSq = 9;
     private float sweetSpot = 1.5F;
+
+    // Ki
     private boolean canChargeKi = false;
     private float kiPercent = 1.0F;
     private int kiAdditive = 0;
     private float kiCostPercent = 1.0F;
+
+    // Block
     private boolean canBlock = false;
     private float blockDexPercent = 1.0F;
     private float blockCostPercent = 1.0F;
@@ -193,7 +203,8 @@ public class CachedWeaponStats implements ScriptZSWeapon {
         for(int i = 0; i < oldLore.tagCount(); i++) {
             String line = oldLore.getStringTagAt(i);
             if(
-                    line.startsWith(WEAPON_TYPE_PREFIX)
+                    line.startsWith(WEAPON_TYPE_PREFIX) ||
+                    line.startsWith(LEVEL_REQ_PREFIX)
                ) {
                 continue;
             }
@@ -202,6 +213,7 @@ public class CachedWeaponStats implements ScriptZSWeapon {
 
         // Add new weapon type lines
         newLore.appendTag(new NBTTagString(WEAPON_TYPE_PREFIX + formattedType));
+        newLore.appendTag(new NBTTagString(LEVEL_REQ_PREFIX + formattedType));
 
         display.setTag("Lore", newLore);
         compound.setTag("display", display);
@@ -256,6 +268,7 @@ public class CachedWeaponStats implements ScriptZSWeapon {
             nbt = new NBTTagCompound();
         }
         nbt.setTag(ZSWEAPON.key, saveStatsToCompound());
+        nbt.setInteger("power", levelReq);
         item.setTagCompound(nbt);
 
         CachedWeaponStats defaultStats = ZSWeaponUtils.getDefaultStats();
@@ -294,6 +307,7 @@ public class CachedWeaponStats implements ScriptZSWeapon {
     }
 
     // Getters
+    public int getLevelReq() { return levelReq; }
     public float getRange() { return range; }
     public float getRangeSq() { return rangeSq; }
     public int getCooldown() { return cooldown; }
@@ -314,6 +328,21 @@ public class CachedWeaponStats implements ScriptZSWeapon {
     public int getBlockCooldown() { return blockCooldown; }
 
     // Setters
+    public void setKiAdditive(int kiAdditive) {
+        this.kiAdditive = kiAdditive;
+        AttributeItemUtil.applyAttribute(item, AttributeBuilder.KI_ADDITIVE_KEY, kiAdditive);
+    }
+
+    public void setAttackAdditive(int attack) {
+        this.attackAdditive = attack;
+        AttributeItemUtil.applyAttribute(item, CustomAttributes.MAIN_ATTACK_KEY, attack);
+    }
+
+    public void setLevelReq(int levelReq) {
+        this.levelReq = levelReq;
+        updateItemLore();
+    }
+
     public void setCooldown(int cooldown) throws ProtectedWeaponTypeException {
         checkMutable();
         this.cooldown = cooldown;
@@ -343,16 +372,6 @@ public class CachedWeaponStats implements ScriptZSWeapon {
         checkMutable();
         this.kiPercent = kiPercent;
         AttributeItemUtil.applyAttribute(item, AttributeBuilder.KI_PERCENT_KEY, kiPercent);
-    }
-
-    public void setKiAdditive(int kiAdditive) {
-        this.kiAdditive = kiAdditive;
-        AttributeItemUtil.applyAttribute(item, AttributeBuilder.KI_ADDITIVE_KEY, kiAdditive);
-    }
-
-    public void setAttackAdditive(int attack) {
-        this.attackAdditive = attack;
-        AttributeItemUtil.applyAttribute(item, CustomAttributes.MAIN_ATTACK_KEY, attack);
     }
 
     public void setCanBlock(boolean canBlock) throws ProtectedWeaponTypeException {
