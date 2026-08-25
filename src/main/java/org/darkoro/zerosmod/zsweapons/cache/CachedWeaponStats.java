@@ -389,7 +389,7 @@ public class CachedWeaponStats implements ScriptZSWeapon {
      * @throws ProtectedWeaponTypeException .
      */
     private void checkMutable() throws ProtectedWeaponTypeException {
-        if(!isPrimitive) {
+        if(!isPrimitive || !getType().equals(SPECIAL)) {
             throw new ProtectedWeaponTypeException(type);
         }
     }
