@@ -191,6 +191,8 @@ public class CachedWeaponStats implements ScriptZSWeapon {
      * Updates item lore to include the new weapon type and block/ki stats
      */
     private void updateItemLore() {
+        if (item == null) return;
+
         // Grab existing lore
         NBTTagCompound compound = item.getTagCompound();
         if (compound == null) {
@@ -265,6 +267,8 @@ public class CachedWeaponStats implements ScriptZSWeapon {
      * Saves item stats to item's nbt
      */
     public void saveToItem() {
+        if (item == null) return;
+
         NBTTagCompound nbt = item.getTagCompound();
         if(nbt == null) {
             nbt = new NBTTagCompound();
