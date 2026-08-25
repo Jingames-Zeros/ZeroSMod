@@ -102,8 +102,7 @@ public class CachedWeaponStats implements ScriptZSWeapon {
     public void setType(String type) throws UnknownWeaponTypeException {
         type = type.toLowerCase().trim();
         if(type.equals(SPECIAL)) {
-            readStatsFromItem();
-            this.type = type;
+            setSpecial();
         } else {
             CachedWeaponStats stats = ZSWeaponUtils.getLoadedStats().get(type);
             if(stats == null) {
@@ -122,6 +121,7 @@ public class CachedWeaponStats implements ScriptZSWeapon {
         this.type = SPECIAL;
         readStatsFromItem();
         saveToItem();
+        updateItemLore();
     }
 
     /**
@@ -151,23 +151,11 @@ public class CachedWeaponStats implements ScriptZSWeapon {
         this.blockCooldown = stats.getBlockCooldown();
 
         // Only display custom stats if item is not default type
+
         if (applyStats) {
             CachedWeaponStats defaultStats = ZSWeaponUtils.getDefaultStats();
             if (defaultStats == null) return;
 
-            AttributeItemUtil.applyAttribute(item, AttributeBuilder.ATTACK_COOLDOWN_KEY, stats.getCooldown());
-            AttributeItemUtil.applyAttribute(item, AttributeBuilder.RANGE_KEY, stats.getRange());
-            AttributeItemUtil.applyAttribute(item, AttributeBuilder.SWEET_SPOT_KEY, stats.getSweetSpot());
-            if(stats.canBlock()) AttributeItemUtil.applyAttribute(item, AttributeBuilder.CAN_BLOCK_KEY, 1);
-            else AttributeItemUtil.removeAttribute(item, AttributeBuilder.CAN_BLOCK_KEY);
-            if(stats.canChargeKi()) AttributeItemUtil.applyAttribute(item, AttributeBuilder.CAN_CHARGE_KI_KEY, 1);
-            else AttributeItemUtil.removeAttribute(item, AttributeBuilder.CAN_CHARGE_KI_KEY);
-            applyIfDifferent(AttributeBuilder.ATTACK_PERCENT_KEY, stats.getAttackPercent(), defaultStats.getAttackPercent());
-            applyIfDifferent(AttributeBuilder.KI_PERCENT_KEY, stats.getKiPercent(), defaultStats.getKiPercent());
-            applyIfDifferent(AttributeBuilder.KI_COST_PERCENT_KEY, stats.getKiCostPercent(), defaultStats.getKiCostPercent());
-            applyIfDifferent(AttributeBuilder.BLOCK_DEX_PERCENT_KEY, stats.getBlockDexPercent(), defaultStats.getBlockDexPercent());
-            applyIfDifferent(AttributeBuilder.BLOCK_COST_PERCENT_KEY, stats.getBlockCostPercent(), defaultStats.getBlockCostPercent());
-            applyIfDifferent(AttributeBuilder.BLOCK_COOLDOWN_KEY, stats.getBlockCooldown(), cooldown);
             saveToItem();
             updateItemLore();
         }
@@ -224,10 +212,8 @@ public class CachedWeaponStats implements ScriptZSWeapon {
      */
     public void readStatsFromItem() {
         CachedWeaponStats defaultStats = ZSWeaponUtils.getDefaultStats();
-        NBTTagCompound compound = ZSWeaponUtils.getZSWeaponTag(item);
-        if(compound == null)  compound = new NBTTagCompound();
         Map<String, Float> attributes = AttributeItemUtil.readAttributes(item);
-        if(attributes == null || defaultStats == null) return;
+        if(defaultStats == null) return;
 
         // General
         this.type = SPECIAL;
@@ -239,13 +225,13 @@ public class CachedWeaponStats implements ScriptZSWeapon {
         this.rangeSq = range * range;
 
         // Ki
-        this.canChargeKi = attributes.containsKey(AttributeBuilder.CAN_BLOCK_KEY);
+        this.canChargeKi = attributes.containsKey(AttributeBuilder.CAN_CHARGE_KI_KEY);
         this.kiAdditive = Math.round(attributes.getOrDefault(AttributeBuilder.KI_ADDITIVE_KEY, (float) defaultStats.getKiAdditive()));
         this.kiPercent = attributes.getOrDefault(AttributeBuilder.KI_PERCENT_KEY, defaultStats.getKiPercent());
         this.kiCostPercent = attributes.getOrDefault(AttributeBuilder.KI_COST_PERCENT_KEY, defaultStats.getKiCostPercent());
 
         // Block
-        this.canBlock = attributes.containsKey(AttributeBuilder.ATTACK_PERCENT_KEY);;
+        this.canBlock = attributes.containsKey(AttributeBuilder.CAN_BLOCK_KEY);
         this.blockDexPercent = attributes.getOrDefault(AttributeBuilder.BLOCK_DEX_PERCENT_KEY, defaultStats.getBlockDexPercent());
         this.blockCostPercent = attributes.getOrDefault(AttributeBuilder.BLOCK_COST_PERCENT_KEY, defaultStats.getBlockCostPercent());
         this.blockCooldown = Math.round(attributes.getOrDefault(AttributeBuilder.BLOCK_COOLDOWN_KEY, (float) defaultStats.getBlockCooldown()));
@@ -257,11 +243,7 @@ public class CachedWeaponStats implements ScriptZSWeapon {
      */
     public NBTTagCompound saveStatsToCompound() {
         NBTTagCompound nbt = new NBTTagCompound();
-
         nbt.setString(TYPE.key, getType());
-        nbt.setBoolean(CAN_CHARGE.key, canChargeKi());
-        nbt.setBoolean(CAN_BLOCK.key, canBlock());
-
         return nbt;
     }
 
@@ -275,6 +257,25 @@ public class CachedWeaponStats implements ScriptZSWeapon {
         }
         nbt.setTag(ZSWEAPON.key, saveStatsToCompound());
         item.setTagCompound(nbt);
+
+        CachedWeaponStats defaultStats = ZSWeaponUtils.getDefaultStats();
+        if (defaultStats == null) return;
+
+        applyIfDifferent(CustomAttributes.MAIN_ATTACK_KEY, getAttackAdditive(), 0);
+        applyIfDifferent(AttributeBuilder.KI_ADDITIVE_KEY, getKiAdditive(), 0);
+        AttributeItemUtil.applyAttribute(item, AttributeBuilder.ATTACK_COOLDOWN_KEY, getCooldown());
+        AttributeItemUtil.applyAttribute(item, AttributeBuilder.RANGE_KEY, getRange());
+        AttributeItemUtil.applyAttribute(item, AttributeBuilder.SWEET_SPOT_KEY, getSweetSpot());
+        if(canBlock()) AttributeItemUtil.applyAttribute(item, AttributeBuilder.CAN_BLOCK_KEY, 1);
+        else AttributeItemUtil.removeAttribute(item, AttributeBuilder.CAN_BLOCK_KEY);
+        if(canChargeKi()) AttributeItemUtil.applyAttribute(item, AttributeBuilder.CAN_CHARGE_KI_KEY, 1);
+        else AttributeItemUtil.removeAttribute(item, AttributeBuilder.CAN_CHARGE_KI_KEY);
+        applyIfDifferent(AttributeBuilder.ATTACK_PERCENT_KEY, getAttackPercent(), defaultStats.getAttackPercent());
+        applyIfDifferent(AttributeBuilder.KI_PERCENT_KEY, getKiPercent(), defaultStats.getKiPercent());
+        applyIfDifferent(AttributeBuilder.KI_COST_PERCENT_KEY, getKiCostPercent(), defaultStats.getKiCostPercent());
+        applyIfDifferent(AttributeBuilder.BLOCK_DEX_PERCENT_KEY, getBlockDexPercent(), defaultStats.getBlockDexPercent());
+        applyIfDifferent(AttributeBuilder.BLOCK_COST_PERCENT_KEY, getBlockCostPercent(), defaultStats.getBlockCostPercent());
+        applyIfDifferent(AttributeBuilder.BLOCK_COOLDOWN_KEY, getBlockCooldown(), cooldown);
     }
 
     /**
@@ -316,26 +317,32 @@ public class CachedWeaponStats implements ScriptZSWeapon {
     public void setCooldown(int cooldown) throws ProtectedWeaponTypeException {
         checkMutable();
         this.cooldown = cooldown;
+        AttributeItemUtil.applyAttribute(item, AttributeBuilder.ATTACK_COOLDOWN_KEY, cooldown);
     }
 
     public void setAttackPercent(float attackPercent) throws ProtectedWeaponTypeException {
         checkMutable();
         this.attackPercent = attackPercent;
+        AttributeItemUtil.applyAttribute(item, AttributeBuilder.ATTACK_PERCENT_KEY, attackPercent);
     }
 
     public void setSweetSpot(float sweetSpot) throws ProtectedWeaponTypeException {
         checkMutable();
         this.sweetSpot = sweetSpot;
+        AttributeItemUtil.applyAttribute(item, AttributeBuilder.SWEET_SPOT_KEY, sweetSpot);
     }
 
     public void setCanChargeKi(boolean canChargeKi) throws ProtectedWeaponTypeException {
         checkMutable();
         this.canChargeKi = canChargeKi;
+        if(canChargeKi) AttributeItemUtil.applyAttribute(item, AttributeBuilder.CAN_CHARGE_KI_KEY, 1);
+        else AttributeItemUtil.removeAttribute(item, AttributeBuilder.CAN_CHARGE_KI_KEY);
     }
 
     public void setKiPercent(float kiPercent) throws ProtectedWeaponTypeException {
         checkMutable();
         this.kiPercent = kiPercent;
+        AttributeItemUtil.applyAttribute(item, AttributeBuilder.KI_PERCENT_KEY, kiPercent);
     }
 
     public void setKiAdditive(int kiAdditive) {
@@ -351,32 +358,39 @@ public class CachedWeaponStats implements ScriptZSWeapon {
     public void setCanBlock(boolean canBlock) throws ProtectedWeaponTypeException {
         checkMutable();
         this.canBlock = canBlock;
+        if(canBlock) AttributeItemUtil.applyAttribute(item, AttributeBuilder.CAN_BLOCK_KEY, 1);
+        else AttributeItemUtil.removeAttribute(item, AttributeBuilder.CAN_BLOCK_KEY);
     }
 
     public void setBlockDexPercent(float blockDexPercent) throws ProtectedWeaponTypeException {
         checkMutable();
         this.blockDexPercent = blockDexPercent;
+        AttributeItemUtil.applyAttribute(item, AttributeBuilder.BLOCK_DEX_PERCENT_KEY, blockDexPercent);
     }
 
     public void setBlockCostPercent(float blockCostPercent) throws ProtectedWeaponTypeException {
         checkMutable();
         this.blockCostPercent = blockCostPercent;
+        AttributeItemUtil.applyAttribute(item, AttributeBuilder.BLOCK_COST_PERCENT_KEY, blockCostPercent);
     }
 
     public void setBlockCooldown(int blockCooldown) throws ProtectedWeaponTypeException {
         checkMutable();
         this.blockCooldown = blockCooldown;
+        AttributeItemUtil.applyAttribute(item, AttributeBuilder.BLOCK_COOLDOWN_KEY, blockCooldown);
     }
 
     public void setKiCostPercent(float kiCostPercent) throws ProtectedWeaponTypeException {
         checkMutable();
         this.kiCostPercent = kiCostPercent;
+        AttributeItemUtil.applyAttribute(item, AttributeBuilder.KI_COST_PERCENT_KEY, kiCostPercent);
     }
 
     public void setRange(float range) throws ProtectedWeaponTypeException {
         checkMutable();
         this.range = range;
         this.rangeSq = range * range;
+        AttributeItemUtil.applyAttribute(item, AttributeBuilder.RANGE_KEY, range);
     }
 
     public void setFormattedType(String format) throws ProtectedWeaponTypeException {
