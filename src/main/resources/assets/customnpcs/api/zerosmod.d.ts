@@ -53,6 +53,12 @@ export interface ZSAPI {
 
   /** Changes a DBC ki attack color without changing owner. */
   setKiColor(kiAttack: IEntity<any>, color: string): boolean;
+
+  /** Gets a player's current combat state, containing attack cooldown, current stats */
+  getPlayerCombatState(player: IPlayer<any>): ScriptPlayerCombatState<any>;
+
+  /** Gets a ZS Weapon instance from an item stack. Allows for configuration and saving of item type and stats. */
+  getZSWeapon(item: IItemStack<any>): ScriptZSWeapon<any>;
 }
 
 /**
@@ -110,6 +116,12 @@ export interface ZeroSAPI extends ZSAPI {
 
   /** Changes a DBC ki attack color without changing owner. */
   setKiColor(kiAttack: IEntity<any>, color: string): boolean;
+
+  /** Gets a player's current combat state, containing attack cooldown, current stats */
+  getPlayerCombatState(player: IPlayer<any>): ScriptPlayerCombatState<any>;
+
+  /** Gets a ZS Weapon instance from an item stack. Allows for configuration and saving of item type and stats. */
+  getZSWeapon(item: IItemStack<any>): ScriptZSWeapon<any>;
 }
 
 /**
@@ -167,6 +179,12 @@ export interface AbstractZeroSAPI extends ZSAPI {
 
   /** Changes a DBC ki attack color without changing owner. */
   setKiColor(kiAttack: IEntity<any>, color: string): boolean;
+
+  /** Gets a player's current combat state, containing attack cooldown, current stats */
+  getPlayerCombatState(player: IPlayer<any>): ScriptPlayerCombatState<any>;
+
+  /** Gets a ZS Weapon instance from an item stack. Allows for configuration and saving of item type and stats. */
+  getZSWeapon(item: IItemStack<any>): ScriptZSWeapon<any>;
 }
 
 /**
