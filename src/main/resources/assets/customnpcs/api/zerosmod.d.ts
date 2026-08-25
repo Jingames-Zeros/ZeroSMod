@@ -188,6 +188,185 @@ export interface AbstractZeroSAPI extends ZSAPI {
 }
 
 /**
+ * Zero S Mod weapon global API.
+ * @javaFqn org.darkoro.zerosmod.zsweapons.API.WeaponAPI
+ */
+export interface WeaponAPI {
+  /** Reads the configured Zero S weapon type from an item. */
+  getWeaponType(item: IItemStack<any>): string;
+
+  /** Sets the configured Zero S weapon type on an item. */
+  setWeaponType(type: string, item: IItemStack<any>): void;
+
+  /** Returns the names of all loaded Zero S weapon types. */
+  getLoadedWeaponTypeNames(): string[];
+
+  /** Returns the loaded Zero S weapon type map. */
+  getLoadedWeaponTypes(): any;
+
+  /** Returns the loaded default Zero S weapon state. */
+  getDefaultWeaponState(): ScriptZSWeapon<any>;
+}
+
+/**
+ * Zero S Mod script-facing weapon stats object.
+ * @javaFqn org.darkoro.zerosmod.api.ScriptZSWeapon
+ */
+export interface ScriptZSWeapon<T> {
+  /** Sets this item's weapon type to a loaded weapon type. */
+  setType(type: string): void;
+
+  /** Sets this item to the default weapon stats. */
+  setToDefaultStats(): void;
+
+  /** Sets this item to the special weapon type so its stats can be edited. */
+  setSpecial(): void;
+
+  /** Returns this weapon's required level. */
+  getLevelReq(): number;
+
+  /** Returns this weapon's attack range. */
+  getRange(): number;
+
+  /** Returns this weapon's squared attack range. */
+  getRangeSq(): number;
+
+  /** Returns this weapon's attack cooldown. */
+  getCooldown(): number;
+
+  /** Returns the backing item stack. */
+  getItem(): IItemStack<any>;
+
+  /** Returns this weapon's raw type key. */
+  getType(): string;
+
+  /** Returns this weapon's formatted type name. */
+  getFormattedType(): string;
+
+  /** Returns this weapon's attack percentage multiplier. */
+  getAttackPercent(): number;
+
+  /** Returns this weapon's flat attack bonus. */
+  getAttackAdditive(): number;
+
+  /** Returns this weapon's sweet spot distance. */
+  getSweetSpot(): number;
+
+  /** Returns true if this weapon can charge ki. */
+  canChargeKi(): boolean;
+
+  /** Returns this weapon's ki percentage multiplier. */
+  getKiPercent(): number;
+
+  /** Returns this weapon's flat ki bonus. */
+  getKiAdditive(): number;
+
+  /** Returns this weapon's ki cost percentage multiplier. */
+  getKiCostPercent(): number;
+
+  /** Returns true if this weapon can block. */
+  canBlock(): boolean;
+
+  /** Returns this weapon's block dexterity percentage multiplier. */
+  getBlockDexPercent(): number;
+
+  /** Returns this weapon's block cost percentage multiplier. */
+  getBlockCostPercent(): number;
+
+  /** Returns this weapon's block cooldown. */
+  getBlockCooldown(): number;
+
+  /** Sets this weapon's required level. */
+  setLevelReq(levelReq: number): void;
+
+  /** Sets this weapon's flat ki bonus. */
+  setKiAdditive(kiAdditive: number): void;
+
+  /** Sets this weapon's flat attack bonus. */
+  setAttackAdditive(attack: number): void;
+
+  /** Sets this weapon's attack cooldown. */
+  setCooldown(cooldown: number): void;
+
+  /** Sets this weapon's attack percentage multiplier. */
+  setAttackPercent(attackPercent: number): void;
+
+  /** Sets this weapon's sweet spot distance. */
+  setSweetSpot(sweetSpot: number): void;
+
+  /** Sets whether this weapon can charge ki. */
+  setCanChargeKi(canChargeKi: boolean): void;
+
+  /** Sets this weapon's ki percentage multiplier. */
+  setKiPercent(kiPercent: number): void;
+
+  /** Sets this weapon's ki cost percentage multiplier. */
+  setKiCostPercent(kiCostPercent: number): void;
+
+  /** Sets whether this weapon can block. */
+  setCanBlock(canBlock: boolean): void;
+
+  /** Sets this weapon's block dexterity percentage multiplier. */
+  setBlockDexPercent(blockDexPercent: number): void;
+
+  /** Sets this weapon's block cost percentage multiplier. */
+  setBlockCostPercent(blockCostPercent: number): void;
+
+  /** Sets this weapon's block cooldown. */
+  setBlockCooldown(blockCooldown: number): void;
+
+  /** Sets this weapon's attack range. */
+  setRange(range: number): void;
+
+  /** Sets this weapon's formatted type name. */
+  setFormattedType(formattedType: string): void;
+}
+
+/**
+ * Zero S Mod concrete weapon stats object.
+ * @javaFqn org.darkoro.zerosmod.zsweapons.cache.CachedWeaponStats
+ */
+export interface CachedWeaponStats<T> extends ScriptZSWeapon<T> {
+}
+
+/**
+ * Zero S Mod script-facing player weapon combat state.
+ * @javaFqn org.darkoro.zerosmod.api.ScriptPlayerCombatState
+ */
+export interface ScriptPlayerCombatState<T> {
+  /** Updates the current item and weapon stats from the given item. */
+  changeItem(item: IItemStack<any>): void;
+
+  /** Sets the current weapon stats independent of the held item. */
+  setCurrentZSWeapon(itemStats: ScriptZSWeapon<any>, resetCooldown: boolean): void;
+
+  /** Refreshes the current item if it matches the given item. */
+  refreshItem(item: IItemStack<any>): void;
+
+  /** Triggers the current attack cooldown. */
+  resetCooldown(): void;
+
+  /** Returns the remaining attack cooldown. */
+  getRemainingAttackCooldown(): number;
+
+  /** Returns the current weapon stats. */
+  getCurrentZSWeapon(): ScriptZSWeapon<any>;
+
+  /** Returns the current script item. */
+  getCurrentScriptItem(): IItemStack<any>;
+
+  /** Sets the remaining attack cooldown. */
+  setRemainingAttackCooldown(remainingAttackCooldown: number): void;
+}
+
+/**
+ * Zero S Mod concrete player weapon combat state.
+ * @javaFqn org.darkoro.zerosmod.zsweapons.PlayerCombatState
+ */
+export interface PlayerCombatState<T> extends ScriptPlayerCombatState<T> {
+}
+
+/**
  * Zero S Mod patch for all CNPC entity wrappers.
  * @javaFqn noppes.npcs.api.entity.IEntity
  */
