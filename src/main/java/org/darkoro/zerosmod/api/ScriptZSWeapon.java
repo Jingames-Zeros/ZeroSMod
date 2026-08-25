@@ -55,4 +55,5 @@ public interface ScriptZSWeapon {
     void setBlockCostPercent(float blockCostPercent) throws CachedWeaponStats.ProtectedWeaponTypeException;
     void setBlockCooldown(int blockCooldown) throws CachedWeaponStats.ProtectedWeaponTypeException;
     void setRange(float range) throws CachedWeaponStats.ProtectedWeaponTypeException;
+    void setFormattedType(String formattedType) throws CachedWeaponStats.ProtectedWeaponTypeException;
 }

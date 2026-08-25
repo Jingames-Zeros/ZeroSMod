@@ -22,6 +22,7 @@ import static org.darkoro.zerosmod.zsweapons.enums.WeaponTypeId.*;
 public class CachedWeaponStats implements ScriptZSWeapon {
     private static final String WEAPON_TYPE_PREFIX = EnumChatFormatting.RESET + "Weapon Type: ";
     private static final String LEVEL_REQ_PREFIX = EnumChatFormatting.RESET + "Level Req: ";
+    private static final String SPECIAL_FORMATTED = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GOLD + "Special";
 
     // General
     private ItemStack item;
@@ -129,6 +130,7 @@ public class CachedWeaponStats implements ScriptZSWeapon {
      */
     public void setSpecial() {
         this.type = SPECIAL;
+        this.formattedType = SPECIAL_FORMATTED;
         readStatsFromItem();
         saveToItem();
         updateItemLore();
@@ -415,6 +417,7 @@ public class CachedWeaponStats implements ScriptZSWeapon {
     public void setFormattedType(String format) throws ProtectedWeaponTypeException {
         checkMutable();
         this.formattedType = format;
+        updateItemLore();
     }
 
     /**
