@@ -31,22 +31,31 @@ public class AttributeItemUtilMixins {
         String formattedValue;
         String color;
         String valueString;
-        if (displayName.equals(AttributeBuilder.CAN_BLOCK.getDisplayName()) || displayName.equals(AttributeBuilder.CAN_CHARGE_KI.getDisplayName())) {
-            cir.setReturnValue("§" + def.getColorCode() +  displayName);
-            return;
-        } else if (displayName.equals(AttributeBuilder.ATTACK_COOLDOWN.getDisplayName()) || displayName.equals(AttributeBuilder.BLOCK_COOLDOWN.getDisplayName())) {
-            formattedValue = (new BigDecimal(Float.toString(value / 20))).stripTrailingZeros().toPlainString();
-            color = value >= 0.0F ? EnumChatFormatting.AQUA.toString() : EnumChatFormatting.RED.toString();
-            valueString = color + formattedValue + "s";
-        } else if (displayName.equals(AttributeBuilder.SWEET_SPOT.getDisplayName()) || displayName.equals(AttributeBuilder.RANGE.getDisplayName())) {
-            color = value >= 0.0F ? EnumChatFormatting.DARK_GREEN.toString() : EnumChatFormatting.RED.toString();
-            valueString = color + String.format("%.1f", value) + " blocks";
-        } else {
-            return;
+        switch (displayName) {
+            case AttributeBuilder.CAN_BLOCK_DISPLAY, AttributeBuilder.CAN_CHARGE_KI_DISPLAY -> {
+                cir.setReturnValue("§" + def.getColorCode() + displayName);
+                return;
+            }
+            case AttributeBuilder.ATTACK_PERCENT_DISPLAY, AttributeBuilder.KI_COST_PERCENT_DISPLAY,
+                 AttributeBuilder.KI_PERCENT_DISPLAY, AttributeBuilder.BLOCK_DEX_PERCENT_DISPLAY,
+                 AttributeBuilder.BLOCK_COST_PERCENT_DISPLAY -> {
+                formattedValue = (new BigDecimal(Float.toString(value))).stripTrailingZeros().toPlainString();
+                cir.setReturnValue(EnumChatFormatting.GREEN + formattedValue + "% " + "§" + def.getColorCode() + displayName);
+                return;
+            }
+            case AttributeBuilder.ATTACK_COOLDOWN_DISPLAY, AttributeBuilder.BLOCK_COOLDOWN_DISPLAY -> {
+                color = value >= 0.0F ? EnumChatFormatting.AQUA.toString() : EnumChatFormatting.RED.toString();
+                formattedValue = (new BigDecimal(Float.toString(value / 20))).stripTrailingZeros().toPlainString();
+                valueString = color + formattedValue + "s";
+            }
+            case AttributeBuilder.SWEET_SPOT_DISPLAY, AttributeBuilder.RANGE_DISPLAY ->
+                valueString = EnumChatFormatting.DARK_GREEN + String.format("%.1f", value) + " blocks";
+            default -> {
+                return;
+            }
         }
         valueString = valueString + EnumChatFormatting.GRAY;
         displayName = "§" + def.getColorCode() + displayName;
-
         cir.setReturnValue(valueString + " " + displayName);
     }
 }
