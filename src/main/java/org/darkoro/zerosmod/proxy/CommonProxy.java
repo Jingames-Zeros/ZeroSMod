@@ -18,7 +18,6 @@ import org.darkoro.zerosmod.blocks.ModBlocks;
 import org.darkoro.zerosmod.client.JRMCoreRacePatch;
 import org.darkoro.zerosmod.command.CommandZSMod;
 import org.darkoro.zerosmod.config.BiomeConfig;
-import org.darkoro.zerosmod.config.ServerWeaponConfig;
 import org.darkoro.zerosmod.event.KiAttackGuard;
 import org.darkoro.zerosmod.event.SaiyanMasteryMergeEvent;
 import org.darkoro.zerosmod.it.InstantTransmissionEventHooks;
@@ -27,9 +26,6 @@ import org.darkoro.zerosmod.network.SyncKiAttackStatePacket;
 import org.darkoro.zerosmod.world.GenericZSBiome;
 import org.darkoro.zerosmod.world.ModDimensions;
 import org.darkoro.zerosmod.world.WorldProviderPhylactery;
-import org.darkoro.zerosmod.zsweapons.API.WeaponAPI;
-import org.darkoro.zerosmod.zsweapons.attributes.AttributeBuilder;
-import org.darkoro.zerosmod.zsweapons.server.ServerWeaponHandler;
 
 public class CommonProxy {
 
@@ -55,14 +51,8 @@ public class CommonProxy {
     FMLCommonHandler.instance().bus().register(KiAttackGuard.INSTANCE);
     NpcAPI.EVENT_BUS.register(saiyanMasteryMergeEvent);
     NpcAPI.Instance().addGlobalObject("ZSAPI", AbstractZeroSAPI.Instance());
-    NpcAPI.Instance().addGlobalObject("WeaponAPI", WeaponAPI.INSTANCE);
     registerScriptHooks();
     MinecraftForge.EVENT_BUS.register(KiAttackGuard.INSTANCE);
-    if (ServerWeaponConfig.isEnabled()) {
-      FMLCommonHandler.instance().bus().register(ServerWeaponHandler.INSTANCE);
-      MinecraftForge.EVENT_BUS.register(ServerWeaponHandler.INSTANCE);
-    }
-    new AttributeBuilder();
     if (ZeroSMod.LOGGER != null) {
       ZeroSMod.LOGGER.info("Registered Saiyan mastery merge handler on FML and CNPC event busses.");
       ZeroSMod.LOGGER.info("Registered ZSAPI CNPC global script object.");
