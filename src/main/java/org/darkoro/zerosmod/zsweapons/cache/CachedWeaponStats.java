@@ -102,7 +102,7 @@ public class CachedWeaponStats implements ScriptZSWeapon {
             setToDefaultStats();
         }
         Map<String, Float> stats = AttributeItemUtil.readAttributes(item);
-        this.attackAdditive = Math.round(stats.getOrDefault(CustomAttributes.MAIN_ATTACK_KEY, 0.0F));
+        this.attackAdditive = Math.round(stats.getOrDefault(AttributeBuilder.ATTACK_ADDITIVE_KEY, 0.0F));
         this.kiAdditive = Math.round(stats.getOrDefault(AttributeBuilder.KI_ADDITIVE_KEY, 0.0F));
     }
 
@@ -235,14 +235,14 @@ public class CachedWeaponStats implements ScriptZSWeapon {
         this.type = SPECIAL;
         this.cooldown = Math.round(attributes.getOrDefault(AttributeBuilder.ATTACK_COOLDOWN_KEY, (float) defaultStats.getCooldown()));
         this.attackPercent = attributes.getOrDefault(AttributeBuilder.ATTACK_PERCENT_KEY, defaultStats.getAttackPercent());
-        this.attackAdditive = Math.round(attributes.getOrDefault(CustomAttributes.MAIN_ATTACK_KEY, 0.0F));
+        this.attackAdditive = Math.round(attributes.getOrDefault(AttributeBuilder.ATTACK_ADDITIVE_KEY, 0.0F));
         this.sweetSpot = attributes.getOrDefault(AttributeBuilder.SWEET_SPOT_KEY, defaultStats.getSweetSpot());
         this.range = attributes.getOrDefault(AttributeBuilder.RANGE_KEY, defaultStats.getRange());
         this.rangeSq = range * range;
 
         // Ki
         this.canChargeKi = attributes.containsKey(AttributeBuilder.CAN_CHARGE_KI_KEY);
-        this.kiAdditive = Math.round(attributes.getOrDefault(AttributeBuilder.KI_ADDITIVE_KEY, (float) defaultStats.getKiAdditive()));
+        this.kiAdditive = Math.round(attributes.getOrDefault(AttributeBuilder.KI_ADDITIVE_KEY, 0.0F));
         this.kiPercent = attributes.getOrDefault(AttributeBuilder.KI_PERCENT_KEY, defaultStats.getKiPercent());
         this.kiCostPercent = attributes.getOrDefault(AttributeBuilder.KI_COST_PERCENT_KEY, defaultStats.getKiCostPercent());
 
@@ -280,7 +280,7 @@ public class CachedWeaponStats implements ScriptZSWeapon {
         CachedWeaponStats defaultStats = ZSWeaponUtils.getDefaultStats();
         if (defaultStats == null) return;
 
-        applyIfDifferent(CustomAttributes.MAIN_ATTACK_KEY, getAttackAdditive(), 0);
+        applyIfDifferent(AttributeBuilder.ATTACK_ADDITIVE_KEY, getAttackAdditive(), 0);
         applyIfDifferent(AttributeBuilder.KI_ADDITIVE_KEY, getKiAdditive(), 0);
         AttributeItemUtil.applyAttribute(item, AttributeBuilder.ATTACK_COOLDOWN_KEY, getCooldown());
         AttributeItemUtil.applyAttribute(item, AttributeBuilder.RANGE_KEY, getRange());
@@ -341,7 +341,7 @@ public class CachedWeaponStats implements ScriptZSWeapon {
 
     public void setAttackAdditive(int attack) {
         this.attackAdditive = attack;
-        AttributeItemUtil.applyAttribute(item, CustomAttributes.MAIN_ATTACK_KEY, attack);
+        AttributeItemUtil.applyAttribute(item, AttributeBuilder.ATTACK_ADDITIVE_KEY, attack);
     }
 
     public void setLevelReq(int levelReq) {
