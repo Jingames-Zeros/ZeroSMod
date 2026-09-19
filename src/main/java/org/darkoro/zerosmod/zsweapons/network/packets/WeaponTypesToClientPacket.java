@@ -56,6 +56,7 @@ public class WeaponTypesToClientPacket implements IMessage {
 
         // General settings
         buf.writeInt(stats.getCooldown());
+        buf.writeInt(stats.getAttackAdditive());
         buf.writeFloat(stats.getAttackPercent());
         buf.writeFloat(stats.getRange());
         buf.writeFloat(stats.getSweetSpot());
@@ -96,6 +97,7 @@ public class WeaponTypesToClientPacket implements IMessage {
 
         // General
         stats.setCooldown(buf.readInt());
+        stats.setAttackAdditive(buf.readInt());
         stats.setAttackPercent(buf.readFloat());
         stats.setRange(buf.readFloat());
         stats.setSweetSpot(buf.readFloat());

@@ -48,7 +48,7 @@ public class WeaponHandlerMixins {
                 if(isServerSide()) {
                     sweetSpotMulti = ServerWeaponHandler.INSTANCE.getPlayerState(ep).resolveAttack();
                 }
-                return (int) (original * weaponStats.getAttackPercent() / 100 * sweetSpotMulti);
+                return (int) ((original * weaponStats.getAttackPercent() / 100 + weaponStats.getAttackAdditive())* sweetSpotMulti);
             case ENERGY_POWER:
                 return (int) (original * weaponStats.getKiPercent() / 100) + weaponStats.getKiAdditive();
             default:
