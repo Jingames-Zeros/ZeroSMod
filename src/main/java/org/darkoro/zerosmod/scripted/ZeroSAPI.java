@@ -2,16 +2,22 @@ package org.darkoro.zerosmod.scripted;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IEntityLivingBase;
 import noppes.npcs.api.entity.IPlayer;
+import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.scripted.NpcAPI;
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.api.AbstractZeroSAPI;
+import org.darkoro.zerosmod.api.ScriptPlayerCombatState;
+import org.darkoro.zerosmod.api.ScriptZSWeapon;
 import org.darkoro.zerosmod.it.InstantTransmissionEventHooks;
 import org.darkoro.zerosmod.it.InstantTransmissionScriptHelper;
 import org.darkoro.zerosmod.ki.KiScriptHelper;
+import org.darkoro.zerosmod.zsweapons.cache.CachedWeaponStats;
+import org.darkoro.zerosmod.zsweapons.server.ServerWeaponHandler;
 
 public class ZeroSAPI extends AbstractZeroSAPI {
 
@@ -104,6 +110,18 @@ public class ZeroSAPI extends AbstractZeroSAPI {
 
   @Override public boolean setKiColor(IEntity kiAttack, String color) {
     return KiScriptHelper.setKiColor(kiAttack, color);
+  }
+
+  @Override
+  public ScriptPlayerCombatState getPlayerCombatState(IPlayer player) {
+    return ServerWeaponHandler.INSTANCE.getPlayerState((EntityPlayer) player.getMCEntity());
+  }
+
+  @Override
+  public ScriptZSWeapon getZSWeapon(IItemStack item) {
+    CachedWeaponStats stats = new CachedWeaponStats();
+    stats.changeItem(item.getMCItemStack());
+    return stats;
   }
 
   private static EntityPlayerMP asPlayer(IPlayer player) {

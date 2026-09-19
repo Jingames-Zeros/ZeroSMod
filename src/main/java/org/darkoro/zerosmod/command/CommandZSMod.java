@@ -6,26 +6,28 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
+import noppes.npcs.Server;
+import noppes.npcs.api.entity.IPlayer;
+import noppes.npcs.scripted.NpcAPI;
+import noppes.npcs.scripted.item.ScriptItemStack;
 import org.darkoro.zerosmod.ZeroSMod;
-import org.darkoro.zerosmod.config.BiomeConfig;
-import org.darkoro.zerosmod.config.DimensionConfig;
-import org.darkoro.zerosmod.config.KiAttackConfig;
-import org.darkoro.zerosmod.config.PathConfig;
+import org.darkoro.zerosmod.api.ScriptZSWeapon;
+import org.darkoro.zerosmod.config.*;
 import org.darkoro.zerosmod.event.SaiyanMasteryMergeEvent;
 import org.darkoro.zerosmod.network.BiomeVisualSyncUtil;
 import org.darkoro.zerosmod.network.SyncDimensionConfigPacket;
+import org.darkoro.zerosmod.scripted.ZeroSAPI;
+import org.darkoro.zerosmod.zsweapons.ZSWeaponUtils;
+import org.darkoro.zerosmod.zsweapons.cache.CachedWeaponStats;
+import org.darkoro.zerosmod.zsweapons.network.packets.WeaponTypesToClientPacket;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CommandZSMod extends CommandBase {
 
@@ -42,6 +44,7 @@ public class CommandZSMod extends CommandBase {
     registerSubCommand(new HelpSubCommand());
     registerSubCommand(new ReloadSubCommand());
     registerSubCommand(new SaiyanMergeSubCommand());
+    registerSubCommand(new SetItemTypeCommand());
   }
 
   @Override
@@ -261,14 +264,87 @@ public class CommandZSMod extends CommandBase {
       BiomeConfig.reload();
       DimensionConfig.reload();
       KiAttackConfig.reload();
+      ServerWeaponConfig.reload();
 
       IMessage pkt = BiomeVisualSyncUtil.buildFullPacket();
       ZeroSMod.network.sendToAll(pkt);
       ZeroSMod.network.sendToAll(SyncDimensionConfigPacket.buildCurrent());
 
+      WeaponTypesToClientPacket weaponTypesPacket = new WeaponTypesToClientPacket(ServerWeaponConfig.loadedWeaponStats);
+      ZeroSMod.network.sendToAll(weaponTypesPacket);
+
       int players = MinecraftServer.getServer().getConfigurationManager().playerEntityList.size();
       sender.addChatMessage(new ChatComponentText(
           PREFIX + EnumChatFormatting.GRAY + "ZeroSMod configs reloaded and synced to " + players + " player(s)."));
+    }
+  }
+
+  private class SetItemTypeCommand extends ZSSubCommand {
+
+    private SetItemTypeCommand() {
+      super("weapons", "/zsmod weapons [types, setitemtype] [TYPE]", "Sets item type of currently held item.", 2);
+    }
+
+    @Override
+    protected List<String> addTabCompletionOptions(ICommandSender sender, String[] args) {
+      if (args.length == 1) {
+        List<String> options = new ArrayList<>();
+        options.add("types");
+        options.add("setitemtype");
+        return options;
+      } else if (args.length == 2) {
+        return new ArrayList<>(ZSWeaponUtils.getLoadedStats().keySet());
+      }
+
+      return Collections.emptyList();
+    }
+
+    @Override
+    protected void process(ICommandSender sender, String[] args) {
+      if (args.length < 1) {
+        throw new WrongUsageException(getUsage());
+      }
+
+      switch(args[0].toLowerCase()) {
+        case "types":
+          StringBuilder message = new StringBuilder(PREFIX + EnumChatFormatting.WHITE + "Loaded weapon types: ");
+          Set<String> loadedStats = ZSWeaponUtils.getLoadedStats().keySet();
+          for(String key : loadedStats) {
+            message.append(key).append(", ");
+          }
+          sender.addChatMessage(new ChatComponentText(message.toString()));
+          break;
+
+        case "setitemtype":
+          EntityPlayerMP player = MinecraftServer.getServer().getConfigurationManager().func_152612_a(sender.getCommandSenderName());
+          if(player == null) {
+            sender.addChatMessage(new ChatComponentText(PREFIX + EnumChatFormatting.DARK_RED + "PLAYER NOT FOUND"));
+            return;
+          }
+          ItemStack heldItem = player.getHeldItem();
+          if(heldItem == null) {
+            sender.addChatMessage(new ChatComponentText(PREFIX + EnumChatFormatting.RED + "Please hold the item you wish to change"));
+            return;
+          }
+
+          StringBuilder typeBuilder = new StringBuilder();
+          for(int i = 1; i < args.length; i++ ) {
+            typeBuilder.append(args[i]).append(' ');
+          }
+          typeBuilder.deleteCharAt(typeBuilder.length() - 1);
+          String type = typeBuilder.toString();
+
+          try {
+            ScriptZSWeapon weapon = ZeroSAPI.Instance().getZSWeapon(new ScriptItemStack(heldItem));
+            weapon.setType(type);
+            ZeroSAPI.Instance().getPlayerCombatState((IPlayer) NpcAPI.Instance().getIEntity(player)).setCurrentZSWeapon(weapon, true);
+            sender.addChatMessage(new ChatComponentText(
+                    PREFIX + EnumChatFormatting.GRAY + "Item type successfully set to " + type));
+          } catch (CachedWeaponStats.UnknownWeaponTypeException e) {
+            sender.addChatMessage(new ChatComponentText(PREFIX + EnumChatFormatting.RED + "Unknown weapon type: " + type));
+          }
+          break;
+      }
     }
   }
 

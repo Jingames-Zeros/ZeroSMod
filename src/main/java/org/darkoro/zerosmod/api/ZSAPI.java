@@ -3,6 +3,7 @@ package org.darkoro.zerosmod.api;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IEntityLivingBase;
 import noppes.npcs.api.entity.IPlayer;
+import noppes.npcs.api.item.IItemStack;
 
 /**
  * Methods available through the CNPC global object named {@code ZSAPI}.
@@ -151,4 +152,18 @@ public interface ZSAPI {
    * @return true when the color was changed
    */
   boolean setKiColor(IEntity kiAttack, String color);
+
+  /**
+   * Gets player's current combat state
+   * @param player combat player
+   * @return .
+   */
+  ScriptPlayerCombatState getPlayerCombatState(IPlayer player);
+
+  /**
+   * Gets item's current ZSWeapon stats
+   * @param item item to retrieve stats from
+   * @return .
+   */
+  ScriptZSWeapon getZSWeapon(IItemStack item);
 }
