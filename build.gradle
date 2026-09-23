@@ -2,12 +2,27 @@ plugins {
     id 'com.gtnewhorizons.gtnhconvention'
 }
 
+tasks.named('jar', Jar) {
+    from sourceSets.main.output
+}
+
+tasks.named('shadowJar') {
+    from sourceSets.main.output
+}
+
 tasks.withType(Javadoc) {
+    source = sourceSets.main.allJava.matching {
+        include 'org/darkoro/zerosmod/api/**/*.java'
+    }
+
     options.addStringOption('Xdoclint:none', '-quiet')
+    options.overview = file('src/docs/javadoc/overview.html')
+    options.windowTitle = 'Zero S Script API'
+    options.docTitle = 'Zero S Script API'
+    options.header = 'Zero S Script API'
 
     options.links = [
-            "https://skmedix.github.io/ForgeJavaDocs/javadoc/forge/1.7.10-10.13.4.1614/",
-            "https://kamkeel.github.io/CustomNPC-Plus/"
+            "https://skmedix.github.io/ForgeJavaDocs/javadoc/forge/1.7.10-10.13.4.1614/"
     ]
 
     options.memberLevel = JavadocMemberLevel.PUBLIC

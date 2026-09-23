@@ -173,9 +173,9 @@ public class ZSTabOverlayHandler extends Gui {
     lines[4] = trimFormatted(font, pathText(data.currentPath), statsTextWidth);
     lines[6] = statLine(font, "TP", formatCompactNumber(data.tp), EnumChatFormatting.DARK_AQUA, statsTextWidth);
     lines[7] = statLine(font, "STR", formatNumber(data.str) + formatMultiplier(data.strMulti), EnumChatFormatting.RED, statsTextWidth);
-    lines[8] = statLine(font, "DEX", formatNumber(data.dex) + formatMultiplier(data.dexMulti), EnumChatFormatting.BLUE, statsTextWidth);
+    lines[8] = statLine(font, "DEX", formatNumber(data.dex) + formatMultiplier(data.dexMulti), EnumChatFormatting.GOLD, statsTextWidth);
     lines[9] = statLine(font, "CON", formatNumber(data.con), EnumChatFormatting.GREEN, statsTextWidth);
-    lines[10] = statLine(font, "WIL", formatNumber(data.wil) + formatMultiplier(data.wilMulti), EnumChatFormatting.GOLD, statsTextWidth);
+    lines[10] = statLine(font, "WIL", formatNumber(data.wil) + formatMultiplier(data.wilMulti), EnumChatFormatting.BLUE, statsTextWidth);
     lines[11] = statLine(font, "MND", formatNumber(data.mnd), EnumChatFormatting.LIGHT_PURPLE, statsTextWidth);
     lines[12] = statLine(font, "SPI", formatNumber(data.spi), EnumChatFormatting.AQUA, statsTextWidth);
     lines[14] = trimFormatted(font, EnumChatFormatting.GOLD + "" + EnumChatFormatting.BOLD + "Level: "

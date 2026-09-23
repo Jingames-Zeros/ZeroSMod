@@ -34,10 +34,9 @@
  * For more details, see https://docs.gradle.org/8.0.1/userguide/java_library_plugin.html#sec:java_library_configurations_graph
  */
 dependencies {
-    devOnlyNonPublishable(rfg.deobf("curse.maven:unimixins-826970:7963975"))
     devOnlyNonPublishable(rfg.deobf("curse.maven:jingames-jrmcore-497507:4523117"))
     devOnlyNonPublishable(rfg.deobf("curse.maven:jingames-dragon-block-c-497518:4523119"))
     devOnlyNonPublishable(rfg.deobf("curse.maven:jingames-jbra-client-497511:4505635"))
-    devOnlyNonPublishable(rfg.deobf("curse.maven:customnpc-plus-480951:7753130"))
+    implementation(rfg.deobf("curse.maven:customnpc-plus-480951:7753130"))
     devOnlyNonPublishable(rfg.deobf("curse.maven:cnpc-dbc-addon-1107628:7753144"))
 }
