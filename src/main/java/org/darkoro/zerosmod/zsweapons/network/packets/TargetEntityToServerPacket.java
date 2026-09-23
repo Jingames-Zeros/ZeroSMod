@@ -1,4 +1,4 @@
-package org.darkoro.zerosmod.zsweapons.network;
+package org.darkoro.zerosmod.zsweapons.network.packets;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import io.netty.buffer.ByteBuf;
