@@ -35,6 +35,9 @@ import org.darkoro.zerosmod.network.RequestZSTabDataPacket;
 import org.darkoro.zerosmod.network.RequestZSTabDataPacketHandler;
 import org.darkoro.zerosmod.network.SyncZSTabDataPacket;
 import org.darkoro.zerosmod.network.SyncZSTabDataPacketHandler;
+import org.darkoro.zerosmod.network.RaceStatRequest;
+import org.darkoro.zerosmod.network.RaceStatResponse;
+import org.darkoro.zerosmod.network.RaceStatEditorServer;
 import org.darkoro.zerosmod.proxy.CommonProxy;
 import org.darkoro.zerosmod.zsweapons.network.WeaponSystemPacketHandler;
 
@@ -45,10 +48,10 @@ public class ZeroSMod {
 
 	public static final String MODID = "zerosmod";
 	// Bump VERSION only when clients must update. Forge uses this for the client/server mod handshake.
-	public static final String VERSION = "2.0.0";
+	public static final String VERSION = "2.1.0-beta3";
 	public static final String ACCEPTABLE_REMOTE_VERSIONS = "[" + VERSION + "]";
 	// Bump this for server-only emergency builds that should still allow clients on VERSION.
-	public static final String SERVER_BUILD_VERSION = "2.0.0";
+	public static final String SERVER_BUILD_VERSION = "2.1.0-beta3";
 	public static SimpleNetworkWrapper network;
 
 	@Instance(MODID)
@@ -69,6 +72,7 @@ public class ZeroSMod {
 
 	@EventHandler public void fmlLifeCycleEvent(FMLPreInitializationEvent event) {
 		ConfigHandler.loadAll(event);
+		RaceStatEditorServer.initialize(event.getModConfigurationDirectory().toPath());
 		network = NetworkRegistry.INSTANCE.newSimpleChannel("ZeroSMod_Chan");
 		network.registerMessage(SyncGuiTitlePacketHandler.class, SyncGuiTitlePacket.class, 0, Side.CLIENT);
 		network.registerMessage(SyncBiomeVisualsPacketHandler.class, SyncBiomeVisualsPacket.class, 1, Side.CLIENT);
@@ -78,6 +82,8 @@ public class ZeroSMod {
 		network.registerMessage(SyncDimensionConfigPacketHandler.class, SyncDimensionConfigPacket.class, 6, Side.CLIENT);
 		network.registerMessage(SyncKiAttackColorPacketHandler.class, SyncKiAttackColorPacket.class, 7, Side.CLIENT);
 		network.registerMessage(SyncKiAttackStatePacketHandler.class, SyncKiAttackStatePacket.class, 8, Side.CLIENT);
+		network.registerMessage(RaceStatRequest.Handler.class, RaceStatRequest.class, 11, Side.SERVER);
+		network.registerMessage(RaceStatResponse.Handler.class, RaceStatResponse.class, 12, Side.CLIENT);
 		proxy.preInit(event);
 	}
 

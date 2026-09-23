@@ -24,6 +24,8 @@ import org.darkoro.zerosmod.event.SaiyanMasteryMergeEvent;
 import org.darkoro.zerosmod.it.InstantTransmissionEventHooks;
 import org.darkoro.zerosmod.network.NetworkHandler;
 import org.darkoro.zerosmod.network.SyncKiAttackStatePacket;
+import org.darkoro.zerosmod.network.RaceStatResponse;
+import org.darkoro.zerosmod.network.ServerTaskScheduler;
 import org.darkoro.zerosmod.world.GenericZSBiome;
 import org.darkoro.zerosmod.world.ModDimensions;
 import org.darkoro.zerosmod.world.WorldProviderPhylactery;
@@ -50,6 +52,7 @@ public class CommonProxy {
   }
 
   public void init(FMLInitializationEvent event) {
+    FMLCommonHandler.instance().bus().register(ServerTaskScheduler.INSTANCE);
     SaiyanMasteryMergeEvent saiyanMasteryMergeEvent = new SaiyanMasteryMergeEvent();
     FMLCommonHandler.instance().bus().register(saiyanMasteryMergeEvent);
     FMLCommonHandler.instance().bus().register(KiAttackGuard.INSTANCE);
@@ -83,6 +86,8 @@ public class CommonProxy {
   public void applyKiAttackColorSync(int entityId, int color, int color2) {}
 
   public void applyKiAttackStateSync(SyncKiAttackStatePacket packet) {}
+
+  public void receiveRaceStats(RaceStatResponse packet) {}
 
   private void registerScriptHooks() {
     if (this.scriptHooksRegistered || ScriptHookController.Instance == null) {

@@ -15,6 +15,8 @@ import org.darkoro.zerosmod.client.BiomeFogHandler;
 import org.darkoro.zerosmod.client.DimensionVisibilityHandler;
 import org.darkoro.zerosmod.client.PhylacterySkyRenderer;
 import org.darkoro.zerosmod.client.ZSTabOverlayHandler;
+import org.darkoro.zerosmod.client.RaceStatEditorClient;
+import org.darkoro.zerosmod.network.RaceStatResponse;
 import org.darkoro.zerosmod.input.KeyInputHandler;
 import org.darkoro.zerosmod.input.KeybindHandler;
 import net.minecraftforge.common.MinecraftForge;
@@ -28,6 +30,7 @@ public class ClientProxy extends CommonProxy {
   @Override
   public void init(FMLInitializationEvent event) {
     super.init(event);
+    FMLCommonHandler.instance().bus().register(RaceStatEditorClient.INSTANCE);
     KeybindHandler.init();
     FMLCommonHandler.instance().bus().register(new KeyInputHandler());
     FMLCommonHandler.instance().bus().register(ClientWeaponHandler.INSTANCE);
@@ -48,6 +51,10 @@ public class ClientProxy extends CommonProxy {
       LanguageRegistry.instance().loadLocalization(String.format(defaultFile, lang), lang, false);
       ZeroSMod.LOGGER.info("Loaded language {}", lang);
     }
+  }
+
+  @Override public void receiveRaceStats(RaceStatResponse packet) {
+    RaceStatEditorClient.INSTANCE.receive(packet);
   }
 
   @Override
