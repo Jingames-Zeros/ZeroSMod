@@ -10,6 +10,16 @@ tasks.named('shadowJar') {
     from sourceSets.main.output
 }
 
+tasks.register('testRaceStatConfig', JavaExec) {
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'org.darkoro.zerosmod.config.RaceStatConfigTest'
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('testRaceStatConfig')
+}
+
 tasks.withType(Javadoc) {
     source = sourceSets.main.allJava.matching {
         include 'org/darkoro/zerosmod/api/**/*.java'

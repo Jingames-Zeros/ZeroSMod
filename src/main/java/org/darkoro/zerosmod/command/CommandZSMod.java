@@ -21,6 +21,7 @@ import org.darkoro.zerosmod.api.ScriptZSWeapon;
 import org.darkoro.zerosmod.config.*;
 import org.darkoro.zerosmod.event.SaiyanMasteryMergeEvent;
 import org.darkoro.zerosmod.network.BiomeVisualSyncUtil;
+import org.darkoro.zerosmod.network.RaceStatEditorServer;
 import org.darkoro.zerosmod.network.SyncDimensionConfigPacket;
 import org.darkoro.zerosmod.scripted.ZeroSAPI;
 import org.darkoro.zerosmod.zsweapons.ZSWeaponUtils;
@@ -43,6 +44,7 @@ public class CommandZSMod extends CommandBase {
   public CommandZSMod() {
     registerSubCommand(new HelpSubCommand());
     registerSubCommand(new ReloadSubCommand());
+    registerSubCommand(new RaceStatsSubCommand());
     registerSubCommand(new SaiyanMergeSubCommand());
     registerSubCommand(new SetItemTypeCommand());
   }
@@ -54,7 +56,7 @@ public class CommandZSMod extends CommandBase {
 
   @Override
   public String getCommandUsage(ICommandSender sender) {
-    return "/zsmod [help|reload|saiyanmerge]";
+    return "/zsmod [help|reload|racestats|saiyanmerge]";
   }
 
   @Override
@@ -245,6 +247,17 @@ public class CommandZSMod extends CommandBase {
       }
 
       sendHelp(sender);
+    }
+  }
+
+  private class RaceStatsSubCommand extends ZSSubCommand {
+    private RaceStatsSubCommand() {
+      super("racestats", "/zsmod racestats", "Edits saved DBC race stat multipliers; restart required.", 2);
+    }
+
+    @Override protected void process(ICommandSender sender, String[] args) {
+      if (args.length != 0) throw new WrongUsageException(getUsage());
+      RaceStatEditorServer.open(getCommandSenderAsPlayer(sender));
     }
   }
 
