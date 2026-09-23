@@ -14,11 +14,14 @@ public final class DBCAEditorSnapshot implements IMessage {
   public String message = "";
   public String selectedSet = "";
   public int selectedPieceId = -1;
+  public int selectedBonusId = -1;
   public String[] setNames = new String[0];
   public int[] setPieces = new int[0];
   public int[] setBonuses = new int[0];
   public int[] pieceIds = new int[0];
   public String[] pieceNames = new String[0];
+  public int[] bonusIds = new int[0];
+  public String[] bonusNames = new String[0];
   public String pieceName = "";
   public String[] stats = {"+0", "+0", "+0", "+0", "+0"};
   public int level;
@@ -27,6 +30,9 @@ public final class DBCAEditorSnapshot implements IMessage {
   public int potionStrength;
   public String[] colors = {"white", "white", "white", "white", "white", "white"};
   public String[] lore = new String[8];
+  public String bonusName = "";
+  public String[] bonusStats = {"+0", "+0", "+0", "+0", "+0"};
+  public int[] bonusPieceIds = new int[0];
 
   @Override
   public void fromBytes(ByteBuf buf) {
@@ -36,11 +42,14 @@ public final class DBCAEditorSnapshot implements IMessage {
     message = ByteBufUtils.readUTF8String(buf);
     selectedSet = ByteBufUtils.readUTF8String(buf);
     selectedPieceId = buf.readInt();
+    selectedBonusId = buf.readInt();
     setNames = readStrings(buf);
     setPieces = readInts(buf);
     setBonuses = readInts(buf);
     pieceIds = readInts(buf);
     pieceNames = readStrings(buf);
+    bonusIds = readInts(buf);
+    bonusNames = readStrings(buf);
     pieceName = ByteBufUtils.readUTF8String(buf);
     stats = readStrings(buf);
     level = buf.readInt();
@@ -49,6 +58,9 @@ public final class DBCAEditorSnapshot implements IMessage {
     potionStrength = buf.readInt();
     colors = readStrings(buf);
     lore = readStrings(buf);
+    bonusName = ByteBufUtils.readUTF8String(buf);
+    bonusStats = readStrings(buf);
+    bonusPieceIds = readInts(buf);
   }
 
   @Override
@@ -59,11 +71,14 @@ public final class DBCAEditorSnapshot implements IMessage {
     ByteBufUtils.writeUTF8String(buf, message);
     ByteBufUtils.writeUTF8String(buf, selectedSet);
     buf.writeInt(selectedPieceId);
+    buf.writeInt(selectedBonusId);
     writeStrings(buf, setNames);
     writeInts(buf, setPieces);
     writeInts(buf, setBonuses);
     writeInts(buf, pieceIds);
     writeStrings(buf, pieceNames);
+    writeInts(buf, bonusIds);
+    writeStrings(buf, bonusNames);
     ByteBufUtils.writeUTF8String(buf, pieceName);
     writeStrings(buf, stats);
     buf.writeInt(level);
@@ -72,6 +87,9 @@ public final class DBCAEditorSnapshot implements IMessage {
     buf.writeInt(potionStrength);
     writeStrings(buf, colors);
     writeStrings(buf, lore);
+    ByteBufUtils.writeUTF8String(buf, bonusName);
+    writeStrings(buf, bonusStats);
+    writeInts(buf, bonusPieceIds);
   }
 
   private static String[] readStrings(ByteBuf buf) {

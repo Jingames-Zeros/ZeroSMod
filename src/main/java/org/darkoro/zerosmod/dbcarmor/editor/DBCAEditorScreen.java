@@ -27,6 +27,10 @@ public final class DBCAEditorScreen extends GuiScreen {
   private static final int CREATE_SET = 6;
   private static final int CREATE_PIECE = 7;
   private static final int POTION = 8;
+  private static final int CREATE_BONUS = 9;
+  private static final int SAVE_BONUS = 10;
+  private static final int SHOW_PIECES = 11;
+  private static final int SHOW_BONUSES = 12;
   private static final int COLOR_BASE = 30;
   private static final int SET_X = 16;
   private static final int PIECE_X = 174;
@@ -40,6 +44,8 @@ public final class DBCAEditorScreen extends GuiScreen {
   private static final int ROW_STEP = 24;
   private static final int SET_ROWS = 10;
   private static final int PIECE_ROWS = 10;
+  private static final int MODE_PIECES = 0;
+  private static final int MODE_BONUSES = 1;
   private static final AtomicInteger REQUEST_IDS = new AtomicInteger();
   private static final String[] COLOR_LABELS = {"Stats color", "Level color", "Potion label color",
       "Potion value color", "Durability color", "Max durability color"};
@@ -54,6 +60,7 @@ public final class DBCAEditorScreen extends GuiScreen {
       "underline", "italic"};
 
   private final GuiTextField[] fields = new GuiTextField[24];
+  private final GuiTextField[] bonusFields = new GuiTextField[10];
   private final String[] colorValues = new String[6];
   private int potionValue;
   private GuiTextField setSearchField;
@@ -66,6 +73,7 @@ public final class DBCAEditorScreen extends GuiScreen {
   private float originY;
   private int setScroll;
   private int pieceScroll;
+  private int listMode = MODE_PIECES;
   private int openColor = -1;
   private boolean potionOpen;
   private int guiMouseX;
@@ -93,20 +101,25 @@ public final class DBCAEditorScreen extends GuiScreen {
     String pieceSearch = pieceSearchField == null ? "" : pieceSearchField.getText();
     buttonList.clear();
 
+    add(SHOW_PIECES, 174, 20, 64, 18, "Pieces", listMode == MODE_PIECES ? GREEN : MUTED);
+    add(SHOW_BONUSES, 242, 20, 74, 18, "Bonuses", listMode == MODE_BONUSES ? GREEN : MUTED);
     setSearchField = field(SET_X + 8, SEARCH_Y, LIST_W - 16, setSearch);
     pieceSearchField = field(PIECE_X + 8, SEARCH_Y, PIECE_W - 16, pieceSearch);
     newSetField = field(SET_X, 389, 92, "");
     newPieceField = field(PIECE_X, 389, 92, "");
     add(CREATE_SET, 114, 386, 40, 20, "New", PINK);
     add(CREATE_PIECE, 272, 386, 44, 20, "New", PINK);
+    add(CREATE_BONUS, 272, 386, 44, 20, "New", PINK);
 
     createPieceFields();
+    createBonusFields();
     addDropdown(POTION, 506, 141, 112, 18, dropdownText(potionName(potionValue), 14), MUTED);
     for (int i = 0; i < colorValues.length; i++) {
       addDropdown(COLOR_BASE + i, colorX(i), colorY(i), 96, 18,
           dropdownText(colorValues[i], 10), MUTED);
     }
     add(SAVE, 332, 386, 94, 20, "Save piece", GREEN);
+    add(SAVE_BONUS, 332, 386, 94, 20, "Save bonus", GREEN);
     add(APPLY, 434, 386, 104, 20, "Apply held", PINK);
     add(SAVE_ALL, 546, 386, 82, 20, "Save all", MUTED);
     add(RELOAD, 636, 386, 54, 20, "Reload", MUTED);
@@ -160,18 +173,43 @@ public final class DBCAEditorScreen extends GuiScreen {
 
   private void updateControls() {
     boolean hasPiece = snapshot.selectedPieceId >= 0;
+    boolean hasBonus = snapshot.selectedBonusId >= 0;
     for (Object entry : buttonList) {
       GuiButton button = (GuiButton) entry;
-      if (button.id == SAVE || button.id == APPLY) button.enabled = !waiting && hasPiece;
+      button.visible = true;
+      if (button.id == SAVE) {
+        button.visible = listMode == MODE_PIECES;
+        button.enabled = !waiting && hasPiece;
+      } else if (button.id == SAVE_BONUS) {
+        button.visible = listMode == MODE_BONUSES;
+        button.enabled = !waiting && hasBonus;
+      } else if (button.id == APPLY) {
+        button.visible = listMode == MODE_PIECES;
+        button.enabled = !waiting && hasPiece;
+      }
       else if (button.id == SAVE_ALL || button.id == RELOAD || button.id == CLOSE) button.enabled = !waiting;
       else if (button.id == CREATE_SET) button.enabled = !waiting;
-      else if (button.id == CREATE_PIECE) button.enabled = !waiting && !snapshot.selectedSet.isEmpty();
-      else if (button.id == POTION) button.enabled = !waiting && hasPiece;
+      else if (button.id == CREATE_PIECE) {
+        button.visible = listMode == MODE_PIECES;
+        button.enabled = !waiting && !snapshot.selectedSet.isEmpty();
+      } else if (button.id == CREATE_BONUS) {
+        button.visible = listMode == MODE_BONUSES;
+        button.enabled = !waiting && !snapshot.selectedSet.isEmpty();
+      } else if (button.id == SHOW_PIECES || button.id == SHOW_BONUSES) {
+        button.enabled = !waiting;
+      } else if (button.id == POTION) {
+        button.visible = listMode == MODE_PIECES;
+        button.enabled = !waiting && hasPiece;
+      }
       else if (button.id >= COLOR_BASE && button.id < COLOR_BASE + colorValues.length) {
+        button.visible = listMode == MODE_PIECES;
         button.enabled = !waiting && hasPiece;
       }
     }
-    for (GuiTextField field : fields) if (field != null) field.setEnabled(!waiting && hasPiece);
+    for (GuiTextField field : fields) if (field != null) field.setEnabled(!waiting && hasPiece
+        && listMode == MODE_PIECES);
+    for (GuiTextField field : bonusFields) if (field != null) field.setEnabled(!waiting && hasBonus
+        && listMode == MODE_BONUSES);
     setSearchField.setEnabled(!waiting);
     pieceSearchField.setEnabled(!waiting);
     newSetField.setEnabled(!waiting);
@@ -195,7 +233,18 @@ public final class DBCAEditorScreen extends GuiScreen {
     status = "Waiting for the server...";
     error = false;
     DBCAEditorNetwork.channel.sendToServer(new DBCAEditorRequest(requestId, action, setName, pieceId,
-        text, values));
+        snapshot.selectedBonusId, text, values));
+    updateControls();
+  }
+
+  private void requestBonus(int action, String setName, int bonusId, String text, String[] values) {
+    requestId = REQUEST_IDS.incrementAndGet();
+    waiting = true;
+    timeout = 300;
+    status = "Waiting for the server...";
+    error = false;
+    DBCAEditorNetwork.channel.sendToServer(new DBCAEditorRequest(requestId, action, setName,
+        snapshot.selectedPieceId, bonusId, text, values));
     updateControls();
   }
 
@@ -210,10 +259,32 @@ public final class DBCAEditorScreen extends GuiScreen {
     return values;
   }
 
+  private String[] bonusValues() {
+    String[] values = new String[bonusFields.length];
+    for (int i = 0; i < bonusFields.length; i++) {
+      values[i] = bonusFields[i] == null ? "" : bonusFields[i].getText();
+    }
+    return values;
+  }
+
   @Override
   protected void actionPerformed(GuiButton button) {
     if (!button.enabled) return;
-    if (button.id >= COLOR_BASE && button.id < COLOR_BASE + colorValues.length) {
+    if (button.id == SHOW_PIECES) {
+      listMode = MODE_PIECES;
+      pieceScroll = 0;
+      openColor = -1;
+      potionOpen = false;
+      syncScrolls();
+      initGui();
+    } else if (button.id == SHOW_BONUSES) {
+      listMode = MODE_BONUSES;
+      pieceScroll = 0;
+      openColor = -1;
+      potionOpen = false;
+      syncScrolls();
+      initGui();
+    } else if (button.id >= COLOR_BASE && button.id < COLOR_BASE + colorValues.length) {
       openColor = openColor == button.id - COLOR_BASE ? -1 : button.id - COLOR_BASE;
       potionOpen = false;
     } else if (button.id == POTION) {
@@ -225,12 +296,19 @@ public final class DBCAEditorScreen extends GuiScreen {
     } else if (button.id == CREATE_PIECE) {
       request(DBCAEditorRequest.CREATE_PIECE, snapshot.selectedSet, snapshot.selectedPieceId,
           newPieceField.getText(), null);
+    } else if (button.id == CREATE_BONUS) {
+      requestBonus(DBCAEditorRequest.CREATE_BONUS, snapshot.selectedSet, snapshot.selectedBonusId,
+          newPieceField.getText(), null);
     } else if (button.id == SAVE) {
       request(DBCAEditorRequest.SAVE_PIECE, snapshot.selectedSet, snapshot.selectedPieceId, "", values());
+    } else if (button.id == SAVE_BONUS) {
+      requestBonus(DBCAEditorRequest.SAVE_BONUS, snapshot.selectedSet, snapshot.selectedBonusId, "",
+          bonusValues());
     } else if (button.id == APPLY) {
       request(DBCAEditorRequest.APPLY_HELD, snapshot.selectedSet, snapshot.selectedPieceId, "", null);
     } else if (button.id == SAVE_ALL) {
-      request(DBCAEditorRequest.SAVE_ALL, snapshot.selectedSet, snapshot.selectedPieceId, "", null);
+      request(DBCAEditorRequest.SAVE_ALL, snapshot.selectedSet, snapshot.selectedPieceId, "",
+          listMode == MODE_PIECES ? values() : bonusValues());
     } else if (button.id == RELOAD) {
       setScroll = 0;
       pieceScroll = 0;
@@ -268,8 +346,14 @@ public final class DBCAEditorScreen extends GuiScreen {
     if (newSetField.textboxKeyTyped(character, key) || newPieceField.textboxKeyTyped(character, key)) {
       return;
     }
-    for (GuiTextField field : fields) {
-      if (field != null && field.textboxKeyTyped(character, key)) return;
+    if (listMode == MODE_PIECES) {
+      for (GuiTextField field : fields) {
+        if (field != null && field.textboxKeyTyped(character, key)) return;
+      }
+    } else {
+      for (GuiTextField field : bonusFields) {
+        if (field != null && field.textboxKeyTyped(character, key)) return;
+      }
     }
   }
 
@@ -288,8 +372,14 @@ public final class DBCAEditorScreen extends GuiScreen {
     pieceSearchField.mouseClicked(x, y, button);
     newSetField.mouseClicked(x, y, button);
     newPieceField.mouseClicked(x, y, button);
-    for (GuiTextField field : fields) {
-      if (field != null) field.mouseClicked(x, y, button);
+    if (listMode == MODE_PIECES) {
+      for (GuiTextField field : fields) {
+        if (field != null) field.mouseClicked(x, y, button);
+      }
+    } else {
+      for (GuiTextField field : bonusFields) {
+        if (field != null) field.mouseClicked(x, y, button);
+      }
     }
   }
 
@@ -318,7 +408,11 @@ public final class DBCAEditorScreen extends GuiScreen {
     pieceSearchField.updateCursorCounter();
     newSetField.updateCursorCounter();
     newPieceField.updateCursorCounter();
-    for (GuiTextField field : fields) if (field != null) field.updateCursorCounter();
+    if (listMode == MODE_PIECES) {
+      for (GuiTextField field : fields) if (field != null) field.updateCursorCounter();
+    } else {
+      for (GuiTextField field : bonusFields) if (field != null) field.updateCursorCounter();
+    }
     if (waiting && --timeout <= 0) {
       waiting = false;
       status = "No reply from the server. Reload or reopen /dbca edit.";
@@ -365,14 +459,27 @@ public final class DBCAEditorScreen extends GuiScreen {
         return true;
       }
     }
-    int[] pieceIndices = filteredPieceIndices();
-    for (int row = 0; row < PIECE_ROWS; row++) {
-      int index = pieceScroll + row;
-      if (index >= pieceIndices.length) break;
-      if (inside(x, y, PIECE_X, ROW_Y + row * ROW_STEP, PIECE_W - 6, ROW_H)) {
-        request(DBCAEditorRequest.SELECT_PIECE, snapshot.selectedSet,
-            snapshot.pieceIds[pieceIndices[index]], "", null);
-        return true;
+    if (listMode == MODE_PIECES) {
+      int[] pieceIndices = filteredPieceIndices();
+      for (int row = 0; row < PIECE_ROWS; row++) {
+        int index = pieceScroll + row;
+        if (index >= pieceIndices.length) break;
+        if (inside(x, y, PIECE_X, ROW_Y + row * ROW_STEP, PIECE_W - 6, ROW_H)) {
+          request(DBCAEditorRequest.SELECT_PIECE, snapshot.selectedSet,
+              snapshot.pieceIds[pieceIndices[index]], "", null);
+          return true;
+        }
+      }
+    } else {
+      int[] bonusIndices = filteredBonusIndices();
+      for (int row = 0; row < PIECE_ROWS; row++) {
+        int index = pieceScroll + row;
+        if (index >= bonusIndices.length) break;
+        if (inside(x, y, PIECE_X, ROW_Y + row * ROW_STEP, PIECE_W - 6, ROW_H)) {
+          requestBonus(DBCAEditorRequest.SELECT_BONUS, snapshot.selectedSet,
+              snapshot.bonusIds[bonusIndices[index]], "", null);
+          return true;
+        }
       }
     }
     return false;
@@ -420,14 +527,15 @@ public final class DBCAEditorScreen extends GuiScreen {
 
   private void drawLists() {
     section(SET_X, LIST_Y, LIST_W, LIST_H, "SETS", countLabel(filteredSetIndices().length, snapshot.setNames.length));
-    section(PIECE_X, LIST_Y, PIECE_W, LIST_H, "PIECES",
-        snapshot.selectedSet.isEmpty() ? "No set" : countLabel(filteredPieceIndices().length, snapshot.pieceIds.length));
+    section(PIECE_X, LIST_Y, PIECE_W, LIST_H, listMode == MODE_PIECES ? "PIECES" : "BONUSES",
+        secondListCountLabel());
     text("Search", SET_X + 8, SEARCH_Y - 11, MUTED);
     text("Search", PIECE_X + 8, SEARCH_Y - 11, MUTED);
     drawSetRows();
-    drawPieceRows();
+    if (listMode == MODE_PIECES) drawPieceRows();
+    else drawBonusRows();
     text("New set", SET_X, 376, MUTED);
-    text("New piece", PIECE_X, 376, MUTED);
+    text(listMode == MODE_PIECES ? "New piece" : "New bonus", PIECE_X, 376, MUTED);
   }
 
   private void drawSetRows() {
@@ -493,14 +601,22 @@ public final class DBCAEditorScreen extends GuiScreen {
 
   private void drawEditor() {
     drawRect(332, 55, 744, 374, CARD);
-    drawRect(332, 55, 744, 57, 0xFF000000 | (snapshot.selectedPieceId >= 0 ? GREEN : PINK));
-    text(snapshot.selectedPieceId >= 0 ? "PIECE #" + snapshot.selectedPieceId : "NO PIECE SELECTED",
-        342, 66, snapshot.selectedPieceId >= 0 ? GREEN : PINK);
-    text("Name", 504, 66, MUTED);
-    drawFieldLabels();
+    boolean selected = listMode == MODE_PIECES ? snapshot.selectedPieceId >= 0 : snapshot.selectedBonusId >= 0;
+    drawRect(332, 55, 744, 57, 0xFF000000 | (selected ? GREEN : PINK));
+    if (listMode == MODE_PIECES) {
+      text(snapshot.selectedPieceId >= 0 ? "PIECE #" + snapshot.selectedPieceId : "NO PIECE SELECTED",
+          342, 66, snapshot.selectedPieceId >= 0 ? GREEN : PINK);
+      text("Name", 504, 66, MUTED);
+      drawPieceFieldLabels();
+    } else {
+      text(snapshot.selectedBonusId >= 0 ? "BONUS #" + snapshot.selectedBonusId : "NO BONUS SELECTED",
+          342, 66, snapshot.selectedBonusId >= 0 ? GREEN : PINK);
+      text("Name", 504, 66, MUTED);
+      drawBonusFieldLabels();
+    }
   }
 
-  private void drawFieldLabels() {
+  private void drawPieceFieldLabels() {
     String[] statLabels = {"STR", "DEX", "CON", "WIL", "SPI"};
     for (int i = 0; i < statLabels.length; i++) text(statLabels[i], 342 + i * 62, 89, MUTED);
     text("Level", 342, 129, MUTED);
@@ -517,6 +633,14 @@ public final class DBCAEditorScreen extends GuiScreen {
     }
   }
 
+  private void drawBonusFieldLabels() {
+    String[] statLabels = {"STR", "DEX", "CON", "WIL", "SPI"};
+    for (int i = 0; i < statLabels.length; i++) text(statLabels[i], 342 + i * 62, 89, MUTED);
+    for (int i = 0; i < 4; i++) {
+      text("Piece " + (i + 1), 342 + i * 82, 129, MUTED);
+    }
+  }
+
   private void drawStatus() {
     drawRect(332, 350, 744, 374, error ? 0xFF2F1C34 : 0xFF172719);
     drawRect(332, 350, 334, 374, error ? 0xFF000000 | HOT_PINK : 0xFF000000 | GREEN);
@@ -529,11 +653,15 @@ public final class DBCAEditorScreen extends GuiScreen {
     pieceSearchField.drawTextBox();
     newSetField.drawTextBox();
     newPieceField.drawTextBox();
-    for (GuiTextField field : fields) if (field != null) field.drawTextBox();
+    if (listMode == MODE_PIECES) {
+      for (GuiTextField field : fields) if (field != null) field.drawTextBox();
+    } else {
+      for (GuiTextField field : bonusFields) if (field != null) field.drawTextBox();
+    }
   }
 
   private void drawColorDropdown() {
-    if (openColor < 0) return;
+    if (listMode != MODE_PIECES || openColor < 0) return;
     int x = colorPopupX(openColor);
     int y = colorPopupY(openColor);
     drawRect(x - 2, y - 2, x + 284, y + 100, 0xF0111813);
@@ -550,8 +678,55 @@ public final class DBCAEditorScreen extends GuiScreen {
     }
   }
 
+  private String secondListCountLabel() {
+    if (snapshot.selectedSet.isEmpty()) return "No set";
+    if (listMode == MODE_PIECES) {
+      return countLabel(filteredPieceIndices().length, snapshot.pieceIds.length);
+    }
+    return countLabel(filteredBonusIndices().length, snapshot.bonusIds.length);
+  }
+
+  private void drawBonusRows() {
+    int[] indices = filteredBonusIndices();
+    if (snapshot.selectedSet.isEmpty()) {
+      text("Select or create a set.", PIECE_X + 8, ROW_Y + 3, MUTED);
+      return;
+    }
+    if (snapshot.bonusIds.length == 0) {
+      text("Create a bonus.", PIECE_X + 8, ROW_Y + 3, MUTED);
+      return;
+    }
+    if (indices.length == 0) {
+      text("No matches.", PIECE_X + 8, ROW_Y + 3, MUTED);
+      return;
+    }
+    for (int row = 0; row < PIECE_ROWS; row++) {
+      int index = pieceScroll + row;
+      if (index >= indices.length) break;
+      int bonusIndex = indices[index];
+      boolean selected = snapshot.bonusIds[bonusIndex] == snapshot.selectedBonusId;
+      drawRow(PIECE_X, ROW_Y + row * ROW_STEP, PIECE_W - 6,
+          "#" + snapshot.bonusIds[bonusIndex] + " " + trim(snapshot.bonusNames[bonusIndex], 17),
+          selected);
+    }
+    drawScrollBar(PIECE_X + PIECE_W - 4, ROW_Y, PIECE_ROWS * ROW_STEP - 4, indices.length,
+        PIECE_ROWS, pieceScroll);
+  }
+
+  private void createBonusFields() {
+    bonusFields[0] = field(548, 63, 176, colorOut(snapshot.bonusName));
+    for (int i = 0; i < 5; i++) {
+      bonusFields[i + 1] = field(342 + i * 62, 101, 46,
+          snapshot.bonusStats.length > i ? snapshot.bonusStats[i] : "+0");
+    }
+    for (int i = 0; i < 4; i++) {
+      bonusFields[i + 6] = field(342 + i * 82, 141, 58,
+          snapshot.bonusPieceIds.length > i ? Integer.toString(snapshot.bonusPieceIds[i]) : "");
+    }
+  }
+
   private void drawPotionDropdown() {
-    if (!potionOpen) return;
+    if (listMode != MODE_PIECES || !potionOpen) return;
     int x = potionPopupX();
     int y = 161;
     drawRect(x - 2, y - 2, x + 320, y + 114, 0xF0111813);
@@ -593,10 +768,20 @@ public final class DBCAEditorScreen extends GuiScreen {
       }
     }
     int[] pieceIndices = filteredPieceIndices();
-    for (int i = 0; i < pieceIndices.length; i++) {
-      if (snapshot.pieceIds[pieceIndices[i]] == snapshot.selectedPieceId) {
-        pieceScroll = Math.max(0, Math.min(i, Math.max(0, pieceIndices.length - PIECE_ROWS)));
-        break;
+    if (listMode == MODE_PIECES) {
+      for (int i = 0; i < pieceIndices.length; i++) {
+        if (snapshot.pieceIds[pieceIndices[i]] == snapshot.selectedPieceId) {
+          pieceScroll = Math.max(0, Math.min(i, Math.max(0, pieceIndices.length - PIECE_ROWS)));
+          break;
+        }
+      }
+    } else {
+      int[] bonusIndices = filteredBonusIndices();
+      for (int i = 0; i < bonusIndices.length; i++) {
+        if (snapshot.bonusIds[bonusIndices[i]] == snapshot.selectedBonusId) {
+          pieceScroll = Math.max(0, Math.min(i, Math.max(0, bonusIndices.length - PIECE_ROWS)));
+          break;
+        }
       }
     }
     syncScrolls();
@@ -604,7 +789,9 @@ public final class DBCAEditorScreen extends GuiScreen {
 
   private void syncScrolls() {
     setScroll = Math.max(0, Math.min(setScroll, Math.max(0, filteredSetIndices().length - SET_ROWS)));
-    pieceScroll = Math.max(0, Math.min(pieceScroll, Math.max(0, filteredPieceIndices().length - PIECE_ROWS)));
+    int secondListSize = listMode == MODE_PIECES ? filteredPieceIndices().length
+        : filteredBonusIndices().length;
+    pieceScroll = Math.max(0, Math.min(pieceScroll, Math.max(0, secondListSize - PIECE_ROWS)));
   }
 
   private int[] filteredSetIndices() {
@@ -631,6 +818,22 @@ public final class DBCAEditorScreen extends GuiScreen {
     for (int i = 0; i < snapshot.pieceNames.length; i++) {
       if (matches(snapshot.pieceNames[i], query) || matches("#" + snapshot.pieceIds[i], query)
           || matches(Integer.toString(snapshot.pieceIds[i]), query)) indices[out++] = i;
+    }
+    return indices;
+  }
+
+  private int[] filteredBonusIndices() {
+    String query = pieceSearchField == null ? "" : pieceSearchField.getText().trim().toLowerCase();
+    int count = 0;
+    for (int i = 0; i < snapshot.bonusNames.length; i++) {
+      if (matches(snapshot.bonusNames[i], query) || matches("#" + snapshot.bonusIds[i], query)
+          || matches(Integer.toString(snapshot.bonusIds[i]), query)) count++;
+    }
+    int[] indices = new int[count];
+    int out = 0;
+    for (int i = 0; i < snapshot.bonusNames.length; i++) {
+      if (matches(snapshot.bonusNames[i], query) || matches("#" + snapshot.bonusIds[i], query)
+          || matches(Integer.toString(snapshot.bonusIds[i]), query)) indices[out++] = i;
     }
     return indices;
   }
@@ -711,7 +914,8 @@ public final class DBCAEditorScreen extends GuiScreen {
     Keyboard.enableRepeatEvents(false);
     if (!serverClosed && mc.thePlayer != null && mc.getNetHandler() != null) {
       DBCAEditorNetwork.channel.sendToServer(new DBCAEditorRequest(REQUEST_IDS.incrementAndGet(),
-          DBCAEditorRequest.CLOSE, snapshot.selectedSet, snapshot.selectedPieceId, "", null));
+          DBCAEditorRequest.CLOSE, snapshot.selectedSet, snapshot.selectedPieceId,
+          snapshot.selectedBonusId, "", null));
     }
   }
 }
