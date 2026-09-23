@@ -26,6 +26,7 @@ import org.darkoro.zerosmod.network.SyncDimensionConfigPacket;
 import org.darkoro.zerosmod.scripted.ZeroSAPI;
 import org.darkoro.zerosmod.zsweapons.ZSWeaponUtils;
 import org.darkoro.zerosmod.zsweapons.cache.CachedWeaponStats;
+import org.darkoro.zerosmod.zsweapons.network.packets.ReloadToClientPacket;
 import org.darkoro.zerosmod.zsweapons.network.packets.WeaponTypesToClientPacket;
 
 import java.util.*;
@@ -285,6 +286,7 @@ public class CommandZSMod extends CommandBase {
 
       WeaponTypesToClientPacket weaponTypesPacket = new WeaponTypesToClientPacket(ServerWeaponConfig.loadedWeaponStats);
       ZeroSMod.network.sendToAll(weaponTypesPacket);
+      ZeroSMod.network.sendToAll(new ReloadToClientPacket());
 
       int players = MinecraftServer.getServer().getConfigurationManager().playerEntityList.size();
       sender.addChatMessage(new ChatComponentText(

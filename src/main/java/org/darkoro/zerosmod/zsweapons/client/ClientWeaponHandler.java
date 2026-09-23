@@ -188,9 +188,10 @@ public class ClientWeaponHandler {
     }
 
     /**
-     * Reloads the client combat state upon receiving packet from the server
+     * Reloads client weapon config and combat state upon receiving packet from the server.
      */
     public void reload() {
+        ClientWeaponConfig.reload();
         clientCombatState = new PlayerCombatState();
         if(Minecraft.getMinecraft().thePlayer == null) return;
         clientCombatState.changeItem(Minecraft.getMinecraft().thePlayer.getHeldItem());
