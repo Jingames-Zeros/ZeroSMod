@@ -5,6 +5,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import net.minecraft.network.INetHandler;
 import net.minecraftforge.common.MinecraftForge;
 import noppes.npcs.constants.ScriptContext;
 import noppes.npcs.controllers.APIRegistry;
@@ -26,6 +27,8 @@ import org.darkoro.zerosmod.network.NetworkHandler;
 import org.darkoro.zerosmod.network.SyncKiAttackStatePacket;
 import org.darkoro.zerosmod.network.RaceStatResponse;
 import org.darkoro.zerosmod.network.ServerTaskScheduler;
+import org.darkoro.zerosmod.dbcarmor.editor.DBCAEditorSnapshot;
+import org.darkoro.zerosmod.rebirth.network.RebirthSnapshot;
 import org.darkoro.zerosmod.world.GenericZSBiome;
 import org.darkoro.zerosmod.world.ModDimensions;
 import org.darkoro.zerosmod.world.WorldProviderPhylactery;
@@ -88,6 +91,10 @@ public class CommonProxy {
   public void applyKiAttackStateSync(SyncKiAttackStatePacket packet) {}
 
   public void receiveRaceStats(RaceStatResponse packet) {}
+
+  public void receiveRebirthSnapshot(RebirthSnapshot packet, INetHandler connection) {}
+
+  public void receiveDBCAEditorSnapshot(DBCAEditorSnapshot packet, INetHandler connection) {}
 
   private void registerScriptHooks() {
     if (this.scriptHooksRegistered || ScriptHookController.Instance == null) {

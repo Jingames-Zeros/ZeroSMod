@@ -4,11 +4,13 @@ import JinRyuu.JRMCore.entity.EntityEnergyAtt;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import java.util.Arrays;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.network.INetHandler;
 import net.minecraft.world.World;
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.client.BiomeFogHandler;
@@ -16,21 +18,36 @@ import org.darkoro.zerosmod.client.DimensionVisibilityHandler;
 import org.darkoro.zerosmod.client.PhylacterySkyRenderer;
 import org.darkoro.zerosmod.client.ZSTabOverlayHandler;
 import org.darkoro.zerosmod.client.RaceStatEditorClient;
+import org.darkoro.zerosmod.dbcarmor.editor.DBCAEditorClient;
+import org.darkoro.zerosmod.dbcarmor.editor.DBCAEditorNetwork;
+import org.darkoro.zerosmod.dbcarmor.editor.DBCAEditorSnapshot;
 import org.darkoro.zerosmod.network.RaceStatResponse;
 import org.darkoro.zerosmod.input.KeyInputHandler;
 import org.darkoro.zerosmod.input.KeybindHandler;
 import net.minecraftforge.common.MinecraftForge;
 import org.darkoro.zerosmod.ki.KiAttackSafety;
 import org.darkoro.zerosmod.network.SyncKiAttackStatePacket;
+import org.darkoro.zerosmod.rebirth.gui.RebirthMenuClient;
+import org.darkoro.zerosmod.rebirth.network.RebirthNetwork;
+import org.darkoro.zerosmod.rebirth.network.RebirthSnapshot;
 import org.darkoro.zerosmod.world.WorldProviderPhylactery;
 import org.darkoro.zerosmod.zsweapons.client.ClientWeaponHandler;
 
 public class ClientProxy extends CommonProxy {
 
   @Override
+  public void preInit(FMLPreInitializationEvent event) {
+    super.preInit(event);
+    DBCAEditorNetwork.initialize();
+    RebirthNetwork.initialize();
+  }
+
+  @Override
   public void init(FMLInitializationEvent event) {
     super.init(event);
+    FMLCommonHandler.instance().bus().register(DBCAEditorClient.INSTANCE);
     FMLCommonHandler.instance().bus().register(RaceStatEditorClient.INSTANCE);
+    FMLCommonHandler.instance().bus().register(RebirthMenuClient.INSTANCE);
     KeybindHandler.init();
     FMLCommonHandler.instance().bus().register(new KeyInputHandler());
     FMLCommonHandler.instance().bus().register(ClientWeaponHandler.INSTANCE);
@@ -55,6 +72,14 @@ public class ClientProxy extends CommonProxy {
 
   @Override public void receiveRaceStats(RaceStatResponse packet) {
     RaceStatEditorClient.INSTANCE.receive(packet);
+  }
+
+  @Override public void receiveRebirthSnapshot(RebirthSnapshot packet, INetHandler connection) {
+    RebirthMenuClient.INSTANCE.receive(packet, connection);
+  }
+
+  @Override public void receiveDBCAEditorSnapshot(DBCAEditorSnapshot packet, INetHandler connection) {
+    DBCAEditorClient.INSTANCE.receive(packet, connection);
   }
 
   @Override
