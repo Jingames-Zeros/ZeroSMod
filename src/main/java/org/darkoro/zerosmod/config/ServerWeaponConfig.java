@@ -37,7 +37,7 @@ public class ServerWeaponConfig {
             "# Combat System toggles - 1 = Enable, 0 = Disable",
             "# Disabling all modules overwrites all",
             "[Combat System]",
-            "All Combat Modules = 1",
+            "All Combat Modules = 0",
             ""
     };
 
