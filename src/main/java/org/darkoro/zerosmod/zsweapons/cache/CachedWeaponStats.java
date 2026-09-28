@@ -23,6 +23,7 @@ public class CachedWeaponStats implements ScriptZSWeapon {
     private static final String WEAPON_TYPE_PREFIX = EnumChatFormatting.RESET + "Weapon Type: ";
     private static final String LEVEL_REQ_PREFIX = EnumChatFormatting.RESET + "Level Req: ";
     private static final String SPECIAL_FORMATTED = EnumChatFormatting.RESET.toString() + EnumChatFormatting.GOLD + "Special";
+    private static final float NEUTRAL_PERCENT = 100.0F;
 
     // General
     private ItemStack item;
@@ -33,7 +34,7 @@ public class CachedWeaponStats implements ScriptZSWeapon {
 
     // Melee
     private int cooldown = 10;
-    private float attackPercent = 1.0F;
+    private float attackPercent = NEUTRAL_PERCENT;
     private int attackAdditive = 0;
 
     // Range
@@ -43,14 +44,14 @@ public class CachedWeaponStats implements ScriptZSWeapon {
 
     // Ki
     private boolean canChargeKi = false;
-    private float kiPercent = 1.0F;
+    private float kiPercent = NEUTRAL_PERCENT;
     private int kiAdditive = 0;
-    private float kiCostPercent = 1.0F;
+    private float kiCostPercent = NEUTRAL_PERCENT;
 
     // Block
     private boolean canBlock = false;
-    private float blockDexPercent = 1.0F;
-    private float blockCostPercent = 1.0F;
+    private float blockDexPercent = NEUTRAL_PERCENT;
+    private float blockCostPercent = NEUTRAL_PERCENT;
     private int blockCooldown = cooldown;
 
     /**
