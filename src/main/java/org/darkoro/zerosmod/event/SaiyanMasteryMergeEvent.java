@@ -95,8 +95,12 @@ public class SaiyanMasteryMergeEvent {
     String halfSaiyanData = getMasteryData(nbt, halfSaiyanKey, RACE_HALF_SAIYAN);
     String mergedData = mergeMasteryData(saiyanData, halfSaiyanData);
 
-    boolean changedMastery = missingHalfSaiyanData || !mergedData.equals(halfSaiyanData);
-    if (changedMastery) {
+    boolean changedSaiyanMastery = !mergedData.equals(saiyanData);
+    boolean changedHalfSaiyanMastery = missingHalfSaiyanData || !mergedData.equals(halfSaiyanData);
+    if (changedSaiyanMastery) {
+      nbt.setString(saiyanKey, mergedData);
+    }
+    if (changedHalfSaiyanMastery) {
       nbt.setString(halfSaiyanKey, mergedData);
       dbcData.FormMasteryRacial = mergedData;
     }
@@ -108,11 +112,12 @@ public class SaiyanMasteryMergeEvent {
       JRMCoreH.setByte(RACE_HALF_SAIYAN, player, JRMCoreH.race);
     }
 
-    if (race == RACE_SAIYAN || changedMastery) {
+    if (race == RACE_SAIYAN || changedSaiyanMastery || changedHalfSaiyanMastery) {
       dbcData.saveNBTData(true);
     }
 
-    if ((race == RACE_SAIYAN || changedMastery) && ZeroSMod.LOGGER != null) {
+    if ((race == RACE_SAIYAN || changedSaiyanMastery || changedHalfSaiyanMastery)
+        && ZeroSMod.LOGGER != null) {
       ZeroSMod.LOGGER.info(
           "Merged Saiyan mastery for {} during {} {}. Race {} -> {}.",
           player.getCommandSenderName(),
