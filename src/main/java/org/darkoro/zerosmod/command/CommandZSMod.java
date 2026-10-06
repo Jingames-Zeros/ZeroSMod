@@ -1,5 +1,6 @@
 package org.darkoro.zerosmod.command;
 
+import JinRyuu.JRMCore.JRMCoreH;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -7,11 +8,13 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
+import kamkeel.npcdbc.scripted.ScriptDBCAddon;
 import noppes.npcs.Server;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.scripted.NpcAPI;
@@ -47,6 +50,7 @@ public class CommandZSMod extends CommandBase {
     registerSubCommand(new ReloadSubCommand());
     registerSubCommand(new RaceStatsSubCommand());
     registerSubCommand(new SaiyanMergeSubCommand());
+    registerSubCommand(new MasteryDebugSubCommand());
     registerSubCommand(new SetItemTypeCommand());
   }
 
@@ -396,5 +400,74 @@ public class CommandZSMod extends CommandBase {
       sender.addChatMessage(new ChatComponentText(
           PREFIX + EnumChatFormatting.GRAY + "Saiyan merge for " + player.getCommandSenderName() + ": " + result));
     }
+  }
+
+  private class MasteryDebugSubCommand extends ZSSubCommand {
+
+    private MasteryDebugSubCommand() {
+      super("masterydebug", "/zsmod masterydebug [player]", "Reports racial mastery values read by CNPC+ and DBCAddon.", 2);
+    }
+
+    @Override
+    protected List<String> addTabCompletionOptions(ICommandSender sender, String[] args) {
+      if (args.length == 1) {
+        return getListOfStringsMatchingLastWord(args, MinecraftServer.getServer().getAllUsernames());
+      }
+
+      return Collections.emptyList();
+    }
+
+    @Override
+    protected boolean isUsernameIndex(String[] args, int index) {
+      return index == 0;
+    }
+
+    @Override
+    protected void process(ICommandSender sender, String[] args) {
+      if (args.length > 1) {
+        throw new WrongUsageException(getUsage());
+      }
+
+      EntityPlayerMP player = args.length == 1
+          ? getPlayer(sender, args[0])
+          : getCommandSenderAsPlayer(sender);
+      NBTTagCompound nbt = JRMCoreH.nbt(player);
+      byte race = nbt.getByte(JRMCoreH.race);
+      String currentKey = JRMCoreH.getNBTFormMasteryRacialKey(race);
+      String currentData = nbt.getString(currentKey);
+      String firstEntry = currentData.length() == 0 ? "<empty>" : currentData.split(";", 2)[0];
+      String firstFormName = race >= 0 && race < JRMCoreH.trans.length && JRMCoreH.trans[race].length > 0
+          ? JRMCoreH.trans[race][0]
+          : "<unknown>";
+      ScriptDBCAddon addon = new ScriptDBCAddon(player);
+
+      sender.addChatMessage(new ChatComponentText(PREFIX + EnumChatFormatting.GRAY
+          + "Race NBT=" + race + ", current key=" + currentKey));
+      sender.addChatMessage(new ChatComponentText(PREFIX + EnumChatFormatting.GRAY
+          + "CNPC getRacialFormMastery(0)=" + addon.getRacialFormMastery((byte) 0)
+          + ", DBCAddon getDBCMasteryValue(Base)=" + addon.getDBCMasteryValue("Base")));
+      sender.addChatMessage(new ChatComponentText(PREFIX + EnumChatFormatting.GRAY
+          + "Race form index 0=" + firstFormName + ", raw first entry=" + firstEntry
+          + ", raw Base entry=" + findMasteryValue(currentData, "Base")));
+
+      String saiyanKey = JRMCoreH.getNBTFormMasteryRacialKey(JRMCoreH.RACE_SAIYAN);
+      String halfSaiyanKey = JRMCoreH.getNBTFormMasteryRacialKey(JRMCoreH.RACE_HALF_SAIYAN);
+      sender.addChatMessage(new ChatComponentText(PREFIX + EnumChatFormatting.GRAY
+          + "Saiyan Base=" + findMasteryValue(nbt.getString(saiyanKey), "Base")
+          + ", Half-Saiyan Base=" + findMasteryValue(nbt.getString(halfSaiyanKey), "Base")
+          + ", legacy racial key=" + findMasteryValue(nbt.getString("jrmcFormMasteryRacial"), "Base")));
+    }
+  }
+
+  private static String findMasteryValue(String data, String name) {
+    String[] entries = data == null ? new String[0] : data.split(";");
+    for (int i = 0; i < entries.length; i++) {
+      String[] fields = entries[i].split(",", 2);
+      if (fields.length == 2 && name.equalsIgnoreCase(fields[0])) {
+        return fields[1];
+      }
+    }
+
+    return "<missing>";
   }
 }

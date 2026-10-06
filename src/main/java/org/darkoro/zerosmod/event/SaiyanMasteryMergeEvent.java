@@ -87,6 +87,7 @@ public class SaiyanMasteryMergeEvent {
     }
 
     JRMCoreH.updateFormMasteryVersion(nbt);
+    byte rawRaceBefore = nbt.getByte(JRMCoreH.race);
 
     String saiyanKey = JRMCoreH.getNBTFormMasteryRacialKey(RACE_SAIYAN);
     String halfSaiyanKey = JRMCoreH.getNBTFormMasteryRacialKey(RACE_HALF_SAIYAN);
@@ -107,24 +108,33 @@ public class SaiyanMasteryMergeEvent {
 
     if (race == RACE_SAIYAN) {
       dbcData.Race = RACE_HALF_SAIYAN;
+    }
+
+    if (race == RACE_SAIYAN || race == RACE_HALF_SAIYAN) {
       dbcData.FormMasteryRacial = mergedData;
+    }
+
+    boolean changedRawRace = rawRaceBefore != RACE_HALF_SAIYAN;
+    if (race == RACE_SAIYAN || race == RACE_HALF_SAIYAN) {
       nbt.setByte(JRMCoreH.race, RACE_HALF_SAIYAN);
       JRMCoreH.setByte(RACE_HALF_SAIYAN, player, JRMCoreH.race);
     }
 
-    if (race == RACE_SAIYAN || changedSaiyanMastery || changedHalfSaiyanMastery) {
+    if (race == RACE_SAIYAN || changedSaiyanMastery || changedHalfSaiyanMastery || changedRawRace) {
       dbcData.saveNBTData(true);
     }
 
-    if ((race == RACE_SAIYAN || changedSaiyanMastery || changedHalfSaiyanMastery)
+    if ((race == RACE_SAIYAN || changedSaiyanMastery || changedHalfSaiyanMastery || changedRawRace)
         && ZeroSMod.LOGGER != null) {
       ZeroSMod.LOGGER.info(
-          "Merged Saiyan mastery for {} during {} {}. Race {} -> {}.",
+          "Merged Saiyan mastery for {} during {} {}. Race {} -> {}, jrmcRace {} -> {}.",
           player.getCommandSenderName(),
           trigger,
           phase,
           race,
-          dbcData.Race);
+          dbcData.Race,
+          rawRaceBefore,
+          nbt.getByte(JRMCoreH.race));
     }
   }
 

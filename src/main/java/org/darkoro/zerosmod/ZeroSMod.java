@@ -51,7 +51,7 @@ public class ZeroSMod {
 	public static final String VERSION = "2.1.3";
 	public static final String ACCEPTABLE_REMOTE_VERSIONS = "[" + VERSION + "]";
 	// Bump this for server-only emergency builds that should still allow clients on VERSION.
-	public static final String SERVER_BUILD_VERSION = "2.1.3-server1";
+	public static final String SERVER_BUILD_VERSION = "2.1.3-server3";
 	public static SimpleNetworkWrapper network;
 
 	@Instance(MODID)
