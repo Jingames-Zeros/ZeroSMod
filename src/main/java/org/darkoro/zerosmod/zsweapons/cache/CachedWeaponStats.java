@@ -141,6 +141,16 @@ public class CachedWeaponStats implements ScriptZSWeapon {
     /**
      * Copies states from an existing weapon stats
      */
+    public CachedWeaponStats detachedCopy() {
+        CachedWeaponStats stats = new CachedWeaponStats(type);
+        stats.copy(this, false);
+        stats.formattedType = formattedType;
+        stats.levelReq = levelReq;
+        stats.attackAdditive = attackAdditive;
+        stats.kiAdditive = kiAdditive;
+        return stats;
+    }
+
     public void copy(CachedWeaponStats stats, boolean applyStats) {
         if (stats == null) return;
 

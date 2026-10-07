@@ -192,19 +192,19 @@ export interface AbstractZeroSAPI extends ZSAPI {
  * @javaFqn org.darkoro.zerosmod.api.WeaponAPI
  */
 export interface WeaponAPI {
-  /** Reads the configured Zero S weapon type from an item. */
+  /** Reads the configured Zero S weapon type from an item, or "default" when it has none. */
   getWeaponType(item: IItemStack<any>): string;
 
-  /** Sets the configured Zero S weapon type on an item. */
-  setWeaponType(type: string, item: IItemStack<any>): void;
+  /** Sets the Zero S weapon type on an item. Returns false when the item is null or the type is not loaded. */
+  setWeaponType(type: string, item: IItemStack<any>): boolean;
 
   /** Returns the names of all loaded Zero S weapon types. */
   getLoadedWeaponTypeNames(): string[];
 
-  /** Returns the loaded Zero S weapon type map. */
+  /** Returns copies of all loaded Zero S weapon types by name; changing them does not affect the server config. */
   getLoadedWeaponTypes(): any;
 
-  /** Returns the loaded default Zero S weapon state. */
+  /** Returns a copy of the default Zero S weapon type, or null when it is not loaded. */
   getDefaultWeaponState(): ScriptZSWeapon<any>;
 }
 
