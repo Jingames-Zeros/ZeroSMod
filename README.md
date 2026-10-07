@@ -21,6 +21,23 @@ unsaved edits. Values must be finite numbers between -100000 and 100000.
 stats and is independent of `/zsmod reload`. The displayed Saiyan entry edits
 `half-saiyan/main.cfg`; full Saiyan is excluded.
 
+## Finisher camera
+
+Scripts can play a cinematic camera for killmoves through the `ZSAPI` global:
+
+```js
+ZSAPI.playFinisherCamera(player, npc, 60, "orbit"); // or "shoulder", "side"; npc may be null
+ZSAPI.playFinisherCamera(player, npc, 60, "side", "finisher_attack"); // also plays a CNPC+ animation on the player
+ZSAPI.stopFinisherCamera(player);                    // end early
+```
+
+During the shot runtime (<= 1200 ticks), client hides HUD, hand and locks movement et all.
+Shit gets restored once the shot ends - this can happen on Death, Respawn, Disconnect or Dim Change.
+
+Testing without a script:
+- `/zsmod finishercam <ticks> [orbit|shoulder|side] [player] [animation]`
+- `/zsmod finishercam stop [player]`
+
 ## Development client
 
 Run the **ZeroSMod Dev** configuration in IntelliJ, or start it from PowerShell:

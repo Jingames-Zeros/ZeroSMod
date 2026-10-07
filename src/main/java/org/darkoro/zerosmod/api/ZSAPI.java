@@ -168,4 +168,34 @@ public interface ZSAPI {
    * @return weapon stats, or null when item is null
    */
   ScriptZSWeapon getZSWeapon(IItemStack item);
+
+  /**
+   * Cinematic finisher camera on the client. HUD hidden while running. New shot replaces old.
+   *
+   * @param player whose camera is yoinked
+   * @param target entity that gets backshots, or null if it's just the player
+   * @param ticks shot length in ticks, <=1200
+   * @param preset {@code orbit}, {@code shoulder} or {@code side}
+   * @return true when it worked, false when it didn't
+   */
+  boolean playFinisherCamera(IPlayer player, IEntity target, int ticks, String preset);
+
+  /**
+   * Same as above plus a CNPC+ animation, which is stopped when the shot ends or is stopped early
+   *
+   * @param player whose camera is yoinked
+   * @param target entity that gets backshots, or null if it's just the player
+   * @param ticks shot length in ticks, <=1200
+   * @param preset {@code orbit}, {@code shoulder} or {@code side}
+   * @param animation name of a CNPC+ animation, null if none
+   * @return true when it worked, false when it didn't
+   */
+  boolean playFinisherCamera(IPlayer player, IEntity target, int ticks, String preset, String animation);
+
+  /**
+   * Kill finishCam before, restore normal camera
+   *
+   * @param player player whose camera is released
+   */
+  void stopFinisherCamera(IPlayer player);
 }
