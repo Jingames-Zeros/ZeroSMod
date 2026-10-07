@@ -39,4 +39,9 @@ dependencies {
     devOnlyNonPublishable(rfg.deobf("curse.maven:jingames-jbra-client-497511:4505635"))
     implementation(rfg.deobf("curse.maven:customnpc-plus-480951:7753130"))
     devOnlyNonPublishable(rfg.deobf("curse.maven:cnpc-dbc-addon-1107628:7753144"))
+    // need this bullshit for having nashorn in local dev environment
+    runtimeOnlyNonPublishable(files(javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(8)
+        vendor = JvmVendorSpec.AZUL
+    }.map { it.metadata.installationPath.file("jre/lib/ext/nashorn.jar") }))
 }
