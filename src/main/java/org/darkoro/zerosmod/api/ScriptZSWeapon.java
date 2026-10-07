@@ -1,14 +1,13 @@
 package org.darkoro.zerosmod.api;
 
 import noppes.npcs.api.item.IItemStack;
-import org.darkoro.zerosmod.zsweapons.cache.CachedWeaponStats;
 
 public interface ScriptZSWeapon {
     /**
      * Sets item weapon type
      * @param type Valid string weapon type
      */
-    void setType(String type) throws CachedWeaponStats.UnknownWeaponTypeException;
+    void setType(String type) throws UnknownWeaponTypeException;
 
     /**
      * Sets item to default stats
@@ -44,16 +43,16 @@ public interface ScriptZSWeapon {
     void setLevelReq(int levelReq);
     void setKiAdditive(int kiAdditive);
     void setAttackAdditive(int attack);
-    void setCooldown(int cooldown) throws CachedWeaponStats.ProtectedWeaponTypeException;
-    void setAttackPercent(float attackPercent) throws CachedWeaponStats.ProtectedWeaponTypeException;
-    void setSweetSpot(float sweetSpot) throws CachedWeaponStats.ProtectedWeaponTypeException;
-    void setCanChargeKi(boolean canChargeKi) throws CachedWeaponStats.ProtectedWeaponTypeException;
-    void setKiPercent(float kiPercent) throws CachedWeaponStats.ProtectedWeaponTypeException;
-    void setKiCostPercent(float kiCostPercent) throws CachedWeaponStats.ProtectedWeaponTypeException;
-    void setCanBlock(boolean canBlock) throws CachedWeaponStats.ProtectedWeaponTypeException;
-    void setBlockDexPercent(float blockDexPercent) throws CachedWeaponStats.ProtectedWeaponTypeException;
-    void setBlockCostPercent(float blockCostPercent) throws CachedWeaponStats.ProtectedWeaponTypeException;
-    void setBlockCooldown(int blockCooldown) throws CachedWeaponStats.ProtectedWeaponTypeException;
-    void setRange(float range) throws CachedWeaponStats.ProtectedWeaponTypeException;
-    void setFormattedType(String formattedType) throws CachedWeaponStats.ProtectedWeaponTypeException;
+    void setCooldown(int cooldown) throws ProtectedWeaponTypeException;
+    void setAttackPercent(float attackPercent) throws ProtectedWeaponTypeException;
+    void setSweetSpot(float sweetSpot) throws ProtectedWeaponTypeException;
+    void setCanChargeKi(boolean canChargeKi) throws ProtectedWeaponTypeException;
+    void setKiPercent(float kiPercent) throws ProtectedWeaponTypeException;
+    void setKiCostPercent(float kiCostPercent) throws ProtectedWeaponTypeException;
+    void setCanBlock(boolean canBlock) throws ProtectedWeaponTypeException;
+    void setBlockDexPercent(float blockDexPercent) throws ProtectedWeaponTypeException;
+    void setBlockCostPercent(float blockCostPercent) throws ProtectedWeaponTypeException;
+    void setBlockCooldown(int blockCooldown) throws ProtectedWeaponTypeException;
+    void setRange(float range) throws ProtectedWeaponTypeException;
+    void setFormattedType(String formattedType) throws ProtectedWeaponTypeException;
 }

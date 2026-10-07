@@ -189,7 +189,7 @@ export interface AbstractZeroSAPI extends ZSAPI {
 
 /**
  * Zero S Mod weapon global API.
- * @javaFqn org.darkoro.zerosmod.zsweapons.API.WeaponAPI
+ * @javaFqn org.darkoro.zerosmod.api.WeaponAPI
  */
 export interface WeaponAPI {
   /** Reads the configured Zero S weapon type from an item. */

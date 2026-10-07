@@ -3,6 +3,7 @@ package org.darkoro.zerosmod.config;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import org.darkoro.zerosmod.config.defaults.GeneralWeaponSettings;
 import org.darkoro.zerosmod.config.defaults.WeaponTypesDefaults;
+import org.darkoro.zerosmod.api.ProtectedWeaponTypeException;
 import org.darkoro.zerosmod.zsweapons.cache.CachedWeaponStats;
 import org.darkoro.zerosmod.zsweapons.enums.WeaponConfigKey;
 import org.darkoro.zerosmod.zsweapons.server.ServerWeaponHandler;
@@ -149,7 +150,7 @@ public class ServerWeaponConfig {
                     }
                 }
             }
-        } catch (IOException | CachedWeaponStats.ProtectedWeaponTypeException ignored) {
+        } catch (IOException | ProtectedWeaponTypeException ignored) {
         } finally {
             if (reader != null) {
                 try {
@@ -159,7 +160,7 @@ public class ServerWeaponConfig {
         }
     }
 
-    public static void loadWeaponState(CachedWeaponStats stats, String key, String value) throws CachedWeaponStats.ProtectedWeaponTypeException {
+    public static void loadWeaponState(CachedWeaponStats stats, String key, String value) throws ProtectedWeaponTypeException {
         if (stats == null) return;
         WeaponConfigKey configKey = WeaponConfigKey.fromKey(key);
         if (configKey == null) return;

@@ -1,4 +1,4 @@
-package org.darkoro.zerosmod.zsweapons.API;
+package org.darkoro.zerosmod.api;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
