@@ -4,11 +4,12 @@ import net.minecraft.entity.EntityLivingBase;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.scripted.entity.ScriptEntity;
 import noppes.npcs.scripted.entity.ScriptLivingBase;
+import org.darkoro.zerosmod.api.ScriptLivingKiMethods;
 import org.darkoro.zerosmod.ki.KiScriptHelper;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(value = ScriptLivingBase.class, remap = false)
-public abstract class MixinScriptLivingBaseKi<T extends EntityLivingBase> extends ScriptEntity<T> {
+public abstract class MixinScriptLivingBaseKi<T extends EntityLivingBase> extends ScriptEntity<T> implements ScriptLivingKiMethods {
 
   public MixinScriptLivingBaseKi(T entity) {
     super(entity);
