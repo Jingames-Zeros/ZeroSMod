@@ -54,10 +54,10 @@ export interface ZSAPI {
   /** Changes a DBC ki attack color without changing owner. */
   setKiColor(kiAttack: IEntity<any>, color: string): boolean;
 
-  /** Gets a player's current combat state, containing attack cooldown, current stats */
+  /** Gets the player's live combat state (attack cooldown, current weapon stats), or null when player is null. */
   getPlayerCombatState(player: IPlayer<any>): ScriptPlayerCombatState<any>;
 
-  /** Gets a ZS Weapon instance from an item stack. Allows for configuration and saving of item type and stats. */
+  /** Reads the Zero S weapon stats of an item, or null when item is null. Changes are written back to the item. */
   getZSWeapon(item: IItemStack<any>): ScriptZSWeapon<any>;
 }
 
@@ -117,10 +117,10 @@ export interface ZeroSAPI extends ZSAPI {
   /** Changes a DBC ki attack color without changing owner. */
   setKiColor(kiAttack: IEntity<any>, color: string): boolean;
 
-  /** Gets a player's current combat state, containing attack cooldown, current stats */
+  /** Gets the player's live combat state (attack cooldown, current weapon stats), or null when player is null. */
   getPlayerCombatState(player: IPlayer<any>): ScriptPlayerCombatState<any>;
 
-  /** Gets a ZS Weapon instance from an item stack. Allows for configuration and saving of item type and stats. */
+  /** Reads the Zero S weapon stats of an item, or null when item is null. Changes are written back to the item. */
   getZSWeapon(item: IItemStack<any>): ScriptZSWeapon<any>;
 }
 
@@ -180,10 +180,10 @@ export interface AbstractZeroSAPI extends ZSAPI {
   /** Changes a DBC ki attack color without changing owner. */
   setKiColor(kiAttack: IEntity<any>, color: string): boolean;
 
-  /** Gets a player's current combat state, containing attack cooldown, current stats */
+  /** Gets the player's live combat state (attack cooldown, current weapon stats), or null when player is null. */
   getPlayerCombatState(player: IPlayer<any>): ScriptPlayerCombatState<any>;
 
-  /** Gets a ZS Weapon instance from an item stack. Allows for configuration and saving of item type and stats. */
+  /** Reads the Zero S weapon stats of an item, or null when item is null. Changes are written back to the item. */
   getZSWeapon(item: IItemStack<any>): ScriptZSWeapon<any>;
 }
 

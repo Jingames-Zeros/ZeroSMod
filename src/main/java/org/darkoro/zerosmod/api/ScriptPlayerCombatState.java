@@ -2,36 +2,55 @@ package org.darkoro.zerosmod.api;
 
 import noppes.npcs.api.item.IItemStack;
 
+/**
+ * A player's live Zero S combat state, from {@link ZSAPI#getPlayerCombatState}.
+ */
 public interface ScriptPlayerCombatState {
-    /**
-     * Updates stats and current item from new item and it's nbt
-     * @param item new item
-     */
-    void changeItem(IItemStack item);
 
-    /**
-     * Sets item stats independent of item
-     * @param itemStats Stats to copy
-     * @param resetCooldown If item cooldown should be reset upon setting stats
-     */
-    void setCurrentZSWeapon(ScriptZSWeapon itemStats, boolean resetCooldown);
+  /**
+   * Switches the tracked weapon to the given item and reads its stats.
+   *
+   * @param item new item
+   */
+  void changeItem(IItemStack item);
 
-    /**
-     * Refreshes the player's current item if it is the same as the given item
-     * @param item Item to compare to current
-     */
-    void refreshItem(IItemStack item);
+  /**
+   * Uses the given stats regardless of the held item.
+   *
+   * @param itemStats stats to copy
+   * @param resetCooldown true to also start a new attack cooldown
+   */
+  void setCurrentZSWeapon(ScriptZSWeapon itemStats, boolean resetCooldown);
 
-    /**
-     * Triggers an attack cooldown
-     */
-    void resetCooldown();
+  /**
+   * Re-reads the stats when the given item is the tracked weapon.
+   *
+   * @param item item to compare with the tracked weapon
+   */
+  void refreshItem(IItemStack item);
 
-    // Getters
-    double getRemainingAttackCooldown();
-    ScriptZSWeapon getCurrentZSWeapon();
-    IItemStack getCurrentScriptItem();
+  /**
+   * Starts a new attack cooldown.
+   */
+  void resetCooldown();
 
-    // Setters
-    void setRemainingAttackCooldown(double remainingAttackCooldown);
+  /**
+   * @return remaining attack cooldown in ticks
+   */
+  double getRemainingAttackCooldown();
+
+  /**
+   * @return stats of the tracked weapon
+   */
+  ScriptZSWeapon getCurrentZSWeapon();
+
+  /**
+   * @return the tracked weapon item
+   */
+  IItemStack getCurrentScriptItem();
+
+  /**
+   * @param remainingAttackCooldown remaining attack cooldown in ticks
+   */
+  void setRemainingAttackCooldown(double remainingAttackCooldown);
 }
