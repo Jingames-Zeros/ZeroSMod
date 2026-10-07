@@ -21,6 +21,8 @@ import org.darkoro.zerosmod.client.RaceStatEditorClient;
 import org.darkoro.zerosmod.dbcarmor.editor.DBCAEditorClient;
 import org.darkoro.zerosmod.dbcarmor.editor.DBCAEditorNetwork;
 import org.darkoro.zerosmod.dbcarmor.editor.DBCAEditorSnapshot;
+import org.darkoro.zerosmod.finisher.FinisherCameraPacket;
+import org.darkoro.zerosmod.finisher.client.FinisherCameraClient;
 import org.darkoro.zerosmod.network.RaceStatResponse;
 import org.darkoro.zerosmod.input.KeyInputHandler;
 import org.darkoro.zerosmod.input.KeybindHandler;
@@ -51,6 +53,8 @@ public class ClientProxy extends CommonProxy {
     KeybindHandler.init();
     FMLCommonHandler.instance().bus().register(new KeyInputHandler());
     FMLCommonHandler.instance().bus().register(ClientWeaponHandler.INSTANCE);
+    FMLCommonHandler.instance().bus().register(FinisherCameraClient.INSTANCE);
+    MinecraftForge.EVENT_BUS.register(FinisherCameraClient.INSTANCE);
     MinecraftForge.EVENT_BUS.register(new ZSTabOverlayHandler());
     MinecraftForge.EVENT_BUS.register(new BiomeFogHandler());
     MinecraftForge.EVENT_BUS.register(new DimensionVisibilityHandler());
@@ -80,6 +84,10 @@ public class ClientProxy extends CommonProxy {
 
   @Override public void receiveDBCAEditorSnapshot(DBCAEditorSnapshot packet, INetHandler connection) {
     DBCAEditorClient.INSTANCE.receive(packet, connection);
+  }
+
+  @Override public void receiveFinisherCamera(FinisherCameraPacket packet) {
+    FinisherCameraClient.INSTANCE.receive(packet);
   }
 
   @Override
