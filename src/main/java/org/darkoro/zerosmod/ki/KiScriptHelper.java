@@ -273,10 +273,6 @@ public final class KiScriptHelper {
     return stopped;
   }
 
-  public static boolean stopKi(Object value, int ignoredTicks) {
-    return stopKi(value);
-  }
-
   public static boolean releaseKi(Object value) {
     EntityEnergyAtt attack = asKiAttack(value);
     boolean released = attack != null && KiAttackSafety.releaseStoppedAttack(attack);
@@ -324,10 +320,6 @@ public final class KiScriptHelper {
       }
     }
     return count;
-  }
-
-  public static int stopKiAround(Object center, int range, int ignoredTicks) {
-    return stopKiAround(center, range);
   }
 
   public static int releaseKiAround(Object center, int range) {

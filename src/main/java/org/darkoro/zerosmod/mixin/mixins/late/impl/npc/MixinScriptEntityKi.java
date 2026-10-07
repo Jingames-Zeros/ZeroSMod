@@ -80,10 +80,6 @@ public abstract class MixinScriptEntityKi<T extends Entity> {
     return KiScriptHelper.stopKi(this.entity);
   }
 
-  public boolean stopKi(int ignoredTicks) {
-    return KiScriptHelper.stopKi(this.entity);
-  }
-
   public boolean releaseKi() {
     return KiScriptHelper.releaseKi(this.entity);
   }

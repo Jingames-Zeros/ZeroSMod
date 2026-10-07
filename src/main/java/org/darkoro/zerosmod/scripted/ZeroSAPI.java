@@ -84,10 +84,6 @@ public class ZeroSAPI extends AbstractZeroSAPI {
     return KiScriptHelper.stopKiAround(origin, range);
   }
 
-  public int stopKi(IEntity origin, int range, int ignoredTicks) {
-    return KiScriptHelper.stopKiAround(origin, range);
-  }
-
   @Override public int releaseKi(IEntity origin, int range) {
     return KiScriptHelper.releaseKiAround(origin, range);
   }

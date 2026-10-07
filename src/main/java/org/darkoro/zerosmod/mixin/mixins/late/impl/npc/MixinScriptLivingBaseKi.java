@@ -18,10 +18,6 @@ public abstract class MixinScriptLivingBaseKi<T extends EntityLivingBase> extend
     return KiScriptHelper.stopKiAround(this.entity, range);
   }
 
-  public int stopKi(int range, int ignoredTicks) {
-    return KiScriptHelper.stopKiAround(this.entity, range);
-  }
-
   public int releaseKi(int range) {
     return KiScriptHelper.releaseKiAround(this.entity, range);
   }
