@@ -175,7 +175,8 @@ public interface ZSAPI {
    * @param player whose camera is yoinked
    * @param target entity that gets backshots, or null if it's just the player
    * @param ticks shot length in ticks, <=1200
-   * @param preset {@code orbit}, {@code shoulder} or {@code side}
+   * @param preset {@code orbit}, {@code shoulder} or {@code side} frame both;
+   *     {@code intro} (boss intro ending on a face close-up) or {@code orbit_target} frame only the target
    * @return true when it worked, false when it didn't
    */
   boolean playFinisherCamera(IPlayer player, IEntity target, int ticks, String preset);
@@ -186,7 +187,8 @@ public interface ZSAPI {
    * @param player whose camera is yoinked
    * @param target entity that gets backshots, or null if it's just the player
    * @param ticks shot length in ticks, <=1200
-   * @param preset {@code orbit}, {@code shoulder} or {@code side}
+   * @param preset {@code orbit}, {@code shoulder} or {@code side} frame both;
+   *     {@code intro} (boss intro ending on a face close-up) or {@code orbit_target} frame only the target
    * @param animation name of a CNPC+ animation, null if none
    * @return true when it worked, false when it didn't
    */

@@ -60,7 +60,7 @@ export interface ZSAPI {
   /** Reads the Zero S weapon stats of an item, or null when item is null. Changes are written back to the item. */
   getZSWeapon(item: IItemStack<any>): ScriptZSWeapon<any>;
 
-  /** Plays the finisher camera ("orbit", "shoulder" or "side") on the player's client for up to 1200 ticks; HUD hidden, controls locked. target may be null. */
+  /** Plays the finisher camera ("orbit", "shoulder", "side" frame both; "intro", "orbit_target" frame only target) on the player's client for up to 1200 ticks; HUD hidden, controls locked. target may be null. */
   playFinisherCamera(player: IPlayer<any>, target: IEntity<any>, ticks: number, preset: string): boolean;
 
   /** Same as above, and also plays the named CNPC+ animation on the player until the shot ends. Returns false (and plays nothing) for an unknown animation. */
