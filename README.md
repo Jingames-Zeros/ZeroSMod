@@ -26,7 +26,7 @@ stats and is independent of `/zsmod reload`. The displayed Saiyan entry edits
 Scripts can play a cinematic camera for killmoves through the `ZSAPI` global:
 
 ```js
-ZSAPI.playFinisherCamera(player, npc, 60, "orbit"); // or "shoulder", "side"; npc may be null
+ZSAPI.playFinisherCamera(player, npc, 60, "orbit"); // or "shoulder", "side"; "intro"/"orbit_target" film only the npc
 ZSAPI.playFinisherCamera(player, npc, 60, "side", "finisher_attack"); // also plays a CNPC+ animation on the player
 ZSAPI.stopFinisherCamera(player);                    // end early
 ```
@@ -35,5 +35,5 @@ During the shot runtime (<= 1200 ticks), client hides HUD, hand and locks moveme
 Shit gets restored once the shot ends - this can happen on Death, Respawn, Disconnect or Dim Change.
 
 Testing without a script:
-- `/zsmod finishercam <ticks> [orbit|shoulder|side] [player] [animation]`
+- `/zsmod finishercam <ticks> [preset] [player] [animation]`
 - `/zsmod finishercam stop [player]`

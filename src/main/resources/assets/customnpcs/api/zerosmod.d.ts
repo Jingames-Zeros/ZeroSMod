@@ -60,7 +60,7 @@ export interface ZSAPI {
   /** Gets a ZS Weapon instance from an item stack. Allows for configuration and saving of item type and stats. */
   getZSWeapon(item: IItemStack<any>): ScriptZSWeapon<any>;
 
-  /** Plays the finisher camera ("orbit", "shoulder" or "side") on the player's client for up to 1200 ticks; HUD hidden, controls locked. target may be null. */
+  /** Plays the finisher camera ("orbit", "shoulder", "side" frame both; "intro", "orbit_target" frame only target) on the player's client for up to 1200 ticks; HUD hidden, controls locked. target may be null. */
   playFinisherCamera(player: IPlayer<any>, target: IEntity<any>, ticks: number, preset: string): boolean;
 
   /** Same as above, and also plays the named CNPC+ animation on the player until the shot ends. Returns false (and plays nothing) for an unknown animation. */
@@ -195,7 +195,7 @@ export interface AbstractZeroSAPI extends ZSAPI {
   /** Gets a ZS Weapon instance from an item stack. Allows for configuration and saving of item type and stats. */
   getZSWeapon(item: IItemStack<any>): ScriptZSWeapon<any>;
 
-  /** Plays the finisher camera ("orbit", "shoulder" or "side") on the player's client for up to 1200 ticks; HUD hidden, controls locked. target may be null. */
+  /** Plays the finisher camera ("orbit", "shoulder", "side" frame both; "intro", "orbit_target" frame only target) on the player's client for up to 1200 ticks; HUD hidden, controls locked. target may be null. */
   playFinisherCamera(player: IPlayer<any>, target: IEntity<any>, ticks: number, preset: string): boolean;
 
   /** Same as above, and also plays the named CNPC+ animation on the player until the shot ends. Returns false (and plays nothing) for an unknown animation. */
