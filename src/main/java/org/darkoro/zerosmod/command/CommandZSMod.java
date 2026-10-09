@@ -374,7 +374,7 @@ public class CommandZSMod extends CommandBase {
   private class FinisherCamSubCommand extends ZSSubCommand {
 
     private FinisherCamSubCommand() {
-      super("finishercam", "/zsmod finishercam <ticks> [orbit|shoulder|side] [player] [animation] | stop [player]",
+      super("finishercam", "/zsmod finishercam <ticks> [preset] [player] [animation] | stop [player]",
           "Plays the finisher camera, plus an optional CNPC+ animation on the player.", 2);
     }
 
