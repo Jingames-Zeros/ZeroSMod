@@ -40,7 +40,10 @@ public final class FinisherCameraClient {
   private int duration;
   private int elapsed;
   private double[] lastTarget;
+  private double targetHeight;
+  private float targetYaw;
   private int sideSign;
+  private double introAngle;
 
   private EntityLivingBase savedView;
   private MovementInput savedInput;
@@ -117,6 +120,7 @@ public final class FinisherCameraClient {
     elapsed = 0;
     lastTarget = null;
     sideSign = 0;
+    introAngle = Double.NaN;
     if (camera == null) {
       start();
     }
@@ -200,6 +204,8 @@ public final class FinisherCameraClient {
 
     double[] focus = other == null ? self
         : new double[] {(self[0] + other[0]) * 0.5D, (self[1] + other[1]) * 0.5D, (self[2] + other[2]) * 0.5D};
+    double[] subject = other == null ? self : other;
+    double subjectHeight = other == null ? mc.thePlayer.height : targetHeight;
     double[] anchor;
     double[] lookAt;
     double[] position;
@@ -227,6 +233,33 @@ public final class FinisherCameraClient {
             focus[0] - forwardZ * radius * sideSign,
             focus[1] + 0.3D,
             focus[2] + forwardX * radius * sideSign};
+        break;
+      }
+      case INTRO: {
+        if (Double.isNaN(introAngle)) {
+          introAngle = Math.toRadians((other == null ? mc.thePlayer.rotationYawHead : targetYaw) + 90.0F);
+        }
+        double radius = Math.max(1.0D, subjectHeight / 1.8D) * (6.0D - 3.8D * eased);
+        double angle = introAngle - (1.0D - eased) * Math.PI * 0.66D;
+        double low = subject[1] - subjectHeight * 0.4D;
+        double eye = subject[1] + subjectHeight * 0.25D;
+        anchor = subject;
+        lookAt = new double[] {subject[0], eye, subject[2]};
+        position = new double[] {
+            subject[0] + Math.cos(angle) * radius,
+            low + (eye - low) * eased,
+            subject[2] + Math.sin(angle) * radius};
+        break;
+      }
+      case ORBIT_TARGET: {
+        double radius = Math.max(3.0D, subjectHeight * 1.6D + 1.0D);
+        double angle = heading + Math.PI * 0.5D + eased * Math.PI * 0.75D;
+        anchor = subject;
+        lookAt = subject;
+        position = new double[] {
+            subject[0] + Math.cos(angle) * radius,
+            subject[1] + 0.8D + 0.4D * Math.sin(progress * Math.PI),
+            subject[2] + Math.sin(angle) * radius};
         break;
       }
       case ORBIT:
@@ -260,6 +293,8 @@ public final class FinisherCameraClient {
     Entity target = mc.theWorld.getEntityByID(targetId);
     if (target != null && !target.isDead) {
       lastTarget = center(target, partialTicks);
+      targetHeight = target.height;
+      targetYaw = target instanceof EntityLivingBase ? ((EntityLivingBase)target).rotationYawHead : target.rotationYaw;
     }
     return lastTarget;
   }

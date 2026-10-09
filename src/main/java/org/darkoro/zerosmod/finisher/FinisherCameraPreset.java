@@ -3,7 +3,9 @@ package org.darkoro.zerosmod.finisher;
 public enum FinisherCameraPreset {
   ORBIT,
   SHOULDER,
-  SIDE;
+  SIDE,
+  INTRO,
+  ORBIT_TARGET;
 
   public static FinisherCameraPreset byName(String name) {
     if (name == null) {
