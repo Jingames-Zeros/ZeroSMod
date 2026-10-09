@@ -11,7 +11,9 @@ import noppes.npcs.api.INbt;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.scripted.ScriptNbt;
 import noppes.npcs.scripted.item.ScriptItemStack;
+import org.darkoro.zerosmod.api.ProtectedWeaponTypeException;
 import org.darkoro.zerosmod.api.ScriptZSWeapon;
+import org.darkoro.zerosmod.api.UnknownWeaponTypeException;
 import org.darkoro.zerosmod.config.ConfigHandler;
 import org.darkoro.zerosmod.zsweapons.ZSWeaponUtils;
 import org.darkoro.zerosmod.zsweapons.attributes.AttributeBuilder;
@@ -139,6 +141,16 @@ public class CachedWeaponStats implements ScriptZSWeapon {
     /**
      * Copies states from an existing weapon stats
      */
+    public CachedWeaponStats detachedCopy() {
+        CachedWeaponStats stats = new CachedWeaponStats(type);
+        stats.copy(this, false);
+        stats.formattedType = formattedType;
+        stats.levelReq = levelReq;
+        stats.attackAdditive = attackAdditive;
+        stats.kiAdditive = kiAdditive;
+        return stats;
+    }
+
     public void copy(CachedWeaponStats stats, boolean applyStats) {
         if (stats == null) return;
 
@@ -432,13 +444,5 @@ public class CachedWeaponStats implements ScriptZSWeapon {
         if(!isPrimitive && !getType().equals(SPECIAL)) {
             throw new ProtectedWeaponTypeException(type);
         }
-    }
-
-    public static class ProtectedWeaponTypeException extends Exception {
-        public ProtectedWeaponTypeException(String type) { super("Protected weapon type: " + type); }
-    }
-
-    public static class UnknownWeaponTypeException extends Exception {
-        public UnknownWeaponTypeException(String type) { super("Unknown weapon type: " + type); }
     }
 }

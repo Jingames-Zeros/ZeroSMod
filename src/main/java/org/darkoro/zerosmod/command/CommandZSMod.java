@@ -22,6 +22,7 @@ import noppes.npcs.scripted.NpcAPI;
 import noppes.npcs.scripted.item.ScriptItemStack;
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.api.ScriptZSWeapon;
+import org.darkoro.zerosmod.api.UnknownWeaponTypeException;
 import org.darkoro.zerosmod.config.*;
 import org.darkoro.zerosmod.event.SaiyanMasteryMergeEvent;
 import org.darkoro.zerosmod.finisher.FinisherCamera;
@@ -31,7 +32,6 @@ import org.darkoro.zerosmod.network.RaceStatEditorServer;
 import org.darkoro.zerosmod.network.SyncDimensionConfigPacket;
 import org.darkoro.zerosmod.scripted.ZeroSAPI;
 import org.darkoro.zerosmod.zsweapons.ZSWeaponUtils;
-import org.darkoro.zerosmod.zsweapons.cache.CachedWeaponStats;
 import org.darkoro.zerosmod.zsweapons.network.packets.ReloadToClientPacket;
 import org.darkoro.zerosmod.zsweapons.network.packets.WeaponTypesToClientPacket;
 
@@ -363,7 +363,7 @@ public class CommandZSMod extends CommandBase {
             ZeroSAPI.Instance().getPlayerCombatState((IPlayer) NpcAPI.Instance().getIEntity(player)).setCurrentZSWeapon(weapon, true);
             sender.addChatMessage(new ChatComponentText(
                     PREFIX + EnumChatFormatting.GRAY + "Item type successfully set to " + type));
-          } catch (CachedWeaponStats.UnknownWeaponTypeException e) {
+          } catch (UnknownWeaponTypeException e) {
             sender.addChatMessage(new ChatComponentText(PREFIX + EnumChatFormatting.RED + "Unknown weapon type: " + type));
           }
           break;

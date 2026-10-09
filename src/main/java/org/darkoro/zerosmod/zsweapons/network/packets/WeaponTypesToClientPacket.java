@@ -1,6 +1,7 @@
 package org.darkoro.zerosmod.zsweapons.network.packets;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import org.darkoro.zerosmod.api.ProtectedWeaponTypeException;
 import org.darkoro.zerosmod.zsweapons.cache.CachedWeaponStats;
 import io.netty.buffer.ByteBuf;
 import java.util.HashMap;
@@ -21,7 +22,7 @@ public class WeaponTypesToClientPacket implements IMessage {
                 CachedWeaponStats stats = readState(buf);
                 loadedWeaponStats.put(stats.getType(), stats);
             }
-        } catch (CachedWeaponStats.ProtectedWeaponTypeException ignored) {}
+        } catch (ProtectedWeaponTypeException ignored) {}
     }
 
     @Override public void toBytes(ByteBuf buf) {
@@ -78,7 +79,7 @@ public class WeaponTypesToClientPacket implements IMessage {
      * Reads a weapon stats from the buffer
      * @param buf
      */
-    private CachedWeaponStats readState(ByteBuf buf) throws CachedWeaponStats.ProtectedWeaponTypeException {
+    private CachedWeaponStats readState(ByteBuf buf) throws ProtectedWeaponTypeException {
         CachedWeaponStats stats;
         // Read weapon type
         short typeLength = buf.readShort();

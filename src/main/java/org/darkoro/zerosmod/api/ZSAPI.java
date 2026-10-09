@@ -154,16 +154,50 @@ public interface ZSAPI {
   boolean setKiColor(IEntity kiAttack, String color);
 
   /**
-   * Gets player's current combat state
-   * @param player combat player
-   * @return .
+   * Gets the player's live combat state: attack cooldown and current weapon stats.
+   *
+   * @param player CNPC player wrapper
+   * @return combat state, or null when player is null
    */
   ScriptPlayerCombatState getPlayerCombatState(IPlayer player);
 
   /**
-   * Gets item's current ZSWeapon stats
-   * @param item item to retrieve stats from
-   * @return .
+   * Reads the Zero S weapon stats of an item. Changes are written back to the item.
+   *
+   * @param item item to read
+   * @return weapon stats, or null when item is null
    */
   ScriptZSWeapon getZSWeapon(IItemStack item);
+
+  /**
+   * Cinematic finisher camera on the client. HUD hidden while running. New shot replaces old.
+   *
+   * @param player whose camera is yoinked
+   * @param target entity that gets backshots, or null if it's just the player
+   * @param ticks shot length in ticks, <=1200
+   * @param preset {@code orbit}, {@code shoulder} or {@code side} frame both;
+   *     {@code intro} (boss intro ending on a face close-up) or {@code orbit_target} frame only the target
+   * @return true when it worked, false when it didn't
+   */
+  boolean playFinisherCamera(IPlayer player, IEntity target, int ticks, String preset);
+
+  /**
+   * Same as above plus a CNPC+ animation, which is stopped when the shot ends or is stopped early
+   *
+   * @param player whose camera is yoinked
+   * @param target entity that gets backshots, or null if it's just the player
+   * @param ticks shot length in ticks, <=1200
+   * @param preset {@code orbit}, {@code shoulder} or {@code side} frame both;
+   *     {@code intro} (boss intro ending on a face close-up) or {@code orbit_target} frame only the target
+   * @param animation name of a CNPC+ animation, null if none
+   * @return true when it worked, false when it didn't
+   */
+  boolean playFinisherCamera(IPlayer player, IEntity target, int ticks, String preset, String animation);
+
+  /**
+   * Kill finishCam before, restore normal camera
+   *
+   * @param player player whose camera is released
+   */
+  void stopFinisherCamera(IPlayer player);
 }

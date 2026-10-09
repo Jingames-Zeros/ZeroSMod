@@ -2,7 +2,6 @@ package org.darkoro.zerosmod.scripted;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IEntityLivingBase;
@@ -86,10 +85,6 @@ public class ZeroSAPI extends AbstractZeroSAPI {
     return KiScriptHelper.stopKiAround(origin, range);
   }
 
-  public int stopKi(IEntity origin, int range, int ignoredTicks) {
-    return KiScriptHelper.stopKiAround(origin, range);
-  }
-
   @Override public int releaseKi(IEntity origin, int range) {
     return KiScriptHelper.releaseKiAround(origin, range);
   }
@@ -114,13 +109,16 @@ public class ZeroSAPI extends AbstractZeroSAPI {
     return KiScriptHelper.setKiColor(kiAttack, color);
   }
 
-  @Override
-  public ScriptPlayerCombatState getPlayerCombatState(IPlayer player) {
-    return ServerWeaponHandler.INSTANCE.getPlayerState((EntityPlayer) player.getMCEntity());
+  @Override public ScriptPlayerCombatState getPlayerCombatState(IPlayer player) {
+    EntityPlayerMP mcPlayer = asPlayer(player);
+    return mcPlayer == null ? null : ServerWeaponHandler.INSTANCE.getPlayerState(mcPlayer);
   }
 
-  @Override
-  public ScriptZSWeapon getZSWeapon(IItemStack item) {
+  @Override public ScriptZSWeapon getZSWeapon(IItemStack item) {
+    if (item == null) {
+      return null;
+    }
+
     CachedWeaponStats stats = new CachedWeaponStats();
     stats.changeItem(item.getMCItemStack());
     return stats;
