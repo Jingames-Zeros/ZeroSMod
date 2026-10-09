@@ -154,16 +154,18 @@ public interface ZSAPI {
   boolean setKiColor(IEntity kiAttack, String color);
 
   /**
-   * Gets player's current combat state
-   * @param player combat player
-   * @return .
+   * Gets the player's live combat state: attack cooldown and current weapon stats.
+   *
+   * @param player CNPC player wrapper
+   * @return combat state, or null when player is null
    */
   ScriptPlayerCombatState getPlayerCombatState(IPlayer player);
 
   /**
-   * Gets item's current ZSWeapon stats
-   * @param item item to retrieve stats from
-   * @return .
+   * Reads the Zero S weapon stats of an item. Changes are written back to the item.
+   *
+   * @param item item to read
+   * @return weapon stats, or null when item is null
    */
   ScriptZSWeapon getZSWeapon(IItemStack item);
 }

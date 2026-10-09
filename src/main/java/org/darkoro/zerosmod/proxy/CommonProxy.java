@@ -32,7 +32,7 @@ import org.darkoro.zerosmod.rebirth.network.RebirthSnapshot;
 import org.darkoro.zerosmod.world.GenericZSBiome;
 import org.darkoro.zerosmod.world.ModDimensions;
 import org.darkoro.zerosmod.world.WorldProviderPhylactery;
-import org.darkoro.zerosmod.zsweapons.API.WeaponAPI;
+import org.darkoro.zerosmod.api.WeaponAPI;
 import org.darkoro.zerosmod.zsweapons.attributes.AttributeBuilder;
 import org.darkoro.zerosmod.zsweapons.server.ServerWeaponHandler;
 
