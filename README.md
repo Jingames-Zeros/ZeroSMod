@@ -20,3 +20,10 @@ unsaved edits. Values must be finite numbers between -100000 and 100000.
 **Restart the server to apply saved changes.** The editor does not change live DBC
 stats and is independent of `/zsmod reload`. The displayed Saiyan entry edits
 `half-saiyan/main.cfg`; full Saiyan is excluded.
+
+## License
+
+Zero S Mod is source-available under the
+[PolyForm Strict License 1.0.0](LICENSE.md), not an open-source license. You may
+use the official releases for noncommercial purposes, but not modify, redistribute
+or reuse the code. Contributions are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md).
