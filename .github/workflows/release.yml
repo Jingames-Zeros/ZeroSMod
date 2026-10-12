@@ -1,0 +1,97 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      jar: ${{ steps.meta.outputs.jar }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Java
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+
+      - name: Assemble
+        run: |
+          chmod +x ./gradlew
+          ./gradlew :assemble --refresh-dependencies
+
+      - name: Determine version and jar
+        id: meta
+        run: |
+          version=$(sed -n 's/^modVersion *= *//p' gradle.properties | tr -d '\r')
+          # The release jar is the one without a classifier (-dev, -sources, -api)
+          jar=$(find build/libs -maxdepth 1 -name "*-${version}.jar" -printf '%f\n')
+          if [ -z "$version" ] || [ "$(echo "$jar" | wc -l)" -ne 1 ] || [ -z "$jar" ]; then
+            echo "::error::Could not determine a single release jar (version='$version', jars='$jar')"
+            ls -la build/libs
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "jar=$jar" >> "$GITHUB_OUTPUT"
+
+      - name: Upload jar
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ${{ steps.meta.outputs.jar }}
+          path: build/libs/${{ steps.meta.outputs.jar }}
+          if-no-files-found: error
+
+  release:
+    name: Release
+    needs: build
+    # Only pushes to main release; PRs and manual runs just build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download jar
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: ${{ needs.build.outputs.jar }}
+
+      - name: Create release if version is new
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: v${{ needs.build.outputs.version }}
+          JAR: ${{ needs.build.outputs.jar }}
+        run: |
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            echo "Release $TAG already exists; bump modVersion in gradle.properties to publish a new one."
+            exit 0
+          fi
+          gh release create "$TAG" "$JAR" \
+            --target "$GITHUB_SHA" \
+            --title "$TAG" \
+            --generate-notes
