@@ -50,6 +50,13 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
 
+      # Decompile and compile Minecraft before CodeQL starts tracing, so only
+      # the mod's own sources end up in the scan
+      - name: Set up Forge workspace
+        run: |
+          chmod +x ./gradlew
+          ./gradlew --no-daemon :packagePatchedMc :mcLauncherClasses --refresh-dependencies
+
       # CodeQL traces the real Gradle build, so it can resolve Minecraft/Forge
       # classes; buildless mode only reached ~77% of call targets
       - name: Initialize CodeQL (Java)
@@ -60,9 +67,7 @@ jobs:
           queries: security-extended
 
       - name: Assemble
-        run: |
-          chmod +x ./gradlew
-          ./gradlew --no-daemon :assemble --refresh-dependencies
+        run: ./gradlew --no-daemon :assemble
 
       - name: Perform CodeQL Analysis (Java)
         uses: github/codeql-action/analyze@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
