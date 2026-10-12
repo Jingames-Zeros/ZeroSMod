@@ -9,7 +9,8 @@ how to set up the project and what we expect from a pull request.
 - **Bigger changes** (new features, reworks, anything touching networking or the
   script API): open an issue first so we can agree on the approach before you put
   time into it.
-- **Security issues:** do not open a public issue. Contact a maintainer privately.
+- **Security issues:** do not open a public issue. Report them privately via
+  **Security → Report a vulnerability**; see [SECURITY.md](SECURITY.md).
 
 ## Setup
 
