@@ -1,4 +1,7 @@
-name: Build and Release
+# Single pipeline: build/test and CodeQL run in parallel; release and API docs
+# publish only after both succeed. Scorecard lives in scorecard.yml because
+# publishing its results requires it to be the only job with id-token: write.
+name: CI
 
 on:
   push:
@@ -7,14 +10,18 @@ on:
   pull_request:
     branches:
       - main
+  # Weekly CodeQL re-scan with updated queries; release and docs are skipped
+  schedule:
+    - cron: '23 4 * * 1'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: release-${{ github.ref }}
-  cancel-in-progress: false
+  group: ci-${{ github.ref }}
+  # Superseded PR runs are cancelled; main runs always finish
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:
@@ -72,16 +79,52 @@ jobs:
           if-no-files-found: error
 
       - name: Upload API docs
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: build/docs/javadoc
 
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # build-mode none avoids running the GTNH/RFG decompile setup a second time
+          - language: java-kotlin
+            build-mode: none
+          - language: actions
+            build-mode: none
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          queries: security-extended
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
+        with:
+          category: /language:${{ matrix.language }}
+
   release:
     name: Release
-    needs: build
-    # Only main releases; PRs just build and test
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: [build, codeql]
+    # Only pushes (or manual runs) on main release; PRs and scheduled runs just build and scan
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -133,8 +176,8 @@ jobs:
 
   docs:
     name: Publish API docs
-    needs: build
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: [build, codeql]
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       pages: write
