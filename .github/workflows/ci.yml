@@ -1,5 +1,5 @@
-# Single pipeline: build/test and CodeQL run in parallel; release and API docs
-# publish only after both succeed. Scorecard lives in scorecard.yml because
+# Single pipeline: build (with the Java CodeQL scan), test and the workflow
+# CodeQL scan run first; release and API docs publish only after they succeed. Scorecard lives in scorecard.yml because
 # publishing its results requires it to be the only job with id-token: write.
 name: CI
 
@@ -27,6 +27,10 @@ jobs:
   build:
     name: Build and test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
     outputs:
       version: ${{ steps.meta.outputs.version }}
       jar: ${{ steps.meta.outputs.jar }}
@@ -46,10 +50,24 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
 
+      # CodeQL traces the real Gradle build, so it can resolve Minecraft/Forge
+      # classes; buildless mode only reached ~77% of call targets
+      - name: Initialize CodeQL (Java)
+        uses: github/codeql-action/init@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
+        with:
+          languages: java-kotlin
+          build-mode: manual
+          queries: security-extended
+
       - name: Assemble
         run: |
           chmod +x ./gradlew
-          ./gradlew :assemble --refresh-dependencies
+          ./gradlew --no-daemon :assemble --refresh-dependencies
+
+      - name: Perform CodeQL Analysis (Java)
+        uses: github/codeql-action/analyze@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
+        with:
+          category: /language:java-kotlin
 
       - name: Test
         run: ./gradlew :check
@@ -85,22 +103,13 @@ jobs:
           path: build/docs/javadoc
 
   codeql:
-    name: CodeQL (${{ matrix.language }})
+    # Java is scanned inside the build job; this scans the workflow files
+    name: CodeQL (actions)
     runs-on: ubuntu-latest
     permissions:
       contents: read
       security-events: write
       actions: read
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          # build-mode none avoids running the GTNH/RFG decompile setup a second time
-          - language: java-kotlin
-            build-mode: none
-          - language: actions
-            build-mode: none
 
     steps:
       - name: Checkout
@@ -111,14 +120,14 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
         with:
-          languages: ${{ matrix.language }}
-          build-mode: ${{ matrix.build-mode }}
+          languages: actions
+          build-mode: none
           queries: security-extended
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
         with:
-          category: /language:${{ matrix.language }}
+          category: /language:actions
 
   release:
     name: Release
