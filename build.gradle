@@ -1,5 +1,12 @@
 plugins {
-    id 'com.gtnewhorizons.gtnhconvention'
+    id 'com.jingames.zeros.mod'
+}
+
+zeros {
+    deps {
+        // JRMCore/DBC, CustomNPC+ and the DBC Addon are on by default
+        codeChicken = false
+    }
 }
 
 tasks.named('jar', Jar) {

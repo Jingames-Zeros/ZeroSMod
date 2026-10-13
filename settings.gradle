@@ -1,23 +1,12 @@
-
 pluginManagement {
     repositories {
-        maven {
-            // RetroFuturaGradle
-            name "GTNH Maven"
-            url "https://nexus.gtnewhorizons.com/repository/public/"
-            mavenContent {
-                includeGroup("com.gtnewhorizons")
-                includeGroupByRegex("com\\.gtnewhorizons\\..+")
-            }
-        }
+        maven { url = 'https://maven.darkoro.org/releases' }
         gradlePluginPortal()
-        mavenCentral()
-        mavenLocal()
     }
 }
 
 plugins {
-    id 'com.gtnewhorizons.gtnhsettingsconvention' version '1.0.51'
+    id 'com.jingames.zeros.settings' version '1.0.0'
 }
 
 rootProject.name = 'zerosmod'
