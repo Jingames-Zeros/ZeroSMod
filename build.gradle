@@ -87,7 +87,8 @@ tasks.withType(Javadoc) {
 
     doLast { Javadoc task ->
         def out = task.destinationDir
-        new File(out, 'theme.js').text = themeJs.getText('UTF-8')
+        // Explicit UTF-8: the default encoding is ASCII on some build machines, which breaks theme.js
+        new File(out, 'theme.js').write(themeJs.getText('UTF-8'), 'UTF-8')
 
         // Class list for the sidebar, taken from the generated "All Classes" page
         def entries = []
@@ -99,7 +100,7 @@ tasks.withType(Javadoc) {
             }
             entries << [u: href, n: name, k: kind, p: pkg]
         }
-        new File(out, 'sidebar-data.js').text = 'window.zsSidebar = ' + groovy.json.JsonOutput.toJson(entries) + ';\n'
+        new File(out, 'sidebar-data.js').write('window.zsSidebar = ' + groovy.json.JsonOutput.toJson(entries) + ';\n', 'UTF-8')
 
         // Load both scripts on every page, right after Javadoc's own stylesheet
         def stylesheetLink = ~/(<link rel="stylesheet" type="text\/css" href="([.\/]*)stylesheet\.css" title="Style">)/
