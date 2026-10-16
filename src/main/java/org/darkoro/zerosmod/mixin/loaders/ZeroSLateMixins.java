@@ -41,6 +41,11 @@ public final class ZeroSLateMixins implements ILateMixinLoader {
         mixins.add("npc.MixinScriptPlayerInstantTransmission");
         if (FMLCommonHandler.instance().getSide().isClient()) {
           mixins.add("npc.MixinJSAutocompleteProviderHookSnippets");
+          if (loadedMods.contains("npcdbc")) {
+            mixins.add("npc.client.DBCHairStrandColorMixin");
+            mixins.add("npc.client.GuiModelDBCHairTrailerMixin");
+            mixins.add("npc.client.SubGuiFormHairTrailerMixin");
+          }
         }
       }
     }

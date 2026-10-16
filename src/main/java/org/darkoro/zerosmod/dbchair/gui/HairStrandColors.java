@@ -94,6 +94,34 @@ public final class HairStrandColors {
     return true;
   }
 
+  /** Applies an NPC strand override unless its active DBC Addon form supplies a hair color. */
+  public static boolean applyNpcRenderColor(String renderCode, int strand, Object npcDisplay) {
+    if (npcDisplay == null || formHasExplicitNpcHairColor(npcDisplay)) return false;
+    String slot = colorSlot(renderCode, strand);
+    if (slot == null) return false;
+    int rgb;
+    try { rgb = Integer.parseInt(slot, 16); }
+    catch (NumberFormatException invalid) { return false; }
+    GL11.glColor4f(((rgb >> 16) & 255) / 255F, ((rgb >> 8) & 255) / 255F,
+        (rgb & 255) / 255F, 1F);
+    return true;
+  }
+
+  private static boolean formHasExplicitNpcHairColor(Object display) {
+    try {
+      Object form = display.getClass().getMethod("getForm").invoke(display);
+      if (form == null) return false;
+      Object formDisplay = form.getClass().getField("display").get(form);
+      Object formColor = display.getClass().getField("formColor").get(display);
+      if (formDisplay == null || formColor == null) return false;
+      Method hasAnyColor = formColor.getClass().getMethod("hasAnyColor", formDisplay.getClass(), String.class);
+      if (Boolean.TRUE.equals(hasAnyColor.invoke(formColor, formDisplay, "hair"))) return true;
+      Field race = display.getClass().getField("race");
+      return race.getByte(display) == 5
+          && Boolean.TRUE.equals(hasAnyColor.invoke(formColor, formDisplay, "bodycm"));
+    } catch (Exception ignored) { return false; }
+  }
+
   private static Object addonData(EntityPlayer player) {
     initAddonLookup();
     if (addonGetData == null) return null;
