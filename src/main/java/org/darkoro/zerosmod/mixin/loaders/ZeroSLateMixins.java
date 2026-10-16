@@ -19,8 +19,10 @@ public final class ZeroSLateMixins implements ILateMixinLoader {
     if (loadedMods.contains("jinryuujrmcore") && loadedMods.contains("jinryuudragonblockc")) {
       mixins.add("dbc.MixinEntityEnergyAtt");
       mixins.add("dbc.JRMCoreHMixins");
+      mixins.add("dbc.JRMCoreMajinHairDataMixin");
       if (FMLCommonHandler.instance().getSide().isClient()) {
         mixins.add("dbc.client.JRMCoreHairEditorMixin");
+        mixins.add("dbc.client.JRMCoreMajinHairColorMixin");
         mixins.add("dbc.client.JRMCoreHairEditorAccess");
         mixins.add("dbc.client.JRMCoreHairPreviewStateMixin");
         mixins.add("dbc.client.ModelBipedDBCHairHighlightMixin");

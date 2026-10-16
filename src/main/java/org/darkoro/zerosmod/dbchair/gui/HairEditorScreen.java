@@ -546,7 +546,6 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
     drawRect(16, 42, 784, 43, 0xFF314033);
     text("DBC HAIR WORKSHOP", 16, 12, GREEN);
     text("CUSTOM HAIR EDITOR", 16, 27, TEXT);
-    text("56 editable segments  |  live preview  |  DBC code stays shareable", 388, 27, MUTED);
     for (int i = 0; i < PAGE_NAMES.length; i++) {
       GuiButton b = find(PAGE_BASE + i);
       drawRect(b.xPosition, b.yPosition + b.height - 2, b.xPosition + b.width,
