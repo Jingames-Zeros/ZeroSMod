@@ -429,6 +429,26 @@ export interface IDBCAddon {
 }
 
 /**
+ * Zero S Mod patch for NPCDBC ki attack configurations returned by createKiAttack().
+ * Set the destroyer color before passing the configuration to fireKiAttack().
+ * @javaFqn kamkeel.npcdbc.api.IKiAttack
+ */
+export interface IKiAttack {
+  /**
+   * Stores a destroyer accent override as 0xRRGGBB.
+   * Returns false when rgb is outside 0x000000 through 0xFFFFFF.
+   * The setting has no visible effect unless the fired attack is a destroyer attack.
+   */
+  setDestroyerColor(rgb: number): boolean;
+
+  /** Returns the custom destroyer accent as 0xRRGGBB, or -1 when DBC's default is active. */
+  getDestroyerColor(): number;
+
+  /** Restores DBC's normal destroyer colors for this configured attack. */
+  clearDestroyerColor(): void;
+}
+
+/**
  * Zero S Mod patch for all CNPC entity wrappers.
  * @javaFqn noppes.npcs.api.entity.IEntity
  */
@@ -444,6 +464,18 @@ export interface IEntity<T> {
 
   /** Returns true when this ki attack has the DBC/NPCDBC destroyer flag. */
   isDestroyerAttack(): boolean;
+
+  /**
+   * Changes this destroyer attack's purple accent using a 0xRRGGBB color.
+   * Returns false for non-ki, non-destroyer attacks, or values outside 0x000000 through 0xFFFFFF.
+   */
+  setDestroyerColor(rgb: number): boolean;
+
+  /** Returns the custom destroyer accent as 0xRRGGBB, or -1 when DBC's default is active. */
+  getDestroyerColor(): number;
+
+  /** Restores DBC's normal destroyer colors. Returns false unless this is a destroyer ki attack. */
+  clearDestroyerColor(): boolean;
 
   /** Returns the Minecraft entity id for this ki attack, or -1. */
   getKiId(): number;

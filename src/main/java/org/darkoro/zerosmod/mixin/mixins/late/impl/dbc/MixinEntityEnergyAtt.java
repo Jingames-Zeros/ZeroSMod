@@ -4,6 +4,7 @@ import JinRyuu.JRMCore.JRMCoreH;
 import JinRyuu.JRMCore.entity.EntityEnAttacks;
 import JinRyuu.JRMCore.entity.EntityEnergyAtt;
 import cpw.mods.fml.common.registry.IThrowableEntity;
+import io.netty.buffer.ByteBuf;
 import java.util.Collections;
 import java.util.List;
 import net.minecraft.entity.Entity;
@@ -12,6 +13,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 import org.darkoro.zerosmod.config.KiAttackConfig;
+import org.darkoro.zerosmod.ki.DestroyerKiColor;
 import org.darkoro.zerosmod.ki.KiAttackSafety;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -23,7 +25,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = EntityEnergyAtt.class, remap = false)
-public abstract class MixinEntityEnergyAtt extends EntityEnAttacks implements IThrowableEntity, KiAttackSafety.KiAttackInternals {
+public abstract class MixinEntityEnergyAtt extends EntityEnAttacks
+    implements IThrowableEntity, KiAttackSafety.KiAttackInternals, DestroyerKiColor.Holder {
 
   @Shadow private byte type;
   @Shadow private byte speed;
@@ -44,6 +47,8 @@ public abstract class MixinEntityEnergyAtt extends EntityEnAttacks implements IT
   @Shadow private int color2;
   @Shadow private Entity target;
   @Shadow public boolean shooterHolds;
+
+  @Unique private int zerosmod$destroyerColor = DestroyerKiColor.DEFAULT;
 
   public MixinEntityEnergyAtt(World world) {
     super(world);
@@ -110,6 +115,16 @@ public abstract class MixinEntityEnergyAtt extends EntityEnAttacks implements IT
       remap = true)
   private Entity zerosmod$fixMissingSpawnTarget(World world, int entityId) {
     return entityId == 0 ? null : world.getEntityByID(entityId);
+  }
+
+  @Inject(method = "writeSpawnData", at = @At("TAIL"), remap = false)
+  private void zerosmod$writeDestroyerColor(ByteBuf buffer, CallbackInfo ci) {
+    buffer.writeInt(this.zerosmod$destroyerColor);
+  }
+
+  @Inject(method = "readSpawnData", at = @At("TAIL"), remap = false)
+  private void zerosmod$readDestroyerColor(ByteBuf buffer, CallbackInfo ci) {
+    this.zerosmod$destroyerColor = buffer.readInt();
   }
 
   @Inject(method = "setDead", at = @At("HEAD"), remap = true)
@@ -213,6 +228,14 @@ public abstract class MixinEntityEnergyAtt extends EntityEnAttacks implements IT
 
   @Unique @Override public void zerosmod$setColor2(int color2) {
     this.color2 = color2;
+  }
+
+  @Unique @Override public int zerosmod$getDestroyerColor() {
+    return this.zerosmod$destroyerColor;
+  }
+
+  @Unique @Override public void zerosmod$setDestroyerColor(int rgb) {
+    this.zerosmod$destroyerColor = rgb;
   }
 
   @Unique @Override public Entity zerosmod$getOwner() {

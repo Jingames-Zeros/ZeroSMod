@@ -25,6 +25,7 @@ import org.darkoro.zerosmod.network.RaceStatResponse;
 import org.darkoro.zerosmod.input.KeyInputHandler;
 import org.darkoro.zerosmod.input.KeybindHandler;
 import net.minecraftforge.common.MinecraftForge;
+import org.darkoro.zerosmod.ki.DestroyerKiColor;
 import org.darkoro.zerosmod.ki.KiAttackSafety;
 import org.darkoro.zerosmod.network.SyncKiAttackStatePacket;
 import org.darkoro.zerosmod.rebirth.gui.RebirthMenuClient;
@@ -99,6 +100,23 @@ public class ClientProxy extends CommonProxy {
       KiAttackSafety.KiAttackInternals internals = (KiAttackSafety.KiAttackInternals)entity;
       internals.zerosmod$setColor(color);
       internals.zerosmod$setColor2(color2);
+    }
+  }
+
+  @Override
+  public void applyKiAttackDestroyerColorSync(int entityId, int rgb) {
+    World world = Minecraft.getMinecraft().theWorld;
+    if (world == null) {
+      return;
+    }
+
+    Entity entity = world.getEntityByID(entityId);
+    if (entity instanceof EntityEnergyAtt) {
+      if (rgb == DestroyerKiColor.DEFAULT) {
+        DestroyerKiColor.clear(entity);
+      } else {
+        DestroyerKiColor.set(entity, rgb);
+      }
     }
   }
 

@@ -19,6 +19,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.scripted.NpcAPI;
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.network.SyncKiAttackColorPacket;
+import org.darkoro.zerosmod.network.SyncKiAttackDestroyerColorPacket;
 import org.darkoro.zerosmod.network.SyncKiAttackStatePacket;
 
 public final class KiScriptHelper {
@@ -64,6 +65,30 @@ public final class KiScriptHelper {
     } catch (Throwable ignored) {
       return false;
     }
+  }
+
+  public static boolean setDestroyerColor(Object value, int rgb) {
+    EntityEnergyAtt attack = asKiAttack(value);
+    if (attack == null || !isDestroyerAttack(attack) || !DestroyerKiColor.set(attack, rgb)) {
+      return false;
+    }
+
+    syncDestroyerColor(attack, rgb);
+    return true;
+  }
+
+  public static int getDestroyerColor(Object value) {
+    return DestroyerKiColor.get(asKiAttack(value));
+  }
+
+  public static boolean clearDestroyerColor(Object value) {
+    EntityEnergyAtt attack = asKiAttack(value);
+    if (attack == null || !isDestroyerAttack(attack) || !DestroyerKiColor.clear(attack)) {
+      return false;
+    }
+
+    syncDestroyerColor(attack, DestroyerKiColor.DEFAULT);
+    return true;
   }
 
   public static int getKiId(Object value) {
@@ -429,6 +454,16 @@ public final class KiScriptHelper {
 
     ZeroSMod.network.sendToAllAround(
         new SyncKiAttackColorPacket(attack.getEntityId(), color, color2),
+        new NetworkRegistry.TargetPoint(attack.dimension, attack.posX, attack.posY, attack.posZ, 96.0D));
+  }
+
+  private static void syncDestroyerColor(EntityEnergyAtt attack, int rgb) {
+    if (attack == null || attack.worldObj == null || attack.worldObj.isRemote || ZeroSMod.network == null) {
+      return;
+    }
+
+    ZeroSMod.network.sendToAllAround(
+        new SyncKiAttackDestroyerColorPacket(attack.getEntityId(), rgb),
         new NetworkRegistry.TargetPoint(attack.dimension, attack.posX, attack.posY, attack.posZ, 96.0D));
   }
 

@@ -93,6 +93,8 @@ public class CommonProxy {
 
   public void applyKiAttackColorSync(int entityId, int color, int color2) {}
 
+  public void applyKiAttackDestroyerColorSync(int entityId, int rgb) {}
+
   public void applyKiAttackStateSync(SyncKiAttackStatePacket packet) {}
 
   public void receiveRaceStats(RaceStatResponse packet) {}

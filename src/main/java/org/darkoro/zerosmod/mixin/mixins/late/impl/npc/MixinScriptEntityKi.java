@@ -29,6 +29,18 @@ public abstract class MixinScriptEntityKi<T extends Entity> implements ScriptKiA
     return KiScriptHelper.isDestroyerAttack(this.entity);
   }
 
+  public boolean setDestroyerColor(int rgb) {
+    return KiScriptHelper.setDestroyerColor(this.entity, rgb);
+  }
+
+  public int getDestroyerColor() {
+    return KiScriptHelper.getDestroyerColor(this.entity);
+  }
+
+  public boolean clearDestroyerColor() {
+    return KiScriptHelper.clearDestroyerColor(this.entity);
+  }
+
   public int getKiId() {
     return KiScriptHelper.getKiId(this.entity);
   }

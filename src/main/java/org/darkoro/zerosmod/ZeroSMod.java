@@ -29,6 +29,8 @@ import org.darkoro.zerosmod.network.SyncGuiTitlePacket;
 import org.darkoro.zerosmod.network.SyncGuiTitlePacketHandler;
 import org.darkoro.zerosmod.network.SyncKiAttackColorPacket;
 import org.darkoro.zerosmod.network.SyncKiAttackColorPacketHandler;
+import org.darkoro.zerosmod.network.SyncKiAttackDestroyerColorPacket;
+import org.darkoro.zerosmod.network.SyncKiAttackDestroyerColorPacketHandler;
 import org.darkoro.zerosmod.network.SyncKiAttackStatePacket;
 import org.darkoro.zerosmod.network.SyncKiAttackStatePacketHandler;
 import org.darkoro.zerosmod.network.RequestZSTabDataPacket;
@@ -85,6 +87,7 @@ public class ZeroSMod {
 		network.registerMessage(SyncKiAttackStatePacketHandler.class, SyncKiAttackStatePacket.class, 8, Side.CLIENT);
 		network.registerMessage(RaceStatRequest.Handler.class, RaceStatRequest.class, 11, Side.SERVER);
 		network.registerMessage(RaceStatResponse.Handler.class, RaceStatResponse.class, 12, Side.CLIENT);
+		network.registerMessage(SyncKiAttackDestroyerColorPacketHandler.class, SyncKiAttackDestroyerColorPacket.class, 13, Side.CLIENT);
 		proxy.preInit(event);
 	}
 
