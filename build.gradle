@@ -17,6 +17,16 @@ tasks.named('shadowJar') {
     from sourceSets.main.output
 }
 
+tasks.named('runClient') {
+    doFirst {
+        // Load UniMixins before CustomNPC+'s bundled Mixin classes in the dev client.
+        def mixinJar = configurations.java17Dependencies.files.find { it.name.startsWith('unimixins-') }
+        if (mixinJar != null) {
+            setClasspath(files(mixinJar) + classpath)
+        }
+    }
+}
+
 tasks.register('testRaceStatConfig', JavaExec) {
     dependsOn tasks.named('testClasses')
     classpath = sourceSets.test.runtimeClasspath

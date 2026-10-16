@@ -21,6 +21,20 @@ unsaved edits. Values must be finite numbers between -100000 and 100000.
 stats and is independent of `/zsmod reload`. The displayed Saiyan entry edits
 `half-saiyan/main.cfg`; full Saiyan is excluded.
 
+## Development client
+
+Run the **ZeroSMod Dev** configuration in IntelliJ, or start it from PowerShell:
+
+```powershell
+.\gradlew.bat runClient
+```
+
+This launches the deobfuscated Forge client with ZeroSMod and the development
+dependencies configured by the Gradle plugin, including DBC/JRMCore, JBRA,
+CustomNPC+, and the DBC Addon. The development game directory is `run/`.
+Gradle downloads and prepares the Minecraft/Forge runtime the first time it is
+launched.
+
 ## License
 
 Zero S Mod is source-available under the

@@ -20,6 +20,10 @@ public final class ZeroSLateMixins implements ILateMixinLoader {
       mixins.add("dbc.MixinEntityEnergyAtt");
       mixins.add("dbc.JRMCoreHMixins");
       if (FMLCommonHandler.instance().getSide().isClient()) {
+        mixins.add("dbc.client.JRMCoreHairEditorMixin");
+        mixins.add("dbc.client.JRMCoreHairEditorAccess");
+        mixins.add("dbc.client.JRMCoreHairPreviewStateMixin");
+        mixins.add("dbc.client.ModelBipedDBCHairHighlightMixin");
         mixins.add("dbc.client.MixinRenderEnergyAttackKi");
         mixins.add("dbc.client.DBCClientTickHandlerMixins");
         mixins.add("dbc.JRMCoreHCMixins");
