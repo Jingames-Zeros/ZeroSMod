@@ -3,6 +3,23 @@ plugins {
 }
 
 zeros {
+    apiDocs {
+        title = 'Zero S Script API'
+        sectionName = 'Zero S API'
+        // The CustomNPC+ API is documented inside our docs, so its types link within them
+        bundleCnpcApi = true
+        overview = file('src/docs/javadoc/overview.html')
+        // How scripts reach these types, for the "JS" call examples
+        scriptReceivers = [
+                'org.darkoro.zerosmod.api.ZSAPI'                                  : 'ZSAPI',
+                'org.darkoro.zerosmod.api.WeaponAPI'                              : 'WeaponAPI',
+                'org.darkoro.zerosmod.api.ScriptLivingKiMethods'                  : 'npc',
+                'org.darkoro.zerosmod.api.ScriptPlayerInstantTransmissionMethods' : 'player',
+                'org.darkoro.zerosmod.api.ScriptKiAttackEntityMethods'            : 'kiAttack',
+                'org.darkoro.zerosmod.api.ScriptZSWeapon'                         : 'weapon',
+                'org.darkoro.zerosmod.api.ScriptPlayerCombatState'                : 'state',
+        ]
+    }
     deps {
         // JRMCore/DBC, CustomNPC+ and the DBC Addon are on by default
         codeChicken = false
@@ -25,91 +42,4 @@ tasks.register('testRaceStatConfig', JavaExec) {
 
 tasks.named('check') {
     dependsOn tasks.named('testRaceStatConfig')
-}
-
-// The CustomNPC+ API (MIT licensed) is documented alongside ours, so its types link within our docs.
-// Its repository has no release tags, so it is pinned to a commit; change it to update.
-def cnpcApiCommit = '04fd348d1342f0c44bc6781550d264c313d6ca1a'
-def cnpcApiArchive = layout.buildDirectory.file("cnpc-api/${cnpcApiCommit}.tar.gz").get().asFile
-def cnpcApiDir = layout.buildDirectory.dir("cnpc-api/${cnpcApiCommit}").get().asFile
-
-def downloadCnpcApi = tasks.register('downloadCnpcApiSource') {
-    inputs.property('commit', cnpcApiCommit)
-    outputs.file(cnpcApiArchive)
-    doLast {
-        cnpcApiArchive.parentFile.mkdirs()
-        URI.create("https://codeload.github.com/KAMKEEL/CustomNPC-Plus-API/tar.gz/${cnpcApiCommit}").toURL().withInputStream { input ->
-            cnpcApiArchive.withOutputStream { it << input }
-        }
-    }
-}
-
-def extractCnpcApi = tasks.register('extractCnpcApiSource', Copy) {
-    dependsOn downloadCnpcApi
-    from tarTree(cnpcApiArchive)
-    into cnpcApiDir
-    // Drop the archive's top-level "<repo>-<commit>/" folder
-    eachFile { it.relativePath = new RelativePath(true, it.relativePath.segments.drop(1)) }
-    includeEmptyDirs = false
-}
-
-tasks.withType(Javadoc) {
-    source = sourceSets.main.allJava.matching {
-        include 'org/darkoro/zerosmod/api/**/*.java'
-    }
-    source(fileTree(dir: new File(cnpcApiDir, 'java'), include: 'noppes/npcs/api/**/*.java').builtBy(extractCnpcApi))
-
-    options.addStringOption('Xdoclint:none', '-quiet')
-    options.overview = file('src/docs/javadoc/overview.html')
-    options.windowTitle = 'Zero S Script API'
-    options.docTitle = 'Zero S Script API'
-    options.header = 'Zero S Script API'
-    options.bottom = 'Includes the <a href="https://github.com/KAMKEEL/CustomNPC-Plus-API">CustomNPC+ API</a> ' +
-            'documentation, Copyright (c) 2023 KAMKEEL, used under the MIT License.'
-
-    options.links = [
-            "https://skmedix.github.io/ForgeJavaDocs/javadoc/forge/1.7.10-10.13.4.1614/"
-    ]
-
-    options.memberLevel = JavadocMemberLevel.PUBLIC
-    options.showFromPublic()
-
-    options.encoding = 'UTF-8'
-    options.charSet = 'UTF-8'
-
-    failOnError = false
-
-    // Docs theme: Javadoc adds the stylesheet itself; the script and its class list are added below
-    def themeCss = file('src/docs/javadoc/theme.css')
-    def themeJs = file('src/docs/javadoc/theme.js')
-    inputs.files(themeCss, themeJs)
-    options.addStringOption('-add-stylesheet', themeCss.absolutePath)
-
-    doLast { Javadoc task ->
-        def out = task.destinationDir
-        // Explicit UTF-8: the default encoding is ASCII on some build machines, which breaks theme.js
-        new File(out, 'theme.js').write(themeJs.getText('UTF-8'), 'UTF-8')
-
-        // Class list for the sidebar, taken from the generated "All Classes" page
-        def entries = []
-        def index = new File(out, 'allclasses-index.html').getText('UTF-8')
-        (index =~ /<div class="col-first[^"]*"><a href="([^"]+)" title="([^"]+)">([^<]+)<\/a>/).each { match, href, title, name ->
-            def (kind, pkg) = title.split(' in ', 2) as List
-            if (kind == 'class' && name ==~ /.*(Exception|Error)$/) {
-                kind = 'exception'
-            }
-            entries << [u: href, n: name, k: kind, p: pkg]
-        }
-        new File(out, 'sidebar-data.js').write('window.zsSidebar = ' + groovy.json.JsonOutput.toJson(entries) + ';\n', 'UTF-8')
-
-        // Load both scripts on every page, right after Javadoc's own stylesheet
-        def stylesheetLink = ~/(<link rel="stylesheet" type="text\/css" href="([.\/]*)stylesheet\.css" title="Style">)/
-        fileTree(out).matching { include '**/*.html' }.each { page ->
-            def html = page.getText('UTF-8')
-            page.write(html.replaceFirst(stylesheetLink) { all, link, root ->
-                "${link}\n<script type=\"text/javascript\" src=\"${root}sidebar-data.js\"></script>" +
-                        "\n<script type=\"text/javascript\" src=\"${root}theme.js\"></script>"
-            }, 'UTF-8')
-        }
-    }
 }
