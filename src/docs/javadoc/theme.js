@@ -285,6 +285,7 @@
         "org.darkoro.zerosmod.api.ScriptPlayerTransformationMethods": "player",
         "org.darkoro.zerosmod.api.ScriptKiAttackEntityMethods": "kiAttack",
         "org.darkoro.zerosmod.api.ScriptDBCAddonHeatMethods": "dbcPlayer",
+        "org.darkoro.zerosmod.api.ScriptDBCPlayerMethods": "dbcPlayer",
         "org.darkoro.zerosmod.api.ScriptZSWeapon": "weapon",
         "org.darkoro.zerosmod.api.ScriptPlayerCombatState": "state",
         "noppes.npcs.api.AbstractNpcAPI": "API"

@@ -51,6 +51,7 @@ public final class ZeroSLateMixins implements ILateMixinLoader {
         if (loadedMods.contains("npcdbc")) {
           mixins.add("npc.MixinScriptDBCAddonAbsorption");
           mixins.add("npc.MixinScriptDBCAddonHeat");
+          mixins.add("npc.MixinScriptDBCPlayer");
           mixins.add("npc.MixinScriptPlayerTransformation");
           mixins.add("npc.MixinDBCDataStatsAbsorption");
         }

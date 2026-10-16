@@ -367,6 +367,38 @@ export interface PlayerCombatState<T> extends ScriptPlayerCombatState<T> {
 }
 
 /**
+ * Zero S DBC methods for the player wrapper returned by player.getDBCPlayer().
+ * @javaFqn noppes.npcs.api.entity.IDBCPlayer
+ */
+export interface IDBCPlayer {
+  /** Returns DBC's life state: true while alive and false while the player has a halo. This is separate from inherited isAlive(). */
+  isDBCAlive(): boolean;
+
+  /** Ends an active fusion for both online participants and applies DBC's configured fusion cooldown. */
+  defuse(): void;
+
+  /** Returns active fusion time left in seconds, excluding the post-fusion cooldown, or 0 when unfused. */
+  getFusionTimeLeft(): number;
+
+  /**
+   * Sets one DBC status effect without replacing other effects. Names are case-insensitive.
+   * Timed effects use seconds and round positive durations up to DBC's five-second interval;
+   * zero or less removes them. Timed names: Strain, GodPower, Fatigue, NoFuse, Pain, Heat, KO.
+   * NoFuse does nothing while fused. Heat is legacy DBC UI heat, not NPCDBC custom-form heat.
+   * Toggle names: Majin, Legendary, Divine, GodOfDestruction. Zero disables; any other value enables.
+   * Example: setDBCStatusEffect("Pain", 30) applies 30 seconds; setDBCStatusEffect("Majin", 1) enables Majin.
+   * Throws a script error for an unsupported name.
+   */
+  setDBCStatusEffect(effect: string, duration: number): void;
+
+  /**
+   * Returns remaining seconds for a timed DBC status effect, in multiples of five, or 1/0 for a toggle.
+   * Names are case-insensitive. Throws a script error for an unsupported name.
+   */
+  getDBCStatusEffect(effect: string): number;
+}
+
+/**
  * Custom-form heat methods for the DBC Addon player wrapper returned by player.getDBCPlayer().
  * These methods do not read or change vanilla DBC heat.
  * @javaFqn kamkeel.npcdbc.api.IDBCAddon
