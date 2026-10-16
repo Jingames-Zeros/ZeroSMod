@@ -1,5 +1,6 @@
 package org.darkoro.zerosmod.network;
 
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
@@ -11,6 +12,13 @@ public class NetworkHandler {
   public static void init() {
     INSTANCE.registerMessage(OpenSpcGuiPacketHandler.class, OpenSpcGuiPacket.class, 0, Side.SERVER);
     INSTANCE.registerMessage(ChargeKeyPacketHandler.class, ChargeKeyPacket.class, 1, Side.SERVER);
+    if (Loader.isModLoaded("npcdbc")) {
+      INSTANCE.registerMessage(
+          BeginCustomTransformationPacket.Handler.class,
+          BeginCustomTransformationPacket.class,
+          2,
+          Side.SERVER);
+    }
   }
 
 }

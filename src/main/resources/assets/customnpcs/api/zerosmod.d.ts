@@ -497,6 +497,12 @@ export interface IEntityLivingBase<T> {
  * @javaFqn noppes.npcs.api.entity.IPlayer
  */
 export interface IPlayer<T> {
+  /**
+   * Returns true while normal transform input is charging an NPCDBC custom form.
+   * Returns false after charging stops or completes. Programmatic form changes do not count.
+   */
+  isTransforming(): boolean;
+
   /** Returns the current short-range Instant Transmission target name only while the player is preparing IT. */
   getInstantTransmissionLookTargetName(): string;
 }
@@ -506,6 +512,23 @@ export interface IPlayer<T> {
  * @javaFqn org.darkoro.zerosmod.api.event.IZeroSEvent
  */
 export namespace IZeroSEvent {
+  /**
+   * Fired once when a player begins charging an NPCDBC custom-form transformation.
+   * It runs before the form changes and still fires if charging is later abandoned.
+   * Releasing and starting again fires a new event. Vanilla and programmatic changes do not fire it.
+   * @hookName beginsTransforming
+   */
+  interface BeginsTransformingEvent extends IPlayerEvent {
+    /** Returns the custom form the player is attempting to transform into. Never null. */
+    getTargetForm(): IForm;
+
+    /** Returns the numeric ID of the target custom form. */
+    getTargetFormId(): number;
+
+    /** Returns the internal name of the target custom form. */
+    getTargetFormName(): string;
+  }
+
   /**
    * Fired in player scripts when DBC successfully activates short-range Instant Transmission.
    * @hookName activatedInstantTransmission

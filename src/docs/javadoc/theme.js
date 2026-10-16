@@ -282,6 +282,7 @@
         "org.darkoro.zerosmod.api.WeaponAPI": "WeaponAPI",
         "org.darkoro.zerosmod.api.ScriptLivingKiMethods": "npc",
         "org.darkoro.zerosmod.api.ScriptPlayerInstantTransmissionMethods": "player",
+        "org.darkoro.zerosmod.api.ScriptPlayerTransformationMethods": "player",
         "org.darkoro.zerosmod.api.ScriptKiAttackEntityMethods": "kiAttack",
         "org.darkoro.zerosmod.api.ScriptDBCAddonHeatMethods": "dbcPlayer",
         "org.darkoro.zerosmod.api.ScriptZSWeapon": "weapon",

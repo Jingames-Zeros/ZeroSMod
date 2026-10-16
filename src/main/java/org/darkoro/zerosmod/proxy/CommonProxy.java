@@ -1,6 +1,7 @@
 package org.darkoro.zerosmod.proxy;
 
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
@@ -23,6 +24,7 @@ import org.darkoro.zerosmod.config.ServerWeaponConfig;
 import org.darkoro.zerosmod.event.KiAttackGuard;
 import org.darkoro.zerosmod.event.SaiyanMasteryMergeEvent;
 import org.darkoro.zerosmod.it.InstantTransmissionEventHooks;
+import org.darkoro.zerosmod.transformation.CustomFormTransformationEventHooks;
 import org.darkoro.zerosmod.network.NetworkHandler;
 import org.darkoro.zerosmod.network.SyncKiAttackStatePacket;
 import org.darkoro.zerosmod.network.RaceStatResponse;
@@ -59,6 +61,9 @@ public class CommonProxy {
     SaiyanMasteryMergeEvent saiyanMasteryMergeEvent = new SaiyanMasteryMergeEvent();
     FMLCommonHandler.instance().bus().register(saiyanMasteryMergeEvent);
     FMLCommonHandler.instance().bus().register(KiAttackGuard.INSTANCE);
+    if (Loader.isModLoaded("npcdbc")) {
+      FMLCommonHandler.instance().bus().register(CustomFormTransformationEventHooks.INSTANCE);
+    }
     NpcAPI.EVENT_BUS.register(saiyanMasteryMergeEvent);
     NpcAPI.Instance().addGlobalObject("ZSAPI", AbstractZeroSAPI.Instance());
     NpcAPI.Instance().addGlobalObject("WeaponAPI", WeaponAPI.INSTANCE);
@@ -109,6 +114,15 @@ public class CommonProxy {
             .paramNames("event")
             .requiredImports("org.darkoro.zerosmod.api.event.IZeroSEvent")
             .build());
+    if (Loader.isModLoaded("npcdbc")) {
+      ScriptHookController.Instance.registerHook(
+          ScriptContext.PLAYER,
+          HookDefinition.builder(CustomFormTransformationEventHooks.BEGINS_TRANSFORMING_HOOK)
+              .eventClass(IZeroSEvent.BeginsTransformingEvent.class)
+              .paramNames("event")
+              .requiredImports("org.darkoro.zerosmod.api.event.IZeroSEvent")
+              .build());
+    }
     APIRegistry.Instance.register("Zero S API", "https://jingames-zeros.github.io/ZeroSMod/");
     this.scriptHooksRegistered = true;
 
