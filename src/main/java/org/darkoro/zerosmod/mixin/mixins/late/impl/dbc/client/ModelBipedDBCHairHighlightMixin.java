@@ -4,6 +4,8 @@ import JinRyuu.JBRA.ModelRendererJBRA;
 import JinRyuu.JBRA.ModelBipedDBC;
 import com.llamalad7.mixinextras.sugar.Local;
 import org.darkoro.zerosmod.dbchair.gui.HairEditorScreen;
+import org.darkoro.zerosmod.dbchair.gui.HairStrandColors;
+import net.minecraft.client.entity.AbstractClientPlayer;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,7 +17,9 @@ public abstract class ModelBipedDBCHairHighlightMixin {
       at = @At(value = "INVOKE", target = "LJinRyuu/JBRA/ModelRendererJBRA;render(F)V", remap = false),
       remap = false)
   private void zerosmod$highlightSelectedHairSegment(ModelRendererJBRA renderer, float scale,
-      @Local(index = 31) int segmentIndex) {
+      @Local(index = 31) int segmentIndex,
+      @Local(argsOnly = true) String hairCode,
+      @Local(argsOnly = true) AbstractClientPlayer player) {
     HairEditorScreen.zerosmod$recordPreviewHairHit(segmentIndex, renderer, scale);
     if (HairEditorScreen.zerosmod$isPreviewDrawActive()
         && segmentIndex == HairEditorScreen.zerosmod$getPreviewSelectedSegment()) {
@@ -26,8 +30,14 @@ public abstract class ModelBipedDBCHairHighlightMixin {
       } finally {
         GL11.glPopAttrib();
       }
-    } else {
+      return;
+    }
+    GL11.glPushAttrib(GL11.GL_CURRENT_BIT);
+    try {
+      HairStrandColors.applyRenderColor(hairCode, segmentIndex, player);
       renderer.render(scale);
+    } finally {
+      GL11.glPopAttrib();
     }
   }
 }

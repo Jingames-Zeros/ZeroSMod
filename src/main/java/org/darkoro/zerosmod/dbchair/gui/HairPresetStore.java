@@ -124,10 +124,19 @@ final class HairPresetStore {
     return preset == null ? null : preset.name;
   }
 
+  static String codeAt(int index) {
+    int customIndex = index - JRMCoreH.defHairPrsts.length;
+    Preset preset = customAt(customIndex);
+    if (preset != null) return preset.code;
+    List<?> list = JRMCoreGuiScreen.PresetList;
+    return list != null && index >= 0 && index < list.size() && list.get(index) instanceof String
+        ? normalizeLegacy((String) list.get(index)) : null;
+  }
+
   static void refreshGlobalList(int selected) {
     ArrayList<String> list = new ArrayList<String>();
     for (String preset : JRMCoreH.defHairPrsts) list.add(preset);
-    for (Preset preset : CUSTOM) list.add(preset.code);
+    for (Preset preset : CUSTOM) list.add(HairStrandColors.geometry(preset.code));
     JRMCoreGuiScreen.PresetList = list;
     JRMCoreGuiScreen.HairPrstsSlcted = Math.max(0, Math.min(selected, list.size() - 1));
   }
@@ -160,11 +169,7 @@ final class HairPresetStore {
     }
   }
 
-  private static boolean validCode(String code) {
-    if (code == null || code.length() != 786) return false;
-    for (int i = 0; i < code.length(); i++) if (code.charAt(i) < '0' || code.charAt(i) > '9') return false;
-    return true;
-  }
+  private static boolean validCode(String code) { return HairStrandColors.isValid(code); }
 
   private static String normalizeLegacy(String code) {
     if (code == null || (code.length() != 392 && code.length() != 784 && code.length() != 786)) return null;

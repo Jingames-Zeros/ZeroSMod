@@ -46,7 +46,7 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
   private static final int BACK = 100, REVERT = 101, COPY = 103, IMPORT = 104,
       UNDO = 105, REDO = 106, ZOOM_RESET = 108,
       PAGE_BASE = 110, SEGMENT_BASE = 120, SALON = 136, MODE_MANUAL = 137, MODE_SLIDERS = 138,
-      RESET_SEGMENT = 139, CYCLE_FORM = 140, PRESETS = 141;
+      RESET_SEGMENT = 139, CYCLE_FORM = 140, PRESETS = 141, STRAND_COLOR = 142;
   private static final String SALON_URL = "https://hairsalon.jingames.net/";
   private static final int PREVIEW_X = 16, PREVIEW_Y = 94, PREVIEW_W = 272, PREVIEW_H = 240;
   private static final int SEGMENTS_X = 304, SEGMENTS_Y = 91;
@@ -118,7 +118,8 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
     add(MODE_SLIDERS, 458, 94, 78, 18, "SLIDERS", slidersMode ? PINK : MUTED);
     add(MODE_MANUAL, 540, 94, 78, 18, "MANUAL", slidersMode ? MUTED : PINK);
     add(PRESETS, 622, 94, 154, 18, "PRESETS  >", GREEN);
-    if (getCode().length() == 786) add(RESET_SEGMENT, 640, 343, 124, 18, "RESET SEGMENT", PINK);
+    if (HairStrandColors.geometry(getCode()).length() == 786) add(RESET_SEGMENT, 640, 343, 124, 18, "RESET SEGMENT", PINK);
+    add(STRAND_COLOR, 458, 343, 164, 18, strandColorLabel(), GREEN);
     ensurePreviewForm(previewEntity());
     add(CYCLE_FORM, PREVIEW_X, 343, PREVIEW_W, 18, "Form: " + previewFormName() + "  >", MUTED);
     String[] labels = {"Apply", "Revert", "Copy code", "Import code", "Undo", "Redo", "Hair Salon"};
@@ -148,12 +149,15 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
   private static String normalize(String code) {
     if (code == null) return "";
     code = code.trim();
-    if (code.length() != 392 && code.length() != 784 && code.length() != 786) return "";
-    for (int i = 0; i < code.length(); i++) {
-      if (code.charAt(i) < '0' || code.charAt(i) > '9') return "";
+    if (HairStrandColors.hasOverrides(code)) return code;
+    String geometry = HairStrandColors.geometry(code);
+    if (geometry.length() != 392 && geometry.length() != 784 && geometry.length() != 786) return "";
+    for (int i = 0; i < geometry.length(); i++) {
+      if (geometry.charAt(i) < '0' || geometry.charAt(i) > '9') return "";
     }
-    if (code.length() == 392 || code.length() == 784) code = JRMCoreH.dnsHairG1toG2(code);
-    return code.length() == 786 ? code : "";
+    if (geometry.length() == 392 || geometry.length() == 784) geometry = JRMCoreH.dnsHairG1toG2(geometry);
+    if (geometry.length() != 786 || code.indexOf("~ZS1:") >= 0) return "";
+    return geometry;
   }
 
   private String getCode() {
@@ -164,14 +168,15 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
   public String currentHairCode() { return getCode(); }
 
   private void setCode(String code, boolean remember) {
-    if (code == null || code.length() != 786) return;
+    code = normalize(code);
+    if (code.isEmpty()) return;
     String before = getCode();
     if (before.equals(code)) {
       syncLive(code);
       refreshValues();
       return;
     }
-    if (remember && before.length() == 786) {
+    if (remember && HairStrandColors.geometry(before).length() == 786) {
       undo.push(before);
       while (undo.size() > 50) undo.removeLast();
       redo.clear();
@@ -193,29 +198,31 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
 
   private void refreshValues() {
     String code = getCode();
-    if (code.length() != 786 || values[0] == null) return;
+    String geometry = HairStrandColors.geometry(code);
+    if (geometry.length() != 786 || values[0] == null) return;
     for (int i = 0; i < values.length; i++) {
-      values[i].setText(Integer.toString(JRMCoreH.dnsHair2(code, selected * 14 + i * 2)));
+      values[i].setText(Integer.toString(JRMCoreH.dnsHair2(geometry, selected * 14 + i * 2)));
     }
   }
 
   private void commitFields() {
     String code = getCode();
-    if (code.length() != 786) return;
-    String next = code;
+    String geometry = HairStrandColors.geometry(code);
+    if (geometry.length() != 786) return;
     try {
       for (int i = 0; i < values.length; i++) {
         int value = Integer.parseInt(values[i].getText());
         value = i == 0 ? clamp(value, 0, 99) : clamp(value, 18, 82);
         values[i].setText(Integer.toString(value));
         String digits = value < 10 ? "0" + value : Integer.toString(value);
-        next = JRMCoreH.dnsHair2set(next, selected * 14 + i * 2, digits);
+        geometry = JRMCoreH.dnsHair2set(geometry, selected * 14 + i * 2, digits);
       }
     } catch (NumberFormatException invalid) {
       status = "Enter whole numbers. Rotations and bend controls use 18–82; length uses 0–99.";
       error = true;
       return;
     }
+    String next = geometry + (HairStrandColors.hasOverrides(code) ? code.substring(786) : "");
     if (!next.equals(code)) setCode(next, true);
     status = "Segment " + selected + " updated. Changes preview live on your character.";
     error = false;
@@ -241,12 +248,12 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
       error = false;
     } else if (button.id == COPY) {
       GuiScreen.setClipboardString(getCode());
-      status = "Copied the original DBC hair code format to the clipboard.";
+      status = "Copied the DBC hair code, including any strand colors, to the clipboard.";
       error = false;
     } else if (button.id == IMPORT) {
       String imported = normalize(GuiScreen.getClipboardString());
       if (imported.isEmpty()) {
-        status = "Clipboard does not contain a DBC hair code (392, 784, or 786 digits).";
+        status = "Clipboard needs a DBC hair code (392, 784, or 786 digits), optionally with a ZS1 color trailer.";
         error = true;
       } else {
         setCode(imported, true);
@@ -283,6 +290,9 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
       commitFields();
       HairPresetStore.ensureLoaded(mc.mcDataDir, getCode());
       mc.displayGuiScreen(new HairPresetScreen(this));
+    } else if (button.id == STRAND_COLOR) {
+      commitFields();
+      mc.displayGuiScreen(new HairStrandColorScreen(this));
     } else if (button.id == SALON) {
       mc.displayGuiScreen(new GuiConfirmOpenLink(this, SALON_URL, SALON, true));
     }
@@ -294,7 +304,7 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
   }
 
   private void applyToCharacter() {
-    if (error || getCode().length() != 786) return;
+    if (error || HairStrandColors.geometry(getCode()).length() != 786) return;
     JRMCoreHairEditorAccess.zerosmod$setHairCode(getCode());
     Entity target = ItemBarberSnC.barberTarget;
     if (!(JRMCoreH.JFC() && target != null && JRMCoreHJFC.isChildNPC(target))) {
@@ -325,10 +335,16 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
 
   private void resetSelectedSegment() {
     String current = getCode();
-    if (current.length() != 786 || originalCode.length() != 786) return;
+    String currentGeometry = HairStrandColors.geometry(current);
+    String originalGeometry = HairStrandColors.geometry(originalCode);
+    if (currentGeometry.length() != 786 || originalGeometry.length() != 786) return;
     int start = selected * 14;
-    String reset = current.substring(0, start) + originalCode.substring(start, start + 14)
-        + current.substring(start + 14);
+    String reset = currentGeometry.substring(0, start) + originalGeometry.substring(start, start + 14)
+        + currentGeometry.substring(start + 14)
+        + (HairStrandColors.hasOverrides(current) ? current.substring(786) : "");
+    String originalColor = HairStrandColors.colorSlot(originalCode, selected);
+    reset = originalColor == null ? HairStrandColors.withoutColor(reset, selected)
+        : HairStrandColors.withColor(reset, selected, Integer.parseInt(originalColor, 16));
     if (reset.equals(current)) {
       status = "Segment " + selected + " already matches its opening value.";
     } else {
@@ -352,14 +368,15 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
     if (index < 0 || index >= presetCount()) return "No preset selected";
     String code = (String) JRMCoreGuiScreen.PresetList.get(index);
     String name = HairPresetStore.nameAt(index);
-    return (name == null ? "Preset " + (index + 1) : name) + "  ·  G" + JRMCoreH.dnsHairG(code);
+    return (name == null ? "Preset " + (index + 1) : name) + "  ·  G" + JRMCoreH.dnsHairG(HairStrandColors.geometry(code));
   }
 
   public void loadPreset(int index) {
     if (index < 0 || index >= presetCount()) return;
     JRMCoreGuiScreen.HairPrstsSlcted = index;
     JRMCoreGuiScreen.HairCstmResetPreset();
-    String preset = normalize(JRMCoreHairEditorAccess.zerosmod$getHairCode());
+    String preset = normalize(HairPresetStore.codeAt(index));
+    if (preset.isEmpty()) preset = normalize(JRMCoreHairEditorAccess.zerosmod$getHairCode());
     if (preset.isEmpty()) {
       status = "The selected DBC preset is not a supported hair code.";
       error = true;
@@ -384,7 +401,7 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
       error = true;
       return false;
     }
-    String preset = normalize((String) JRMCoreGuiScreen.PresetList.get(JRMCoreGuiScreen.HairPrstsSlcted));
+    String preset = normalize(HairPresetStore.codeAt(JRMCoreGuiScreen.HairPrstsSlcted));
     if (!preset.isEmpty()) setCode(preset, true);
     syncLive(preset);
     status = "Deleted the selected custom preset.";
@@ -394,7 +411,7 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
 
   public boolean saveNamedPreset(String name) {
     String cleanName = name == null ? "" : name.trim();
-    if (cleanName.isEmpty() || getCode().length() != 786) return false;
+    if (cleanName.isEmpty() || HairStrandColors.geometry(getCode()).length() != 786) return false;
     if (HairPresetStore.add(cleanName, getCode(), mc.mcDataDir) < 0) {
       status = "Could not write the preset to this client's game folder.";
       error = true;
@@ -821,9 +838,46 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
     int value = min + clamp(mouseX - tx, 0, 82) * (max - min) / 82;
     value = clamp(value, min, max);
     String code = getCode();
+    String geometry = HairStrandColors.geometry(code);
     String digits = value < 10 ? "0" + value : Integer.toString(value);
-    setCode(JRMCoreH.dnsHair2set(code, selected * 14 + index * 2, digits), false);
+    String updated = JRMCoreH.dnsHair2set(geometry, selected * 14 + index * 2, digits);
+    setCode(updated + (HairStrandColors.hasOverrides(code) ? code.substring(786) : ""), false);
   }
+
+  private String strandColorLabel() {
+    String color = HairStrandColors.colorSlot(getCode(), selected);
+    return color == null ? "STRAND COLOR: INHERIT" : "COLOR: #" + color;
+  }
+
+  public int selectedStrand() { return selected; }
+  public String selectedStrandColor() { return HairStrandColors.colorSlot(getCode(), selected); }
+  public boolean setSelectedStrandColor(String hex) {
+    String code = getCode();
+    if (hex == null) {
+      setCode(HairStrandColors.withoutColor(code, selected), true);
+      status = "Strand " + (selected + 1) + " now uses the character's hair color.";
+    } else {
+      try {
+        if (hex.length() != 6) throw new NumberFormatException("RGB hex must be six digits");
+        for (int i = 0; i < hex.length(); i++) {
+          char c = hex.charAt(i);
+          if (!(c >= '0' && c <= '9' || c >= 'A' && c <= 'F' || c >= 'a' && c <= 'f'))
+            throw new NumberFormatException("Invalid RGB hex digit");
+        }
+        int rgb = Integer.parseInt(hex, 16);
+        setCode(HairStrandColors.withColor(code, selected, rgb), true);
+        status = "Applied a custom color to strand " + (selected + 1) + ".";
+      } catch (NumberFormatException invalid) {
+        status = "Enter a six digit RGB hex color such as FF8040.";
+        error = true;
+        return false;
+      }
+    }
+    error = false;
+    return true;
+  }
+
+  public void returnFromColorPicker() { mc.displayGuiScreen(this); }
 
   private int parseValue(int index) {
     try { return clamp(Integer.parseInt(values[index].getText()), minValue(index), maxValue(index)); }
