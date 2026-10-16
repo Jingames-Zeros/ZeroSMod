@@ -48,7 +48,7 @@ public class ZeroSMod {
 
 	public static final String MODID = "zerosmod";
 	// Bump VERSION only when clients must update. Forge uses this for the client/server mod handshake.
-	public static final String VERSION = "2.2.0-beta4";
+	public static final String VERSION = "2.2.1-beta1";
 	public static final String ACCEPTABLE_REMOTE_VERSIONS = "[" + VERSION + "]";
 	// modVersion from gradle.properties, injected at build time. Bump it there for server-only
 	// emergency builds that should still allow clients on VERSION.

@@ -47,6 +47,10 @@ public final class ZeroSLateMixins implements ILateMixinLoader {
             mixins.add("npc.client.SubGuiFormHairTrailerMixin");
           }
         }
+        if (loadedMods.contains("npcdbc")) {
+          mixins.add("npc.MixinScriptDBCAddonAbsorption");
+          mixins.add("npc.MixinDBCDataStatsAbsorption");
+        }
       }
     }
     return mixins;
