@@ -367,6 +367,36 @@ export interface PlayerCombatState<T> extends ScriptPlayerCombatState<T> {
 }
 
 /**
+ * Custom-form heat methods for the DBC Addon player wrapper returned by player.getDBCPlayer().
+ * These methods do not read or change vanilla DBC heat.
+ * @javaFqn kamkeel.npcdbc.api.IDBCAddon
+ */
+export interface IDBCAddon {
+  /** Returns stored custom-form heat as a raw amount, including heat that is cooling down after leaving a form. */
+  getCurrentHeat(): number;
+
+  /** Returns the active custom form's maximum heat, or 0 when no heat-enabled custom form is active. */
+  getMaxHeat(): number;
+
+  /**
+   * Sets raw custom-form heat, clamped from 0 to getMaxHeat().
+   * If the maximum is 200, setCurrentHeat(50) fills one quarter of the bar.
+   * Does nothing when no heat-enabled custom form is active or amount is not finite.
+   */
+  setCurrentHeat(amount: number): void;
+
+  /**
+   * Sets custom-form heat to a percentage of getMaxHeat(), clamped from 0 to 100.
+   * If the maximum is 200, setHeatPercentage(50) sets the heat to 100.
+   * Does nothing when no heat-enabled custom form is active or percent is not finite.
+   */
+  setHeatPercentage(percent: number): void;
+
+  /** Sets stored custom-form heat to 0, including heat that is cooling down outside a form. */
+  clearHeat(): void;
+}
+
+/**
  * Zero S Mod patch for all CNPC entity wrappers.
  * @javaFqn noppes.npcs.api.entity.IEntity
  */
