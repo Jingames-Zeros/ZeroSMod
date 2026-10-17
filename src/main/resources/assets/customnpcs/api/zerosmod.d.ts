@@ -358,6 +358,13 @@ export interface IDBCAddon {
   /** Returns stored custom-form heat as a raw amount, including heat that is cooling down after leaving a form. */
   getCurrentHeat(): number;
 
+  /**
+   * Returns current heat as a percentage from 0 to 100 of the active custom form's maximum.
+   * Stored heat above that maximum returns 100. Returns 0 without a heat-enabled custom form,
+   * including while stored heat is cooling down after leaving a form.
+   */
+  getCurrentHeatPercent(): number;
+
   /** Returns the active custom form's maximum heat, or 0 when no heat-enabled custom form is active. */
   getMaxHeat(): number;
 
@@ -614,6 +621,7 @@ export interface ScriptDBCPlayer extends IDBCPlayer {
  */
 export interface ScriptDBCAddon extends IDBCAddon {
   getCurrentHeat(): number;
+  getCurrentHeatPercent(): number;
   getMaxHeat(): number;
   setCurrentHeat(amount: number): void;
   setHeatPercentage(percent: number): void;

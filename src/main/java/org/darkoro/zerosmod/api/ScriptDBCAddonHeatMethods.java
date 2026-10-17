@@ -16,6 +16,15 @@ public interface ScriptDBCAddonHeatMethods {
   float getCurrentHeat();
 
   /**
+   * Gets the player's current custom-form heat as a percentage of {@link #getMaxHeat()}.
+   * The result is clamped from 0 to 100, even if stored heat exceeds the current form's limit.
+   * For example, 50 heat in a form with a maximum of 200 returns 25.
+   *
+   * @return current heat percentage, or 0 when no heat-enabled custom form is active
+   */
+  float getCurrentHeatPercent();
+
+  /**
    * Gets the heat limit configured by the player's active custom form.
    *
    * @return current form's maximum heat, or 0 when no heat-enabled custom form is active

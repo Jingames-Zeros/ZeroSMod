@@ -17,6 +17,20 @@ public abstract class MixinScriptDBCAddonHeat implements ScriptDBCAddonHeatMetho
     return dbcData == null ? 0.0F : Math.max(0.0F, dbcData.addonCurrentHeat);
   }
 
+  @Override public float getCurrentHeatPercent() {
+    int maxHeat = getMaxHeat();
+    if (maxHeat <= 0) {
+      return 0.0F;
+    }
+
+    float currentHeat = getCurrentHeat();
+    if (!isFinite(currentHeat)) {
+      return 0.0F;
+    }
+
+    return Math.min(100.0F, Math.max(0.0F, currentHeat / maxHeat * 100.0F));
+  }
+
   @Override public int getMaxHeat() {
     if (dbcData == null) {
       return 0;
