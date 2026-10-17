@@ -31,6 +31,7 @@ import org.darkoro.zerosmod.network.SyncKiAttackStatePacket;
 import org.darkoro.zerosmod.rebirth.gui.RebirthMenuClient;
 import org.darkoro.zerosmod.rebirth.network.RebirthNetwork;
 import org.darkoro.zerosmod.rebirth.network.RebirthSnapshot;
+import org.darkoro.zerosmod.screen.PlayerScreenReporter;
 import org.darkoro.zerosmod.world.WorldProviderPhylactery;
 import org.darkoro.zerosmod.zsweapons.client.ClientWeaponHandler;
 
@@ -52,6 +53,7 @@ public class ClientProxy extends CommonProxy {
     KeybindHandler.init();
     FMLCommonHandler.instance().bus().register(new KeyInputHandler());
     FMLCommonHandler.instance().bus().register(ClientWeaponHandler.INSTANCE);
+    FMLCommonHandler.instance().bus().register(PlayerScreenReporter.INSTANCE);
     MinecraftForge.EVENT_BUS.register(new ZSTabOverlayHandler());
     MinecraftForge.EVENT_BUS.register(new BiomeFogHandler());
     MinecraftForge.EVENT_BUS.register(new DimensionVisibilityHandler());

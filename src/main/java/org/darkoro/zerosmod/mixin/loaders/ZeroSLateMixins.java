@@ -19,7 +19,9 @@ public final class ZeroSLateMixins implements ILateMixinLoader {
     if (loadedMods.contains("customnpcs")) {
       mixins.add("npc.MixinAbilityDomeScriptMethods");
       mixins.add("npc.MixinEntityEnergyDomeMethods");
+      mixins.add("npc.MixinPlayerDataScreenSize");
       mixins.add("npc.MixinScriptEnergyDomeMethods");
+      mixins.add("npc.MixinScriptPlayerScreenSize");
     }
     if (loadedMods.contains("jinryuujrmcore") && loadedMods.contains("jinryuudragonblockc")) {
       mixins.add("dbc.MixinEntityEnergyAtt");

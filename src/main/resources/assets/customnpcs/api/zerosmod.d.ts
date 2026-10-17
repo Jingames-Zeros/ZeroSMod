@@ -631,6 +631,24 @@ export interface IEntityLivingBase<T> {
  */
 export interface IPlayer<T> {
   /**
+   * Returns the width of the player's client window in scaled GUI coordinates,
+   * rather than physical display pixels. Returns -1 before the client has reported it.
+   */
+  getScaledScreenWidth(): number;
+
+  /**
+   * Returns the height of the player's client window in scaled GUI coordinates,
+   * rather than physical display pixels. Returns -1 before the client has reported it.
+   */
+  getScaledScreenHeight(): number;
+
+  /**
+   * Returns the player's raw Minecraft GUI Scale setting, where 0 means Auto,
+   * or -1 before the client has reported it.
+   */
+  getGuiScale(): number;
+
+  /**
    * Returns true while normal transform input is charging an NPCDBC custom form.
    * Returns false after charging stops or completes. Programmatic form changes do not count.
    */
