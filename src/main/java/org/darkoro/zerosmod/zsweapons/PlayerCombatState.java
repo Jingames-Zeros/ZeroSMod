@@ -75,7 +75,14 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
      * Handles combat state attacks
      */
     public void handleAttack(float distanceToTarget) {
-        resetCooldown();
+        handleAttack(distanceToTarget, itemStats.getCooldown());
+    }
+
+    /**
+     * Handles a combat-state attack with a cooldown chosen for this attack only.
+     */
+    public void handleAttack(float distanceToTarget, double cooldown) {
+        remainingAttackCooldown = Math.max(0.0D, cooldown);
         this.distanceToTarget = distanceToTarget;
         waitingToAttack = true;
     }

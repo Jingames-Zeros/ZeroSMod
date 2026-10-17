@@ -577,6 +577,43 @@ export interface IPlayer<T> {
  */
 export namespace IZeroSEvent {
   /**
+   * Fired before a valid Zero S weapon hit queues damage state and starts its cooldown.
+   * Canceling prevents both the hit and cooldown. Rejected attacks do not fire this hook.
+   * @hookName zsWeaponSwing
+   */
+  interface WeaponSwingEvent extends IPlayerEvent {
+    /** Returns the live stats of the weapon being swung. */
+    getWeapon(): ScriptZSWeapon<any>;
+
+    /** Returns the cooldown this swing will start, in ticks. */
+    getCooldown(): number;
+
+    /**
+     * Replaces only this swing's cooldown. Zero allows another attack immediately;
+     * negative or non-finite values become zero.
+     */
+    setCooldown(ticks: number): void;
+  }
+
+  /**
+   * Fired immediately before NPCDBC applies one scheduled custom-form Ki drain.
+   * Cancel the event to skip that drain. Each later drain interval fires a new event.
+   * This does not fire for creative-mode players or forms without Ki drain enabled.
+   * Example: event.setDrain(event.getDrain() * 0.5) halves this drain.
+   * @hookName dbcFormDrain
+   */
+  interface FormDrainEvent extends IPlayerEvent {
+    /** Returns NPCDBC's non-negative calculated drain before whole-Ki rounding. */
+    getDrain(): number;
+
+    /**
+     * Replaces this drain. Positive decimals round up when applied. Zero skips the drain;
+     * negative or non-finite values become zero. Values above the integer Ki limit are clamped.
+     */
+    setDrain(drain: number): void;
+  }
+
+  /**
    * Fired once when a player begins charging an NPCDBC custom-form transformation.
    * It runs before the form changes and still fires if charging is later abandoned.
    * Releasing and starting again fires a new event. Vanilla and programmatic changes do not fire it.

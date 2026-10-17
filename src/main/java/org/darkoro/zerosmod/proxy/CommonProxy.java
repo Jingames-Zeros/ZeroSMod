@@ -23,6 +23,7 @@ import org.darkoro.zerosmod.config.BiomeConfig;
 import org.darkoro.zerosmod.config.ServerWeaponConfig;
 import org.darkoro.zerosmod.event.KiAttackGuard;
 import org.darkoro.zerosmod.event.SaiyanMasteryMergeEvent;
+import org.darkoro.zerosmod.formdrain.CustomFormDrainEventHooks;
 import org.darkoro.zerosmod.it.InstantTransmissionEventHooks;
 import org.darkoro.zerosmod.transformation.CustomFormTransformationEventHooks;
 import org.darkoro.zerosmod.network.NetworkHandler;
@@ -36,6 +37,7 @@ import org.darkoro.zerosmod.world.ModDimensions;
 import org.darkoro.zerosmod.world.WorldProviderPhylactery;
 import org.darkoro.zerosmod.api.WeaponAPI;
 import org.darkoro.zerosmod.zsweapons.attributes.AttributeBuilder;
+import org.darkoro.zerosmod.zsweapons.event.WeaponSwingEventHooks;
 import org.darkoro.zerosmod.zsweapons.server.ServerWeaponHandler;
 
 public class CommonProxy {
@@ -116,7 +118,23 @@ public class CommonProxy {
             .paramNames("event")
             .requiredImports("org.darkoro.zerosmod.api.event.IZeroSEvent")
             .build());
+    ScriptHookController.Instance.registerHook(
+        ScriptContext.PLAYER,
+        HookDefinition.builder(WeaponSwingEventHooks.WEAPON_SWING_HOOK)
+            .eventClass(IZeroSEvent.WeaponSwingEvent.class)
+            .paramNames("event")
+            .requiredImports(
+                "org.darkoro.zerosmod.api.ScriptZSWeapon",
+                "org.darkoro.zerosmod.api.event.IZeroSEvent")
+            .build());
     if (Loader.isModLoaded("npcdbc")) {
+      ScriptHookController.Instance.registerHook(
+          ScriptContext.PLAYER,
+          HookDefinition.builder(CustomFormDrainEventHooks.FORM_DRAIN_HOOK)
+              .eventClass(IZeroSEvent.FormDrainEvent.class)
+              .paramNames("event")
+              .requiredImports("org.darkoro.zerosmod.api.event.IZeroSEvent")
+              .build());
       ScriptHookController.Instance.registerHook(
           ScriptContext.PLAYER,
           HookDefinition.builder(CustomFormTransformationEventHooks.BEGINS_TRANSFORMING_HOOK)

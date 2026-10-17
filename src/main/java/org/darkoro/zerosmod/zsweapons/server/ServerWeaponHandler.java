@@ -16,6 +16,8 @@ import org.darkoro.zerosmod.zsweapons.PlayerCombatState;
 import org.darkoro.zerosmod.zsweapons.network.packets.CooldownToClientPacket;
 import org.darkoro.zerosmod.zsweapons.network.packets.TargetEntityToServerPacket;
 import org.darkoro.zerosmod.zsweapons.network.packets.WeaponTypesToClientPacket;
+import org.darkoro.zerosmod.zsweapons.event.WeaponSwingEventHooks;
+import org.darkoro.zerosmod.zsweapons.event.WeaponSwingPlayerEvent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,8 +51,16 @@ public class ServerWeaponHandler {
             event.setCanceled(true);
             return;
         }
-        // Reset cooldown if event is valid
-        state.handleAttack(player.getDistanceToEntity(target));
+        WeaponSwingPlayerEvent swingEvent = WeaponSwingEventHooks.fire(
+                (EntityPlayerMP) player,
+                state.getCurrentZSWeapon(),
+                state.getItemStats().getCooldown());
+        if(swingEvent.isCanceled()) {
+            event.setCanceled(true);
+            return;
+        }
+        // Queue damage state and start the cooldown selected by the script event.
+        state.handleAttack(player.getDistanceToEntity(target), swingEvent.getCooldown());
         sendCooldownPacketToClient((EntityPlayerMP) player, state);
     }
 
