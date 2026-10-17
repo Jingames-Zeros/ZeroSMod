@@ -12,6 +12,8 @@ import noppes.npcs.constants.ScriptContext;
 import noppes.npcs.controllers.APIRegistry;
 import noppes.npcs.controllers.HookDefinition;
 import noppes.npcs.controllers.ScriptHookController;
+import noppes.npcs.controllers.ScriptController;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.scripted.NpcAPI;
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.api.AbstractZeroSAPI;
@@ -85,6 +87,11 @@ public class CommonProxy {
 
   public void postInit(FMLPostInitializationEvent event) {
     JRMCoreRacePatch.apply();
+    ScriptController scripts = ScriptController.Instance;
+    if (scripts != null && CustomNpcs.proxy.isScriptingEnabled()
+        && scripts.getEngineByName("ECMAScript") != null) {
+      scripts.languages.put("ECMAScript", ".js");
+    }
     registerScriptHooks();
   }
 

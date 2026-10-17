@@ -65,63 +65,7 @@ export interface ZSAPI {
  * Runtime global object mapping for CNPC's editor.
  * @javaFqn org.darkoro.zerosmod.scripted.ZeroSAPI
  */
-export interface ZeroSAPI extends ZSAPI {
-  /** Returns the entity DBC would currently select for the player's short-range Instant Transmission, or null. */
-  getInstantTransmissionLookTarget(player: IPlayer<any>): IEntityLivingBase<any>;
-
-  /** Returns the name of the entity DBC would currently select for the player's short-range Instant Transmission. */
-  getInstantTransmissionLookTargetName(player: IPlayer<any>): string;
-
-  /** Returns true if entity was the target of a successful short-range Instant Transmission within maxAgeTicks. */
-  wasRecentInstantTransmissionTarget(entity: IEntity<any>, maxAgeTicks: number): boolean;
-
-  /** Returns the player who recently used short-range Instant Transmission to entity, or null. */
-  getRecentInstantTransmissionPlayer(entity: IEntity<any>, maxAgeTicks: number): IPlayer<any>;
-
-  /** Returns the name of the player who recently used short-range Instant Transmission to entity. */
-  getRecentInstantTransmissionPlayerName(entity: IEntity<any>, maxAgeTicks: number): string;
-
-  /** Returns ticks since entity was targeted by short-range Instant Transmission, or -1. */
-  getTicksSinceInstantTransmissionTargeted(entity: IEntity<any>): number;
-
-  /** Returns true if entity is a DBC ki attack. */
-  isKiAttack(entity: IEntity<any>): boolean;
-
-  /** Returns the readable DBC ki attack type name. */
-  getKiType(kiAttack: IEntity<any>): string;
-
-  /** Returns the Minecraft entity id for a DBC ki attack, or -1. */
-  getKiId(kiAttack: IEntity<any>): number;
-
-  /** Returns true when a DBC ki attack is currently frozen by Zero S ki scripting. */
-  isKiStopped(kiAttack: IEntity<any>): boolean;
-
-  /** Freezes DBC ki attacks around origin until released and returns how many were newly stopped. */
-  stopKi(origin: IEntity<any>, range: number): number;
-
-  /** Releases stopped DBC ki attacks around origin and returns how many were released. */
-  releaseKi(origin: IEntity<any>, range: number): number;
-
-  /** Returns nearby DBC ki attacks around origin. */
-  getNearbyKi(origin: IEntity<any>, range: number): IEntity<any>[];
-
-  /** Changes a DBC ki attack owner/color and restarts its lifetime. */
-  stealKi(kiAttack: IEntity<any>, color: string, owner: IEntity<any>): boolean;
-
-  /** Redirects a DBC ki attack toward target. */
-  redirectKi(kiAttack: IEntity<any>, target: IEntity<any>): boolean;
-
-  /** Sends a DBC ki attack along a manual direction vector while preserving its speed. */
-  directKi(kiAttack: IEntity<any>, x: number, y: number, z: number): boolean;
-
-  /** Changes a DBC ki attack color without changing owner. */
-  setKiColor(kiAttack: IEntity<any>, color: string): boolean;
-
-  /** Gets the player's live combat state (attack cooldown, current weapon stats), or null when player is null. */
-  getPlayerCombatState(player: IPlayer<any>): ScriptPlayerCombatState<any>;
-
-  /** Reads the Zero S weapon stats of an item, or null when item is null. Changes are written back to the item. */
-  getZSWeapon(item: IItemStack<any>): ScriptZSWeapon<any>;
+export interface ZeroSAPI extends AbstractZeroSAPI {
 }
 
 /**
@@ -129,62 +73,6 @@ export interface ZeroSAPI extends ZSAPI {
  * @javaFqn org.darkoro.zerosmod.api.AbstractZeroSAPI
  */
 export interface AbstractZeroSAPI extends ZSAPI {
-  /** Returns the entity DBC would currently select for the player's short-range Instant Transmission, or null. */
-  getInstantTransmissionLookTarget(player: IPlayer<any>): IEntityLivingBase<any>;
-
-  /** Returns the name of the entity DBC would currently select for the player's short-range Instant Transmission. */
-  getInstantTransmissionLookTargetName(player: IPlayer<any>): string;
-
-  /** Returns true if entity was the target of a successful short-range Instant Transmission within maxAgeTicks. */
-  wasRecentInstantTransmissionTarget(entity: IEntity<any>, maxAgeTicks: number): boolean;
-
-  /** Returns the player who recently used short-range Instant Transmission to entity, or null. */
-  getRecentInstantTransmissionPlayer(entity: IEntity<any>, maxAgeTicks: number): IPlayer<any>;
-
-  /** Returns the name of the player who recently used short-range Instant Transmission to entity. */
-  getRecentInstantTransmissionPlayerName(entity: IEntity<any>, maxAgeTicks: number): string;
-
-  /** Returns ticks since entity was targeted by short-range Instant Transmission, or -1. */
-  getTicksSinceInstantTransmissionTargeted(entity: IEntity<any>): number;
-
-  /** Returns true if entity is a DBC ki attack. */
-  isKiAttack(entity: IEntity<any>): boolean;
-
-  /** Returns the readable DBC ki attack type name. */
-  getKiType(kiAttack: IEntity<any>): string;
-
-  /** Returns the Minecraft entity id for a DBC ki attack, or -1. */
-  getKiId(kiAttack: IEntity<any>): number;
-
-  /** Returns true when a DBC ki attack is currently frozen by Zero S ki scripting. */
-  isKiStopped(kiAttack: IEntity<any>): boolean;
-
-  /** Freezes DBC ki attacks around origin until released and returns how many were newly stopped. */
-  stopKi(origin: IEntity<any>, range: number): number;
-
-  /** Releases stopped DBC ki attacks around origin and returns how many were released. */
-  releaseKi(origin: IEntity<any>, range: number): number;
-
-  /** Returns nearby DBC ki attacks around origin. */
-  getNearbyKi(origin: IEntity<any>, range: number): IEntity<any>[];
-
-  /** Changes a DBC ki attack owner/color and restarts its lifetime. */
-  stealKi(kiAttack: IEntity<any>, color: string, owner: IEntity<any>): boolean;
-
-  /** Redirects a DBC ki attack toward target. */
-  redirectKi(kiAttack: IEntity<any>, target: IEntity<any>): boolean;
-
-  /** Sends a DBC ki attack along a manual direction vector while preserving its speed. */
-  directKi(kiAttack: IEntity<any>, x: number, y: number, z: number): boolean;
-
-  /** Changes a DBC ki attack color without changing owner. */
-  setKiColor(kiAttack: IEntity<any>, color: string): boolean;
-
-  /** Gets the player's live combat state (attack cooldown, current weapon stats), or null when player is null. */
-  getPlayerCombatState(player: IPlayer<any>): ScriptPlayerCombatState<any>;
-
-  /** Reads the Zero S weapon stats of an item, or null when item is null. Changes are written back to the item. */
-  getZSWeapon(item: IItemStack<any>): ScriptZSWeapon<any>;
 }
 
 /**
@@ -367,11 +255,11 @@ export interface PlayerCombatState<T> extends ScriptPlayerCombatState<T> {
 }
 
 /**
- * Typed settings on CNPC+ dome abilities before they are cast.
- * Changes affect later casts and do not modify an already spawned dome.
- * @javaFqn org.darkoro.zerosmod.api.ScriptAbilityDomeMethods
+ * Dome settings exposed on CNPC+ ability objects. These methods apply only when the ability is
+ * a Dome ability; changes affect later casts and do not modify an already spawned dome.
+ * @javaFqn noppes.npcs.api.ability.IAbility
  */
-export interface ScriptAbilityDomeMethods extends IAbility {
+export interface IAbility {
   /** Returns the configured dome radius in blocks. */
   getDomeRadius(): number;
 
@@ -386,11 +274,12 @@ export interface ScriptAbilityDomeMethods extends IAbility {
 }
 
 /**
- * Zero S methods on a spawned CNPC+ energy dome. Damage defaults to zero, its interval defaults
- * to 20 ticks, and owner damage defaults to disabled.
- * @javaFqn org.darkoro.zerosmod.api.ScriptEnergyDomeMethods
+ * Zero S methods exposed on CNPC+ energy barriers. Call these only when getBarrierType() is 0
+ * (Dome). Damage defaults to zero, its interval defaults to 20 ticks, and owner damage defaults
+ * to disabled.
+ * @javaFqn noppes.npcs.api.entity.IEnergyBarrier
  */
-export interface ScriptEnergyDomeMethods<T> {
+export interface IEnergyBarrier<T> {
   /** Returns damage dealt to each living entity inside per hit, or zero when disabled. */
   getDamage(): number;
 
@@ -426,13 +315,6 @@ export interface ScriptEnergyDomeMethods<T> {
    * zero or fewer ticks applies it immediately. Non-finite radii are ignored.
    */
   setTargetRadius(radius: number, ticks: number): void;
-}
-
-/**
- * Zero S additions to CNPC+'s spawned energy dome wrapper.
- * @javaFqn noppes.npcs.api.entity.IEnergyDome
- */
-export interface IEnergyDome<T> extends ScriptEnergyDomeMethods<T> {
 }
 
 /**
@@ -656,6 +538,104 @@ export interface IPlayer<T> {
 
   /** Returns the current short-range Instant Transmission target name only while the player is preparing IT. */
   getInstantTransmissionLookTargetName(): string;
+}
+
+/**
+ * Script wrappers returned to NPC/player scripts. These declarations mirror the Java wrapper
+ * hierarchy because CNPC+'s editor may infer the concrete Script* class instead of its I* API
+ * interface.
+ * @javaFqn noppes.npcs.scripted.entity.ScriptEntity
+ */
+export interface ScriptEntity<T> extends IEntity<T> {
+}
+
+/**
+ * Living CNPC script wrapper, including the Zero S nearby-ki methods.
+ * @javaFqn noppes.npcs.scripted.entity.ScriptLivingBase
+ */
+export interface ScriptLivingBase<T> extends IEntityLivingBase<T> {
+  /** Stops nearby DBC ki attacks around this living entity until released. */
+  stopKi(range: number): number;
+
+  /** Releases nearby stopped DBC ki attacks around this living entity. */
+  releaseKi(range: number): number;
+
+  /** Returns nearby DBC ki attacks around this living entity. */
+  getNearbyKi(range: number): IEntity<any>[];
+}
+
+/** @javaFqn noppes.npcs.scripted.entity.ScriptLiving */
+export interface ScriptLiving<T> extends ScriptLivingBase<T> {
+}
+
+/** @javaFqn noppes.npcs.scripted.entity.ScriptNpc */
+export interface ScriptNpc<T> extends ScriptLiving<T> {
+}
+
+/**
+ * CNPC player script wrapper, with Zero S methods available directly on script players.
+ * @javaFqn noppes.npcs.scripted.entity.ScriptPlayer
+ */
+export interface ScriptPlayer<T> extends IPlayer<T> {
+  /** Returns the width of the player's client window in scaled GUI coordinates. */
+  getScaledScreenWidth(): number;
+
+  /** Returns the height of the player's client window in scaled GUI coordinates. */
+  getScaledScreenHeight(): number;
+
+  /** Returns the player's raw Minecraft GUI Scale setting, where 0 means Auto. */
+  getGuiScale(): number;
+
+  /** Returns true while normal input is charging an NPCDBC custom form. */
+  isTransforming(): boolean;
+
+  /** Returns the current short-range Instant Transmission target while preparing IT. */
+  getInstantTransmissionLookTargetName(): string;
+
+  /** Returns nearby DBC ki attacks around this player. */
+  getNearbyKi(range: number): IEntity<any>[];
+}
+
+/**
+ * DBC player script wrapper returned by player.getDBCPlayer().
+ * @javaFqn noppes.npcs.scripted.entity.ScriptDBCPlayer
+ */
+export interface ScriptDBCPlayer extends IDBCPlayer {
+  isDBCAlive(): boolean;
+  defuse(): void;
+  getFusionTimeLeft(): number;
+  setDBCStatusEffect(effect: string, duration: number): void;
+  getDBCStatusEffect(effect: string): number;
+}
+
+/**
+ * DBC Addon script wrapper returned by player.getDBCPlayer().
+ * @javaFqn kamkeel.npcdbc.scripted.ScriptDBCAddon
+ */
+export interface ScriptDBCAddon extends IDBCAddon {
+  getCurrentHeat(): number;
+  getMaxHeat(): number;
+  setCurrentHeat(amount: number): void;
+  setHeatPercentage(percent: number): void;
+  clearHeat(): void;
+}
+
+/**
+ * Script wrapper for a spawned CNPC+ energy dome.
+ * @javaFqn noppes.npcs.scripted.entity.ScriptEnergyDome
+ */
+export interface ScriptEnergyDome extends IEnergyDome<any> {
+}
+
+/**
+ * Script configuration object for CNPC+ dome abilities.
+ * @javaFqn kamkeel.npcs.controllers.data.ability.type.energy.AbilityDome
+ */
+export interface AbilityDome extends IAbility {
+  getDomeRadius(): number;
+  setDomeRadius(radius: number): void;
+  getBarrierDuration(): number;
+  setBarrierDuration(ticks: number): void;
 }
 
 /**

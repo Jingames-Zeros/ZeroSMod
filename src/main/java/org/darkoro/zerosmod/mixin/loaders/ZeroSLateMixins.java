@@ -6,6 +6,7 @@ import com.gtnewhorizon.gtnhmixins.LateMixin;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import net.minecraft.launchwrapper.Launch;
 
 @LateMixin
 public final class ZeroSLateMixins implements ILateMixinLoader {
@@ -17,6 +18,11 @@ public final class ZeroSLateMixins implements ILateMixinLoader {
   @Override public List<String> getMixins(Set<String> loadedMods) {
     List<String> mixins = new ArrayList<String>();
     if (loadedMods.contains("customnpcs")) {
+      // Nashorn lives in the JDK extension loader, which LaunchClassLoader must delegate to.
+      Launch.classLoader.addClassLoaderExclusion("jdk.nashorn.");
+      if (FMLCommonHandler.instance().getSide().isClient()) {
+        mixins.add("npc.MixinScriptDocumentHelperTypes");
+      }
       mixins.add("npc.MixinAbilityDomeScriptMethods");
       mixins.add("npc.MixinEntityEnergyDomeMethods");
       mixins.add("npc.MixinPlayerDataScreenSize");
