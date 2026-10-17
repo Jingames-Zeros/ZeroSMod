@@ -85,7 +85,7 @@ jobs:
         run: |
           version=$(sed -n 's/^modVersion *= *//p' gradle.properties | tr -d '\r')
           # The release jar is the one without a classifier (-dev, -sources, -preshadow)
-          jar=$(find build/libs -maxdepth 1 -name "*-${version}.jar" -printf '%f\n')
+          jar=$(find build/libs -maxdepth 1 -name "*-v${version}.jar" -printf '%f\n')
           if [ -z "$version" ] || [ "$(echo "$jar" | wc -l)" -ne 1 ] || [ -z "$jar" ]; then
             echo "::error::Could not determine a single release jar (version='$version', jars='$jar')"
             ls -la build/libs
