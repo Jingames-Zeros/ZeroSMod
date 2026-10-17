@@ -16,6 +16,11 @@ public final class ZeroSLateMixins implements ILateMixinLoader {
 
   @Override public List<String> getMixins(Set<String> loadedMods) {
     List<String> mixins = new ArrayList<String>();
+    if (loadedMods.contains("customnpcs")) {
+      mixins.add("npc.MixinAbilityDomeScriptMethods");
+      mixins.add("npc.MixinEntityEnergyDomeMethods");
+      mixins.add("npc.MixinScriptEnergyDomeMethods");
+    }
     if (loadedMods.contains("jinryuujrmcore") && loadedMods.contains("jinryuudragonblockc")) {
       mixins.add("dbc.MixinEntityEnergyAtt");
       mixins.add("dbc.JRMCoreHMixins");

@@ -2,7 +2,10 @@ package org.darkoro.zerosmod.api.event;
 
 import cpw.mods.fml.common.eventhandler.Cancelable;
 import kamkeel.npcdbc.api.form.IForm;
+import noppes.npcs.api.entity.IEnergyDome;
+import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IEntityLivingBase;
+import noppes.npcs.api.event.IEnergyBarrierEvent;
 import noppes.npcs.api.event.IPlayerEvent;
 import org.darkoro.zerosmod.api.ScriptZSWeapon;
 
@@ -10,6 +13,38 @@ import org.darkoro.zerosmod.api.ScriptZSWeapon;
  * Events exposed by Zero S Mod to the CNPC scripting system.
  */
 public interface IZeroSEvent {
+
+  /**
+   * Fired in the dome owner's NPC or player script when a loaded entity enters an active energy
+   * dome. The dome entity itself is excluded. This also fires when following or resizing moves
+   * the dome boundary across an entity.
+   *
+   * @hookName energyDomeEnter
+   */
+  interface EnergyDomeEnterEvent extends IEnergyBarrierEvent {
+
+    /** @return spawned dome whose boundary was entered; never null */
+    IEnergyDome getDome();
+
+    /** @return entity that entered the dome; never null */
+    IEntity getEntity();
+  }
+
+  /**
+   * Fired in the dome owner's NPC or player script when a loaded entity leaves an active energy
+   * dome. This also fires when following or resizing moves the dome boundary past an entity.
+   * Removing the dome itself does not emit exit events for every entity that remained inside.
+   *
+   * @hookName energyDomeExit
+   */
+  interface EnergyDomeExitEvent extends IEnergyBarrierEvent {
+
+    /** @return spawned dome whose boundary was left; never null */
+    IEnergyDome getDome();
+
+    /** @return entity that left the dome; never null */
+    IEntity getEntity();
+  }
 
   /**
    * Fired immediately before a valid Zero S weapon hit queues its damage state and cooldown.

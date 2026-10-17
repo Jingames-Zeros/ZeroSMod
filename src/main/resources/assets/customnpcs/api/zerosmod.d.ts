@@ -367,6 +367,75 @@ export interface PlayerCombatState<T> extends ScriptPlayerCombatState<T> {
 }
 
 /**
+ * Typed settings on CNPC+ dome abilities before they are cast.
+ * Changes affect later casts and do not modify an already spawned dome.
+ * @javaFqn org.darkoro.zerosmod.api.ScriptAbilityDomeMethods
+ */
+export interface ScriptAbilityDomeMethods extends IAbility {
+  /** Returns the configured dome radius in blocks. */
+  getDomeRadius(): number;
+
+  /** Sets the radius for later casts. CNPC+ clamps values below one block to one. */
+  setDomeRadius(radius: number): void;
+
+  /** Returns the configured dome lifetime in ticks. Duration must also be enabled on the ability. */
+  getBarrierDuration(): number;
+
+  /** Sets the lifetime for later casts. CNPC+ clamps values below one tick to one. */
+  setBarrierDuration(ticks: number): void;
+}
+
+/**
+ * Zero S methods on a spawned CNPC+ energy dome. Damage defaults to zero, its interval defaults
+ * to 20 ticks, and owner damage defaults to disabled.
+ * @javaFqn org.darkoro.zerosmod.api.ScriptEnergyDomeMethods
+ */
+export interface ScriptEnergyDomeMethods<T> {
+  /** Returns damage dealt to each living entity inside per hit, or zero when disabled. */
+  getDamage(): number;
+
+  /** Sets damage per hit. Negative or non-finite values become zero; zero disables damage. */
+  setDamage(damage: number): void;
+
+  /** Returns ticks between damage hits. */
+  getDamageInterval(): number;
+
+  /** Sets ticks between hits, clamped to at least one. */
+  setDamageInterval(ticks: number): void;
+
+  /** Returns true when the dome can damage its owner. */
+  affectOwner(): boolean;
+
+  /** Controls whether the dome can damage its owner. */
+  setAffectOwner(affects: boolean): void;
+
+  /** Returns the followed entity, including the native followed caster, or null. */
+  getFollower(): IEntity<any>;
+
+  /** Follows an entity in the same world, or disables following when null. Other worlds are ignored. */
+  setFollower(entity: IEntity<any>): void;
+
+  /** Returns all loaded entities currently inside; includes the owner and excludes the dome. */
+  getEntitiesInside(): IEntity<any>[];
+
+  /** Returns true when the entity's midpoint is inside the dome's current radius. */
+  isInside(entity: IEntity<any>): boolean;
+
+  /**
+   * Linearly resizes the dome. Radius is clamped to at least 0.1 blocks;
+   * zero or fewer ticks applies it immediately. Non-finite radii are ignored.
+   */
+  setTargetRadius(radius: number, ticks: number): void;
+}
+
+/**
+ * Zero S additions to CNPC+'s spawned energy dome wrapper.
+ * @javaFqn noppes.npcs.api.entity.IEnergyDome
+ */
+export interface IEnergyDome<T> extends ScriptEnergyDomeMethods<T> {
+}
+
+/**
  * Zero S DBC methods for the player wrapper returned by player.getDBCPlayer().
  * @javaFqn noppes.npcs.api.entity.IDBCPlayer
  */
@@ -576,6 +645,32 @@ export interface IPlayer<T> {
  * @javaFqn org.darkoro.zerosmod.api.event.IZeroSEvent
  */
 export namespace IZeroSEvent {
+  /**
+   * Fired in the dome owner's NPC or player script when a loaded entity enters an active dome.
+   * Following and resizing can also move the boundary across an entity.
+   * @hookName energyDomeEnter
+   */
+  interface EnergyDomeEnterEvent extends IEnergyBarrierEvent {
+    /** Returns the dome whose boundary was entered. */
+    getDome(): IEnergyDome<any>;
+
+    /** Returns the entity that entered. */
+    getEntity(): IEntity<any>;
+  }
+
+  /**
+   * Fired in the dome owner's NPC or player script when a loaded entity leaves an active dome.
+   * Dome removal does not emit one exit event for every entity remaining inside.
+   * @hookName energyDomeExit
+   */
+  interface EnergyDomeExitEvent extends IEnergyBarrierEvent {
+    /** Returns the dome whose boundary was left. */
+    getDome(): IEnergyDome<any>;
+
+    /** Returns the entity that left. */
+    getEntity(): IEntity<any>;
+  }
+
   /**
    * Fired before a valid Zero S weapon hit queues damage state and starts its cooldown.
    * Canceling prevents both the hit and cooldown. Rejected attacks do not fire this hook.

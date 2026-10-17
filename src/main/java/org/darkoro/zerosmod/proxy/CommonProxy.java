@@ -21,6 +21,7 @@ import org.darkoro.zerosmod.client.JRMCoreRacePatch;
 import org.darkoro.zerosmod.command.CommandZSMod;
 import org.darkoro.zerosmod.config.BiomeConfig;
 import org.darkoro.zerosmod.config.ServerWeaponConfig;
+import org.darkoro.zerosmod.dome.EnergyDomeEventHooks;
 import org.darkoro.zerosmod.event.KiAttackGuard;
 import org.darkoro.zerosmod.event.SaiyanMasteryMergeEvent;
 import org.darkoro.zerosmod.formdrain.CustomFormDrainEventHooks;
@@ -110,7 +111,24 @@ public class CommonProxy {
       return;
     }
 
+    ScriptContext.NPC.addNamespace("IZeroSEvent");
     ScriptContext.PLAYER.addNamespace("IZeroSEvent");
+    registerEnergyDomeHook(
+        ScriptContext.NPC,
+        EnergyDomeEventHooks.ENTER_HOOK,
+        IZeroSEvent.EnergyDomeEnterEvent.class);
+    registerEnergyDomeHook(
+        ScriptContext.NPC,
+        EnergyDomeEventHooks.EXIT_HOOK,
+        IZeroSEvent.EnergyDomeExitEvent.class);
+    registerEnergyDomeHook(
+        ScriptContext.PLAYER,
+        EnergyDomeEventHooks.ENTER_HOOK,
+        IZeroSEvent.EnergyDomeEnterEvent.class);
+    registerEnergyDomeHook(
+        ScriptContext.PLAYER,
+        EnergyDomeEventHooks.EXIT_HOOK,
+        IZeroSEvent.EnergyDomeExitEvent.class);
     ScriptHookController.Instance.registerHook(
         ScriptContext.PLAYER,
         HookDefinition.builder(InstantTransmissionEventHooks.ACTIVATED_HOOK)
@@ -149,5 +167,19 @@ public class CommonProxy {
     if (ZeroSMod.LOGGER != null) {
       ZeroSMod.LOGGER.info("Registered Zero S CNPC script hooks.");
     }
+  }
+
+  private static void registerEnergyDomeHook(
+      ScriptContext context, String hookName, Class<?> eventClass) {
+    ScriptHookController.Instance.registerHook(
+        context,
+        HookDefinition.builder(hookName)
+            .eventClass(eventClass)
+            .paramNames("event")
+            .requiredImports(
+                "noppes.npcs.api.entity.IEnergyDome",
+                "noppes.npcs.api.entity.IEntity",
+                "org.darkoro.zerosmod.api.event.IZeroSEvent")
+            .build());
   }
 }
