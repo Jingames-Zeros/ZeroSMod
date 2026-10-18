@@ -6,6 +6,8 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -24,6 +26,9 @@ import org.darkoro.zerosmod.api.ScriptZSWeapon;
 import org.darkoro.zerosmod.api.UnknownWeaponTypeException;
 import org.darkoro.zerosmod.config.*;
 import org.darkoro.zerosmod.event.SaiyanMasteryMergeEvent;
+import org.darkoro.zerosmod.finisher.FinisherCamera;
+import org.darkoro.zerosmod.finisher.FinisherCameraPath;
+import org.darkoro.zerosmod.finisher.FinisherCameraPreset;
 import org.darkoro.zerosmod.network.BiomeVisualSyncUtil;
 import org.darkoro.zerosmod.network.RaceStatEditorServer;
 import org.darkoro.zerosmod.network.SyncDimensionConfigPacket;
@@ -52,6 +57,7 @@ public class CommandZSMod extends CommandBase {
     registerSubCommand(new SaiyanMergeSubCommand());
     registerSubCommand(new MasteryDebugSubCommand());
     registerSubCommand(new SetItemTypeCommand());
+    registerSubCommand(new FinisherCamSubCommand());
   }
 
   @Override
@@ -364,6 +370,109 @@ public class CommandZSMod extends CommandBase {
           }
           break;
       }
+    }
+  }
+
+  private class FinisherCamSubCommand extends ZSSubCommand {
+
+    private FinisherCamSubCommand() {
+      super("finishercam", "/zsmod finishercam <ticks> [preset] [player] [animation] | path [player] [animation] | stop [player]",
+          "Plays the finisher camera, plus an optional CNPC+ animation on the player.", 2);
+    }
+
+    @Override
+    protected List<String> addTabCompletionOptions(ICommandSender sender, String[] args) {
+      if (args.length == 1) {
+        return getListOfStringsMatchingLastWord(args, "60", "100", "path", "stop");
+      }
+      if (isUsernameIndex(args, args.length - 1)) {
+        return getListOfStringsMatchingLastWord(args, MinecraftServer.getServer().getAllUsernames());
+      }
+      if (args.length == 2) {
+        return getListOfStringsMatchingLastWord(args, FinisherCameraPreset.names());
+      }
+      if (args.length == (isPath(args) ? 3 : 4) && !isStop(args)) {
+        return getListOfStringsMatchingLastWord(args, FinisherCamera.animationNames());
+      }
+
+      return Collections.emptyList();
+    }
+
+    @Override
+    protected boolean isUsernameIndex(String[] args, int index) {
+      return index == (isStop(args) || isPath(args) ? 1 : 2);
+    }
+
+    @Override
+    protected void process(ICommandSender sender, String[] args) {
+      if (isStop(args)) {
+        if (args.length > 2) {
+          throw new WrongUsageException(getUsage());
+        }
+
+        EntityPlayerMP player = args.length == 2 ? getPlayer(sender, args[1]) : getCommandSenderAsPlayer(sender);
+        FinisherCamera.stop(player);
+        ZeroSMod.LOGGER.debug("Finisher camera stopped for {}", player.getCommandSenderName());
+        return;
+      }
+      if (isPath(args)) {
+        playDemoPath(sender, args);
+        return;
+      }
+      if (args.length < 1 || args.length > 4) {
+        throw new WrongUsageException(getUsage());
+      }
+
+      int ticks = parseIntBounded(sender, args[0], 1, FinisherCamera.MAX_TICKS);
+      FinisherCameraPreset preset = args.length > 1 ? FinisherCameraPreset.byName(args[1]) : FinisherCameraPreset.ORBIT;
+      if (preset == null) {
+        throw new WrongUsageException(getUsage());
+      }
+      String animation = args.length == 4 ? args[3] : null;
+      if (animation != null && !FinisherCamera.hasAnimation(animation)) {
+        throw new CommandException("Unknown CNPC+ animation: " + animation);
+      }
+
+      EntityPlayerMP player = args.length >= 3 ? getPlayer(sender, args[2]) : getCommandSenderAsPlayer(sender);
+      EntityLivingBase target = FinisherCamera.findLookTarget(player, 16.0D);
+      FinisherCamera.play(player, target, ticks, preset, animation);
+      ZeroSMod.LOGGER.debug("Finisher camera {} for {} ticks on {}{}{}", preset.name().toLowerCase(), ticks,
+          player.getCommandSenderName(), target == null ? "" : " and " + target.getCommandSenderName(),
+          animation == null ? "" : " with animation " + animation);
+    }
+
+    private boolean isStop(String[] args) {
+      return args.length > 0 && "stop".equalsIgnoreCase(args[0]);
+    }
+
+    private boolean isPath(String[] args) {
+      return args.length > 0 && "path".equalsIgnoreCase(args[0]);
+    }
+
+    // A sample keyframe path around the entity the player looks at (or the player): swings around the front,
+    // closes in on its face, then rises behind it looking the way it faces.
+    private void playDemoPath(ICommandSender sender, String[] args) {
+      if (args.length > 3) {
+        throw new WrongUsageException(getUsage());
+      }
+      String animation = args.length == 3 ? args[2] : null;
+      if (animation != null && !FinisherCamera.hasAnimation(animation)) {
+        throw new CommandException("Unknown CNPC+ animation: " + animation);
+      }
+
+      EntityPlayerMP player = args.length >= 2 ? getPlayer(sender, args[1]) : getCommandSenderAsPlayer(sender);
+      EntityLivingBase target = FinisherCamera.findLookTarget(player, 16.0D);
+      Entity subject = target != null ? target : player;
+      FinisherCameraPath path = new FinisherCameraPath();
+      path.relativeTo(NpcAPI.Instance().getIEntity(subject))
+          .keyLookAt(0, -4.0D, 1.2D, 5.0D, null)
+          .keyLookAt(40, 4.0D, 2.5D, 3.0D, null)
+          .keyLookAt(70, 0.5D, 1.6D, 1.6D, null)
+          .key(110, 0.0D, 3.0D, -5.0D, 0.0F, 20.0F)
+          .ease("inOut");
+      FinisherCamera.playPath(player, path, animation);
+      ZeroSMod.LOGGER.debug("Demo camera path for {} on {}{}", player.getCommandSenderName(), subject.getCommandSenderName(),
+          animation == null ? "" : " with animation " + animation);
     }
   }
 

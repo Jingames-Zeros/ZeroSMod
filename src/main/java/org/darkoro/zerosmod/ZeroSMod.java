@@ -18,6 +18,8 @@ import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Logger;
 import org.darkoro.zerosmod.config.ConfigHandler;
+import org.darkoro.zerosmod.finisher.FinisherCameraPacket;
+import org.darkoro.zerosmod.finisher.FinisherCameraPathPacket;
 import org.darkoro.zerosmod.guis.GUIHandler;
 import org.darkoro.zerosmod.guis.GUIScheduler;
 import org.darkoro.zerosmod.guis.GuiTextureRegistry;
@@ -51,7 +53,7 @@ public class ZeroSMod {
 
 	public static final String MODID = "zerosmod";
 	// Bump VERSION only when clients must update. Forge uses this for the client/server mod handshake.
-	public static final String VERSION = "2.2.4";
+	public static final String VERSION = "2.3.0";
 	public static final String ACCEPTABLE_REMOTE_VERSIONS = "[" + VERSION + "]";
 	// modVersion from gradle.properties, injected at build time. Bump it there for server-only
 	// emergency builds that should still allow clients on VERSION.
@@ -90,6 +92,8 @@ public class ZeroSMod {
 		network.registerMessage(RaceStatResponse.Handler.class, RaceStatResponse.class, 12, Side.CLIENT);
 		network.registerMessage(SyncKiAttackDestroyerColorPacketHandler.class, SyncKiAttackDestroyerColorPacket.class, 13, Side.CLIENT);
 		network.registerMessage(SyncPlayerScreenPacket.Handler.class, SyncPlayerScreenPacket.class, 14, Side.SERVER);
+		network.registerMessage(FinisherCameraPacket.Handler.class, FinisherCameraPacket.class, 15, Side.CLIENT);
+		network.registerMessage(FinisherCameraPathPacket.Handler.class, FinisherCameraPathPacket.class, 16, Side.CLIENT);
 		proxy.preInit(event);
 	}
 

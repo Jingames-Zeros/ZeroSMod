@@ -22,12 +22,21 @@ zeros {
                 'org.darkoro.zerosmod.api.ScriptDBCPlayerMethods'                 : 'dbcPlayer',
                 'org.darkoro.zerosmod.api.ScriptZSWeapon'                         : 'weapon',
                 'org.darkoro.zerosmod.api.ScriptPlayerCombatState'                : 'state',
+                'org.darkoro.zerosmod.api.ScriptCameraPath'                       : 'path',
         ]
     }
     deps {
         // JRMCore/DBC, CustomNPC+ and the DBC Addon are on by default
         codeChicken = false
     }
+}
+
+dependencies {
+    // Nashorn for CNPC+ scripts in dev runs: it lives in the Java 8 JRE's ext folder, which the dev runtime lacks
+    runtimeOnlyNonPublishable(files(javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(8)
+        vendor = JvmVendorSpec.AZUL
+    }.map { it.metadata.installationPath.file('jre/lib/ext/nashorn.jar') }))
 }
 
 tasks.named('jar', Jar) {
@@ -54,6 +63,13 @@ tasks.register('testRaceStatConfig', JavaExec) {
     mainClass = 'org.darkoro.zerosmod.config.RaceStatConfigTest'
 }
 
+tasks.register('testFinisherCameraSpline', JavaExec) {
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'org.darkoro.zerosmod.finisher.FinisherCameraSplineTest'
+}
+
 tasks.named('check') {
     dependsOn tasks.named('testRaceStatConfig')
+    dependsOn tasks.named('testFinisherCameraSpline')
 }

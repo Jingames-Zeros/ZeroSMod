@@ -10,8 +10,12 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.scripted.NpcAPI;
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.api.AbstractZeroSAPI;
+import org.darkoro.zerosmod.api.ScriptCameraPath;
 import org.darkoro.zerosmod.api.ScriptPlayerCombatState;
 import org.darkoro.zerosmod.api.ScriptZSWeapon;
+import org.darkoro.zerosmod.finisher.FinisherCamera;
+import org.darkoro.zerosmod.finisher.FinisherCameraPath;
+import org.darkoro.zerosmod.finisher.FinisherCameraPreset;
 import org.darkoro.zerosmod.it.InstantTransmissionEventHooks;
 import org.darkoro.zerosmod.it.InstantTransmissionScriptHelper;
 import org.darkoro.zerosmod.ki.KiScriptHelper;
@@ -120,6 +124,30 @@ public class ZeroSAPI extends AbstractZeroSAPI {
     CachedWeaponStats stats = new CachedWeaponStats();
     stats.changeItem(item.getMCItemStack());
     return stats;
+  }
+
+  @Override public boolean playFinisherCamera(IPlayer player, IEntity target, int ticks, String preset) {
+    return FinisherCamera.play(asPlayer(player), asEntity(target), ticks, FinisherCameraPreset.byName(preset));
+  }
+
+  @Override public boolean playFinisherCamera(IPlayer player, IEntity target, int ticks, String preset, String animation) {
+    return FinisherCamera.play(asPlayer(player), asEntity(target), ticks, FinisherCameraPreset.byName(preset), animation);
+  }
+
+  @Override public void stopFinisherCamera(IPlayer player) {
+    FinisherCamera.stop(asPlayer(player));
+  }
+
+  @Override public ScriptCameraPath createCameraPath() {
+    return new FinisherCameraPath();
+  }
+
+  @Override public boolean playCameraPath(IPlayer player, ScriptCameraPath path) {
+    return playCameraPath(player, path, null);
+  }
+
+  @Override public boolean playCameraPath(IPlayer player, ScriptCameraPath path, String animation) {
+    return path instanceof FinisherCameraPath && FinisherCamera.playPath(asPlayer(player), (FinisherCameraPath)path, animation);
   }
 
   private static EntityPlayerMP asPlayer(IPlayer player) {
