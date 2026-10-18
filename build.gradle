@@ -30,6 +30,14 @@ zeros {
     }
 }
 
+dependencies {
+    // Nashorn for CNPC+ scripts in dev runs: it lives in the Java 8 JRE's ext folder, which the dev runtime lacks
+    runtimeOnlyNonPublishable(files(javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(8)
+        vendor = JvmVendorSpec.AZUL
+    }.map { it.metadata.installationPath.file('jre/lib/ext/nashorn.jar') }))
+}
+
 tasks.named('jar', Jar) {
     from sourceSets.main.output
 }
