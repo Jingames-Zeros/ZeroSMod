@@ -3,6 +3,7 @@ package org.darkoro.zerosmod.finisher.client;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.InputEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import java.util.concurrent.atomic.AtomicReference;
@@ -18,8 +19,11 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderHandEvent;
+import org.darkoro.zerosmod.finisher.FinisherCameraEase;
 import org.darkoro.zerosmod.finisher.FinisherCameraPacket;
+import org.darkoro.zerosmod.finisher.FinisherCameraPathPacket;
 import org.darkoro.zerosmod.finisher.FinisherCameraPreset;
+import org.darkoro.zerosmod.finisher.FinisherCameraSpline;
 import org.lwjgl.input.Mouse;
 
 /**
@@ -32,7 +36,7 @@ public final class FinisherCameraClient {
 
   private final Minecraft mc = Minecraft.getMinecraft();
   // Packets may arrive off the client thread, so they are applied on the next client tick.
-  private final AtomicReference<FinisherCameraPacket> pending = new AtomicReference<FinisherCameraPacket>();
+  private final AtomicReference<IMessage> pending = new AtomicReference<IMessage>();
 
   private CameraEntity camera;
   private FinisherCameraPreset preset;
@@ -44,6 +48,10 @@ public final class FinisherCameraClient {
   private float targetYaw;
   private int sideSign;
   private double introAngle;
+  // Set instead of preset while a keyframe path plays
+  private FinisherCameraPathPacket path;
+  private double[] pathTicks;
+  private Frame lastFrame;
 
   private EntityLivingBase savedView;
   private MovementInput savedInput;
@@ -59,12 +67,18 @@ public final class FinisherCameraClient {
     pending.set(packet);
   }
 
+  public void receive(FinisherCameraPathPacket packet) {
+    pending.set(packet);
+  }
+
   @SubscribeEvent
   public void onClientTick(TickEvent.ClientTickEvent event) {
     if (event.phase == TickEvent.Phase.START) {
-      FinisherCameraPacket packet = pending.getAndSet(null);
-      if (packet != null) {
-        apply(packet);
+      IMessage packet = pending.getAndSet(null);
+      if (packet instanceof FinisherCameraPacket) {
+        apply((FinisherCameraPacket)packet);
+      } else if (packet instanceof FinisherCameraPathPacket) {
+        apply((FinisherCameraPathPacket)packet);
       }
       if (camera != null && !isValid()) {
         stop();
@@ -115,12 +129,31 @@ public final class FinisherCameraClient {
     }
 
     preset = FinisherCameraPreset.byId(packet.preset);
+    path = null;
     targetId = packet.targetId;
     duration = packet.ticks;
     elapsed = 0;
     lastTarget = null;
     sideSign = 0;
     introAngle = Double.NaN;
+    if (camera == null) {
+      start();
+    }
+  }
+
+  private void apply(FinisherCameraPathPacket packet) {
+    if (packet.duration() <= 0 || mc.theWorld == null || mc.thePlayer == null) {
+      return;
+    }
+
+    path = packet;
+    pathTicks = new double[packet.ticks.length];
+    for (int i = 0; i < pathTicks.length; i++) {
+      pathTicks[i] = packet.ticks[i];
+    }
+    lastFrame = null;
+    duration = packet.duration();
+    elapsed = 0;
     if (camera == null) {
       start();
     }
@@ -163,6 +196,9 @@ public final class FinisherCameraClient {
 
     camera = null;
     lastTarget = null;
+    path = null;
+    pathTicks = null;
+    lastFrame = null;
     savedView = null;
     savedInput = null;
     lockedInput = null;
@@ -183,7 +219,14 @@ public final class FinisherCameraClient {
   private void update(float partialTicks) {
     mc.gameSettings.thirdPersonView = 0;
     mc.gameSettings.hideGUI = true;
+    if (path != null) {
+      updatePath(partialTicks);
+    } else {
+      updatePreset(partialTicks);
+    }
+  }
 
+  private void updatePreset(float partialTicks) {
     double progress = MathHelper.clamp_double((elapsed + partialTicks) / Math.max(1, duration), 0.0D, 1.0D);
     double eased = progress * progress * (3.0D - 2.0D * progress);
     double[] self = center(mc.thePlayer, partialTicks);
@@ -285,6 +328,104 @@ public final class FinisherCameraClient {
     camera.moveTo(position[0], position[1], position[2], yaw, pitch);
   }
 
+  private void updatePath(float partialTicks) {
+    double progress = MathHelper.clamp_double((elapsed + partialTicks) / Math.max(1, duration), 0.0D, 1.0D);
+    double time = FinisherCameraEase.byId(path.ease).apply(progress) * duration;
+    Frame frame = frame(partialTicks);
+    double[] position = frame.toWorld(
+        FinisherCameraSpline.sample(pathTicks, path.x, time),
+        FinisherCameraSpline.sample(pathTicks, path.y, time),
+        FinisherCameraSpline.sample(pathTicks, path.z, time));
+
+    float yaw;
+    float pitch;
+    int segment = FinisherCameraSpline.segment(pathTicks, time);
+    double[] lookTarget = sharedLookTarget(segment, time, frame, partialTicks);
+    if (lookTarget != null) {
+      yaw = yawTowards(position, lookTarget);
+      pitch = pitchTowards(position, lookTarget);
+    } else {
+      int keys = pathTicks.length;
+      double[] yaws = new double[keys];
+      double[] pitches = new double[keys];
+      for (int i = 0; i < keys; i++) {
+        if (path.lookAt[i]) {
+          double[] from = frame.toWorld(path.x[i], path.y[i], path.z[i]);
+          double[] at = lookTarget(path.targetIds[i], frame, partialTicks);
+          yaws[i] = yawTowards(from, at);
+          pitches[i] = pitchTowards(from, at);
+        } else {
+          yaws[i] = frame.yaw + path.yaw[i];
+          pitches[i] = path.pitch[i];
+        }
+      }
+      yaw = (float)FinisherCameraSpline.sample(pathTicks, FinisherCameraSpline.unwrapDegrees(yaws), time);
+      pitch = (float)MathHelper.clamp_double(FinisherCameraSpline.sample(pathTicks, pitches, time), -90.0D, 90.0D);
+    }
+
+    if (frame.center != null) {
+      position = clipToWorld(frame.center, position);
+    }
+    camera.moveTo(position[0], position[1], position[2], yaw, pitch);
+  }
+
+  // Between two keyframes aiming at the same entity, aim from the real camera position so it stays centered.
+  private double[] sharedLookTarget(int segment, double time, Frame frame, float partialTicks) {
+    int keys = pathTicks.length;
+    int from = keys == 1 || time <= pathTicks[0] ? 0 : time >= pathTicks[keys - 1] ? keys - 1 : segment;
+    int to = keys == 1 || time <= pathTicks[0] || time >= pathTicks[keys - 1] ? from : segment + 1;
+    if (!path.lookAt[from] || !path.lookAt[to] || path.targetIds[from] != path.targetIds[to]) {
+      return null;
+    }
+    return lookTarget(path.targetIds[from], frame, partialTicks);
+  }
+
+  private double[] lookTarget(int entityId, Frame frame, float partialTicks) {
+    int id = entityId >= 0 ? entityId : path.relativeId;
+    Entity entity = id >= 0 ? mc.theWorld.getEntityByID(id) : mc.thePlayer;
+    if (entity != null && !entity.isDead) {
+      return center(entity, partialTicks);
+    }
+    return frame.center != null ? frame.center : center(mc.thePlayer, partialTicks);
+  }
+
+  // The followed entity's position and body yaw; held at the last known one if it disappears mid-shot.
+  private Frame frame(float partialTicks) {
+    if (path.relativeId < 0) {
+      return Frame.WORLD;
+    }
+
+    Entity entity = mc.theWorld.getEntityByID(path.relativeId);
+    if ((entity == null || entity.isDead) && lastFrame == null) {
+      // Not loaded on this client (yet): follow the player rather than treating offsets as world coordinates
+      entity = mc.thePlayer;
+    }
+    if (entity != null && !entity.isDead) {
+      double x = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * partialTicks;
+      double y = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * partialTicks - entity.yOffset;
+      double z = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * partialTicks;
+      float yaw = entity instanceof EntityLivingBase
+          ? interpolateYaw(((EntityLivingBase)entity).prevRenderYawOffset, ((EntityLivingBase)entity).renderYawOffset, partialTicks)
+          : interpolateYaw(entity.prevRotationYaw, entity.rotationYaw, partialTicks);
+      lastFrame = new Frame(x, y, z, yaw, center(entity, partialTicks));
+    }
+    return lastFrame != null ? lastFrame : Frame.WORLD;
+  }
+
+  private static float interpolateYaw(float previous, float current, float partialTicks) {
+    return previous + MathHelper.wrapAngleTo180_float(current - previous) * partialTicks;
+  }
+
+  private static float yawTowards(double[] from, double[] to) {
+    return (float)(Math.toDegrees(Math.atan2(to[2] - from[2], to[0] - from[0])) - 90.0D);
+  }
+
+  private static float pitchTowards(double[] from, double[] to) {
+    double dx = to[0] - from[0];
+    double dz = to[2] - from[2];
+    return (float)-Math.toDegrees(Math.atan2(to[1] - from[1], Math.sqrt(dx * dx + dz * dz)));
+  }
+
   private double[] targetCenter(float partialTicks) {
     if (targetId < 0) {
       return null;
@@ -339,6 +480,42 @@ public final class FinisherCameraClient {
 
     double pull = Math.min(0.3D, length) / length;
     return new double[] {hit.hitVec.xCoord + dx * pull, hit.hitVec.yCoord + dy * pull, hit.hitVec.zCoord + dz * pull};
+  }
+
+  /** Where path offsets are measured from: world coordinates, or an entity's feet turned with its body yaw. */
+  private static final class Frame {
+
+    private static final Frame WORLD = new Frame(0.0D, 0.0D, 0.0D, 0.0F, null);
+
+    private final double x;
+    private final double y;
+    private final double z;
+    private final float yaw;
+    // Middle of the followed entity, which camera positions are clipped against; null in world coordinates
+    private final double[] center;
+
+    private Frame(double x, double y, double z, float yaw, double[] center) {
+      this.x = x;
+      this.y = y;
+      this.z = z;
+      this.yaw = yaw;
+      this.center = center;
+    }
+
+    // x to the entity's right, y up, z in front of it; yaw 0 faces +Z in Minecraft
+    private double[] toWorld(double offsetX, double offsetY, double offsetZ) {
+      if (center == null) {
+        return new double[] {offsetX, offsetY, offsetZ};
+      }
+
+      double radians = Math.toRadians(yaw);
+      double sin = Math.sin(radians);
+      double cos = Math.cos(radians);
+      return new double[] {
+          x - cos * offsetX - sin * offsetZ,
+          y + offsetY,
+          z - sin * offsetX + cos * offsetZ};
+    }
   }
 
   private static final class LockedMouseHelper extends MouseHelper {

@@ -55,22 +55,42 @@ public final class FinisherCamera {
     if (target != null && target.worldObj != player.worldObj) {
       return false;
     }
-    boolean animate = animation != null && !animation.isEmpty();
-    if (animate && !hasAnimation(animation)) {
+    if (!isPlayable(animation)) {
       return false;
     }
 
     int duration = Math.min(ticks, MAX_TICKS);
     int targetId = target == null || target == player ? -1 : target.getEntityId();
     ZeroSMod.network.sendTo(new FinisherCameraPacket(targetId, duration, preset.ordinal()), player);
-    if (animate) {
-      IAnimationData data = animationData(player);
-      data.setEnabled(true);
-      data.setAnimation(NpcAPI.Instance().getAnimations().get(animation));
-      data.updateClient();
-      pendingStops.put(player.getUniqueID(), new PendingStop(player, animation, duration));
-    }
+    startAnimation(player, animation, duration);
     return true;
+  }
+
+  public static boolean playPath(EntityPlayerMP player, FinisherCameraPath path, String animation) {
+    if (player == null || path == null || !path.isPlayableFor(player) || !isPlayable(animation)) {
+      return false;
+    }
+
+    ZeroSMod.network.sendTo(path.toPacket(), player);
+    startAnimation(player, animation, path.getDuration());
+    return true;
+  }
+
+  // No animation is fine; a named one has to exist
+  private static boolean isPlayable(String animation) {
+    return animation == null || animation.isEmpty() || hasAnimation(animation);
+  }
+
+  private static void startAnimation(EntityPlayerMP player, String animation, int duration) {
+    if (animation == null || animation.isEmpty()) {
+      return;
+    }
+
+    IAnimationData data = animationData(player);
+    data.setEnabled(true);
+    data.setAnimation(NpcAPI.Instance().getAnimations().get(animation));
+    data.updateClient();
+    pendingStops.put(player.getUniqueID(), new PendingStop(player, animation, duration));
   }
 
   private static IAnimationData animationData(EntityPlayerMP player) {

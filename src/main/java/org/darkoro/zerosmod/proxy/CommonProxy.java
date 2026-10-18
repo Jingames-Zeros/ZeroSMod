@@ -28,6 +28,7 @@ import org.darkoro.zerosmod.event.KiAttackGuard;
 import org.darkoro.zerosmod.event.SaiyanMasteryMergeEvent;
 import org.darkoro.zerosmod.finisher.FinisherCamera;
 import org.darkoro.zerosmod.finisher.FinisherCameraPacket;
+import org.darkoro.zerosmod.finisher.FinisherCameraPathPacket;
 import org.darkoro.zerosmod.formdrain.CustomFormDrainEventHooks;
 import org.darkoro.zerosmod.it.InstantTransmissionEventHooks;
 import org.darkoro.zerosmod.transformation.CustomFormTransformationEventHooks;
@@ -117,6 +118,8 @@ public class CommonProxy {
   public void receiveDBCAEditorSnapshot(DBCAEditorSnapshot packet, INetHandler connection) {}
 
   public void receiveFinisherCamera(FinisherCameraPacket packet) {}
+
+  public void receiveFinisherCameraPath(FinisherCameraPathPacket packet) {}
 
   private void registerScriptHooks() {
     if (this.scriptHooksRegistered || ScriptHookController.Instance == null) {

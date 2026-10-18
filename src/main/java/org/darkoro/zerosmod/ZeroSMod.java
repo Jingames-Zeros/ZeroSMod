@@ -19,6 +19,7 @@ import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Logger;
 import org.darkoro.zerosmod.config.ConfigHandler;
 import org.darkoro.zerosmod.finisher.FinisherCameraPacket;
+import org.darkoro.zerosmod.finisher.FinisherCameraPathPacket;
 import org.darkoro.zerosmod.guis.GUIHandler;
 import org.darkoro.zerosmod.guis.GUIScheduler;
 import org.darkoro.zerosmod.guis.GuiTextureRegistry;
@@ -92,6 +93,7 @@ public class ZeroSMod {
 		network.registerMessage(SyncKiAttackDestroyerColorPacketHandler.class, SyncKiAttackDestroyerColorPacket.class, 13, Side.CLIENT);
 		network.registerMessage(SyncPlayerScreenPacket.Handler.class, SyncPlayerScreenPacket.class, 14, Side.SERVER);
 		network.registerMessage(FinisherCameraPacket.Handler.class, FinisherCameraPacket.class, 15, Side.CLIENT);
+		network.registerMessage(FinisherCameraPathPacket.Handler.class, FinisherCameraPathPacket.class, 16, Side.CLIENT);
 		proxy.preInit(event);
 	}
 

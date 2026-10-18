@@ -22,6 +22,7 @@ zeros {
                 'org.darkoro.zerosmod.api.ScriptDBCPlayerMethods'                 : 'dbcPlayer',
                 'org.darkoro.zerosmod.api.ScriptZSWeapon'                         : 'weapon',
                 'org.darkoro.zerosmod.api.ScriptPlayerCombatState'                : 'state',
+                'org.darkoro.zerosmod.api.ScriptCameraPath'                       : 'path',
         ]
     }
     deps {
@@ -62,6 +63,13 @@ tasks.register('testRaceStatConfig', JavaExec) {
     mainClass = 'org.darkoro.zerosmod.config.RaceStatConfigTest'
 }
 
+tasks.register('testFinisherCameraSpline', JavaExec) {
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'org.darkoro.zerosmod.finisher.FinisherCameraSplineTest'
+}
+
 tasks.named('check') {
     dependsOn tasks.named('testRaceStatConfig')
+    dependsOn tasks.named('testFinisherCameraSpline')
 }

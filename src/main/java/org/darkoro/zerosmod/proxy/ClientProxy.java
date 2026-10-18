@@ -22,6 +22,7 @@ import org.darkoro.zerosmod.dbcarmor.editor.DBCAEditorClient;
 import org.darkoro.zerosmod.dbcarmor.editor.DBCAEditorNetwork;
 import org.darkoro.zerosmod.dbcarmor.editor.DBCAEditorSnapshot;
 import org.darkoro.zerosmod.finisher.FinisherCameraPacket;
+import org.darkoro.zerosmod.finisher.FinisherCameraPathPacket;
 import org.darkoro.zerosmod.finisher.client.FinisherCameraClient;
 import org.darkoro.zerosmod.network.RaceStatResponse;
 import org.darkoro.zerosmod.input.KeyInputHandler;
@@ -90,6 +91,10 @@ public class ClientProxy extends CommonProxy {
   }
 
   @Override public void receiveFinisherCamera(FinisherCameraPacket packet) {
+    FinisherCameraClient.INSTANCE.receive(packet);
+  }
+
+  @Override public void receiveFinisherCameraPath(FinisherCameraPathPacket packet) {
     FinisherCameraClient.INSTANCE.receive(packet);
   }
 

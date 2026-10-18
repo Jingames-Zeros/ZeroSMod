@@ -68,6 +68,15 @@ export interface ZSAPI {
 
   /** Ends the player's finisher camera early and restores their view, HUD and controls. */
   stopFinisherCamera(player: IPlayer<any>): void;
+
+  /** Creates an empty keyframe camera path; add keyframes, then play it with playCameraPath. */
+  createCameraPath(): ScriptCameraPath<any>;
+
+  /** Plays a keyframe camera path on the player's client like a finisher preset (HUD hidden, controls locked). Returns false without keyframes past tick 0, or when an entity it uses is dead or in another world. */
+  playCameraPath(player: IPlayer<any>, path: ScriptCameraPath<any>): boolean;
+
+  /** Same as above, and also plays the named CNPC+ animation on the player until the shot ends. Returns false (and plays nothing) for an unknown animation. */
+  playCameraPath(player: IPlayer<any>, path: ScriptCameraPath<any>, animation: string): boolean;
 }
 
 /**
@@ -224,6 +233,37 @@ export interface ScriptZSWeapon<T> {
  * @javaFqn org.darkoro.zerosmod.zsweapons.cache.CachedWeaponStats
  */
 export interface CachedWeaponStats<T> extends ScriptZSWeapon<T> {
+}
+
+/**
+ * Keyframe camera path from ZSAPI.createCameraPath(). Methods return the path, so calls chain.
+ * @javaFqn org.darkoro.zerosmod.api.ScriptCameraPath
+ */
+export interface ScriptCameraPath<T> {
+  /** Makes positions and yaw relative to the entity, following it: x to its right, y up from its feet, z in front of it; yaw 0 looks the way it faces, positive turns right. null means world coordinates. */
+  relativeTo(entity: IEntity<any>): ScriptCameraPath<T>;
+
+  /** Adds a keyframe at tick (0-1200) with a fixed yaw and pitch (positive looks down); one at the same tick replaces it. */
+  key(tick: number, x: number, y: number, z: number, yaw: number, pitch: number): ScriptCameraPath<T>;
+
+  /** Adds a keyframe at tick (0-1200) that aims at target; null aims at the relativeTo entity (the player without one). */
+  keyLookAt(tick: number, x: number, y: number, z: number, target: IEntity<any>): ScriptCameraPath<T>;
+
+  /** Sets the time curve over the whole path: "linear" (default), "in", "out" or "inOut". */
+  ease(ease: string): ScriptCameraPath<T>;
+
+  /** Returns the shot length in ticks, the tick of the last keyframe. */
+  getDuration(): number;
+
+  /** Returns the number of keyframes, at most 64. */
+  getKeyCount(): number;
+}
+
+/**
+ * Zero S Mod concrete keyframe camera path.
+ * @javaFqn org.darkoro.zerosmod.finisher.FinisherCameraPath
+ */
+export interface FinisherCameraPath<T> extends ScriptCameraPath<T> {
 }
 
 /**

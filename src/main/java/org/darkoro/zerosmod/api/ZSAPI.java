@@ -200,4 +200,32 @@ public interface ZSAPI {
    * @param player player whose camera is released
    */
   void stopFinisherCamera(IPlayer player);
+
+  /**
+   * Creates an empty keyframe camera path to fill in and play with {@link #playCameraPath(IPlayer, ScriptCameraPath)}.
+   *
+   * @return a new path
+   */
+  ScriptCameraPath createCameraPath();
+
+  /**
+   * Plays a keyframe camera path on the player's client, like a finisher camera preset: HUD hidden, controls
+   * locked, a new shot replaces the old one and {@link #stopFinisherCamera(IPlayer)} ends it early.
+   *
+   * @param player whose camera is taken over
+   * @param path path from {@link #createCameraPath()}
+   * @return true when it plays; false without keyframes past tick 0, or when an entity it uses is dead or in
+   *     another world
+   */
+  boolean playCameraPath(IPlayer player, ScriptCameraPath path);
+
+  /**
+   * Same as above plus a CNPC+ animation, which is stopped when the shot ends or is stopped early
+   *
+   * @param player whose camera is taken over
+   * @param path path from {@link #createCameraPath()}
+   * @param animation name of a CNPC+ animation, null if none
+   * @return true when it plays; also false (and plays nothing) for an unknown animation
+   */
+  boolean playCameraPath(IPlayer player, ScriptCameraPath path, String animation);
 }
