@@ -21,6 +21,8 @@ public final class ZeroSLateMixins implements ILateMixinLoader {
       // Nashorn lives in the JDK extension loader, which LaunchClassLoader must delegate to.
       Launch.classLoader.addClassLoaderExclusion("jdk.nashorn.");
       if (FMLCommonHandler.instance().getSide().isClient()) {
+        mixins.add("npc.MixinJSAutocompleteProviderDeduplication");
+        mixins.add("npc.MixinJSTypeRegistryServerLibGlobals");
         mixins.add("npc.MixinScriptDocumentHelperTypes");
       }
       mixins.add("npc.MixinAbilityDomeScriptMethods");
