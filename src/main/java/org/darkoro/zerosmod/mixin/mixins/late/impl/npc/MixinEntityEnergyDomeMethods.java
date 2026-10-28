@@ -277,6 +277,9 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
     if (!this.zerosmod$followerOverridden) {
       return;
     }
+    if (this.zerosmod$followerScanCooldown > 0) {
+      --this.zerosmod$followerScanCooldown;
+    }
     Entity follower = zerosmod$resolveCustomFollower();
     if (follower != null && !follower.isDead) {
       zerosmod$self().setPosition(follower.posX, follower.posY, follower.posZ);
@@ -293,7 +296,7 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
     if (zerosmod$isExpectedFollower(follower)) {
       return follower;
     }
-    if (this.zerosmod$followerUuid == null || --this.zerosmod$followerScanCooldown > 0) {
+    if (this.zerosmod$followerUuid == null || this.zerosmod$followerScanCooldown > 0) {
       return null;
     }
 
