@@ -59,18 +59,27 @@ final class HairPresetStore {
     return -1;
   }
 
+  /** Reads every readable preset. Returns false when a line was damaged, so the file is backed up. */
   private static boolean read(File file) {
+    boolean intact = true;
     try (BufferedReader reader = new BufferedReader(new InputStreamReader(
         new FileInputStream(file), StandardCharsets.UTF_8))) {
       String line;
       while ((line = reader.readLine()) != null) {
         int split = line.indexOf('\t');
         if (split < 0) continue;
-        String name = new String(Base64.getDecoder().decode(line.substring(0, split)), StandardCharsets.UTF_8);
+        String name;
+        try {
+          name = new String(Base64.getDecoder().decode(line.substring(0, split)), StandardCharsets.UTF_8);
+        } catch (IllegalArgumentException damaged) {
+          // Skip only this line; the presets after it are still loaded and rewritten.
+          intact = false;
+          continue;
+        }
         String code = line.substring(split + 1);
         if (validCode(code)) CUSTOM.add(new Preset(name, code));
       }
-      return true;
+      return intact;
     } catch (Exception ignored) { return false; }
   }
 
