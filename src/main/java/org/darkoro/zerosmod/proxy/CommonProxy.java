@@ -66,6 +66,7 @@ public class CommonProxy {
     SaiyanMasteryMergeEvent saiyanMasteryMergeEvent = new SaiyanMasteryMergeEvent();
     FMLCommonHandler.instance().bus().register(saiyanMasteryMergeEvent);
     FMLCommonHandler.instance().bus().register(KiAttackGuard.INSTANCE);
+    FMLCommonHandler.instance().bus().register(EnergyDomeEventHooks.INSTANCE);
     if (Loader.isModLoaded("npcdbc")) {
       FMLCommonHandler.instance().bus().register(CustomFormTransformationEventHooks.INSTANCE);
     }

@@ -33,7 +33,7 @@ public interface IZeroSEvent {
   /**
    * Fired in the dome owner's NPC or player script when a loaded entity leaves an active energy
    * dome. This also fires when following or resizing moves the dome boundary past an entity.
-   * Removing the dome itself does not emit exit events for every entity that remained inside.
+   * When the dome expires or is removed, this fires for every entity that was still inside.
    *
    * @hookName energyDomeExit
    */
