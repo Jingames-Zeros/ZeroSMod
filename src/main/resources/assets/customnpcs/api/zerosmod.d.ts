@@ -666,7 +666,7 @@ export namespace IZeroSEvent {
 
   /**
    * Fired in the dome owner's NPC or player script when a loaded entity leaves an active dome.
-   * Dome removal does not emit one exit event for every entity remaining inside.
+   * When the dome expires or is removed, this fires for every entity that was still inside.
    * @hookName energyDomeExit
    */
   interface EnergyDomeExitEvent extends IEnergyBarrierEvent {
