@@ -1,12 +1,12 @@
 package org.darkoro.zerosmod.dome;
 
+import com.google.common.collect.MapMaker;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.WeakHashMap;
 import kamkeel.npcs.entity.EntityEnergyDome;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -25,7 +25,7 @@ public final class EnergyDomeEventHooks {
 
   /** Killed domes stop ticking, so their exits fire from the server tick. */
   private static final Set<EntityEnergyDome> OCCUPIED_DOMES =
-      Collections.newSetFromMap(new WeakHashMap<EntityEnergyDome, Boolean>());
+      Collections.newSetFromMap(new MapMaker().weakKeys().<EntityEnergyDome, Boolean>makeMap());
 
   private EnergyDomeEventHooks() {}
 

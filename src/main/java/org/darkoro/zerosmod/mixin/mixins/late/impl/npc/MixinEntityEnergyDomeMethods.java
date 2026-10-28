@@ -54,8 +54,13 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
   @Inject(method = "onUpdate", at = @At("TAIL"), require = 1, remap = true)
   private void zerosmod$afterDomeTick(CallbackInfo ci) {
     EntityEnergyDome dome = zerosmod$self();
-    if (dome.worldObj == null || dome.isDead) {
-      zerosmod$releaseInsideEntities();
+    if (dome.worldObj == null) {
+      return;
+    }
+    if (dome.isDead) {
+      if (!dome.worldObj.isRemote) {
+        zerosmod$releaseInsideEntities();
+      }
       return;
     }
 
