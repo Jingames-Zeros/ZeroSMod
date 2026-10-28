@@ -37,6 +37,7 @@ import org.darkoro.zerosmod.network.SyncZSTabDataPacket;
 import org.darkoro.zerosmod.network.SyncZSTabDataPacketHandler;
 import org.darkoro.zerosmod.network.RaceStatRequest;
 import org.darkoro.zerosmod.network.RaceStatResponse;
+import org.darkoro.zerosmod.network.MusicPackHintPacket;
 import org.darkoro.zerosmod.network.RaceStatEditorServer;
 import org.darkoro.zerosmod.proxy.CommonProxy;
 import org.darkoro.zerosmod.zsweapons.network.WeaponSystemPacketHandler;
@@ -48,7 +49,7 @@ public class ZeroSMod {
 
 	public static final String MODID = "zerosmod";
 	// Bump VERSION only when clients must update. Forge uses this for the client/server mod handshake.
-	public static final String VERSION = "2.1.3";
+	public static final String VERSION = "2.1.4";
 	public static final String ACCEPTABLE_REMOTE_VERSIONS = "[" + VERSION + "]";
 	// modVersion from gradle.properties, injected at build time. Bump it there for server-only
 	// emergency builds that should still allow clients on VERSION.
@@ -85,6 +86,7 @@ public class ZeroSMod {
 		network.registerMessage(SyncKiAttackStatePacketHandler.class, SyncKiAttackStatePacket.class, 8, Side.CLIENT);
 		network.registerMessage(RaceStatRequest.Handler.class, RaceStatRequest.class, 11, Side.SERVER);
 		network.registerMessage(RaceStatResponse.Handler.class, RaceStatResponse.class, 12, Side.CLIENT);
+		network.registerMessage(MusicPackHintPacket.Handler.class, MusicPackHintPacket.class, 13, Side.CLIENT);
 		proxy.preInit(event);
 	}
 
