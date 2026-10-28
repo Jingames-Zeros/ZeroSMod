@@ -5,8 +5,8 @@ import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 import cpw.mods.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import cpw.mods.fml.relauncher.Side;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import kamkeel.npcdbc.api.form.IForm;
 import kamkeel.npcdbc.controllers.FormController;
@@ -25,7 +25,8 @@ public final class CustomFormTransformationEventHooks {
   public static final String BEGINS_TRANSFORMING_HOOK = "beginsTransforming";
   public static final CustomFormTransformationEventHooks INSTANCE =
       new CustomFormTransformationEventHooks();
-  private static final Set<UUID> ACTIVE_ATTEMPTS = new HashSet<UUID>();
+  /** Target form ID of each player's current attempt, so chaining into the next form fires again. */
+  private static final Map<UUID, Integer> ACTIVE_ATTEMPTS = new HashMap<UUID, Integer>();
 
   private CustomFormTransformationEventHooks() {}
 
@@ -37,7 +38,11 @@ public final class CustomFormTransformationEventHooks {
     Form targetForm = (Form)FormController.getInstance().get(targetFormId);
     DBCData data = DBCData.get(player);
     if (targetForm == null || data == null || !data.isTransforming()
-        || !isExpectedTarget(player, targetForm) || !ACTIVE_ATTEMPTS.add(player.getUniqueID())) {
+        || !isExpectedTarget(player, targetForm)) {
+      return;
+    }
+    Integer previousTarget = ACTIVE_ATTEMPTS.put(player.getUniqueID(), targetForm.getID());
+    if (previousTarget != null && previousTarget == targetForm.getID()) {
       return;
     }
 
@@ -50,7 +55,7 @@ public final class CustomFormTransformationEventHooks {
 
   @SubscribeEvent public void onPlayerTick(PlayerTickEvent event) {
     if (event.side != Side.SERVER || event.phase != Phase.END || event.player == null
-        || !ACTIVE_ATTEMPTS.contains(event.player.getUniqueID())) {
+        || !ACTIVE_ATTEMPTS.containsKey(event.player.getUniqueID())) {
       return;
     }
 
