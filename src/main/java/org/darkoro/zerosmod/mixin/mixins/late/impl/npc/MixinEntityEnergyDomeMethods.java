@@ -43,7 +43,7 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
   @Unique private boolean zerosmod$followerOverridden;
   @Unique private int zerosmod$followerEntityId = -1;
   @Unique private UUID zerosmod$followerUuid;
-  // Ticks until the next full entity scan for a follower that is missing from the world
+  // Ticks until the next missing-follower scan
   @Unique private int zerosmod$followerSearchDelay;
   @Unique private final Map<Integer, Entity> zerosmod$insideEntities =
       new HashMap<Integer, Entity>();

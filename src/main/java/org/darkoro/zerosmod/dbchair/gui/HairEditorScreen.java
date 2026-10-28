@@ -181,7 +181,7 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
       redo.clear();
     }
     JRMCoreHairEditorAccess.zerosmod$setHairCode(code);
-    // Slider drags only preview locally; the final code is sent once when the drag ends.
+    // Drags send once on release
     if (activeSlider < 0) syncLive(code);
     refreshValues();
   }

@@ -28,7 +28,6 @@ public abstract class MixinScriptDocumentHelperTypes {
   @Shadow public abstract MethodInfo findContainingMethod(int offset);
   @Shadow public abstract TypeInfo resolveExpressionType(String expression, int offset);
 
-  // Compiled once: resolveExpressionType runs for every expression the editor highlights.
   @Unique private static final Pattern ZEROSMOD$INDEXED_ACCESS = Pattern.compile(
       "^\\s*([A-Za-z_$][A-Za-z0-9_$]*)(?:\\s*\\[[^]]+\\])?\\s*\\.\\s*([A-Za-z_$][A-Za-z0-9_$]*)\\s*$");
   @Unique private static final Pattern ZEROSMOD$INDEXED_ASSIGNMENT = Pattern.compile(

@@ -27,6 +27,6 @@ public interface EnergyDomeExtension {
 
   void zerosmod$setTargetRadius(float radius, int ticks);
 
-  /** Fires exit events for every entity still inside and forgets them. Used when the dome dies. */
+  /** Fires exits for every entity still inside. */
   void zerosmod$releaseInsideEntities();
 }

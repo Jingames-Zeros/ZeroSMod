@@ -32,7 +32,7 @@ public abstract class DBCHairStrandColorMixin {
     }
   }
 
-  /** True when the NPC's active form colors its hair, directly or through a Majin body color. */
+  /** True when the active form colors the hair. */
   private static boolean zerosmod$formColorsHair(DBCDisplay display) {
     Form form = display.getForm();
     if (form == null || form.display == null || display.formColor == null) return false;

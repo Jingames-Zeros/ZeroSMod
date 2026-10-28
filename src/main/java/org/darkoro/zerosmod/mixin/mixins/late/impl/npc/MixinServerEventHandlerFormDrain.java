@@ -18,8 +18,7 @@ public abstract class MixinServerEventHandlerFormDrain {
       remap = false)
   private double zerosmod$fireFormDrain(double negativeDrain,
       @Local(argsOnly = true) EntityPlayer player) {
-    // NPCDBC passes the drain negated. A form configured with a negative drain restores Ki
-    // instead, which is not a drain, so it runs unchanged without firing the hook.
+    // Positive means a negative drain, which restores Ki
     if (negativeDrain >= 0.0D) {
       return Math.floor(negativeDrain);
     }

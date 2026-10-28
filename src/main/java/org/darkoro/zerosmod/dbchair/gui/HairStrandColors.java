@@ -14,7 +14,7 @@ public final class HairStrandColors {
   private static final int STRAND_COUNT = 56;
   private static final int SLOT_LENGTH = 6;
   private static final int DATA_LENGTH = STRAND_COUNT * SLOT_LENGTH;
-  /** DBC race ID for Majins, whose hair takes the form's body color. */
+  /** DBC race ID for Majins. */
   public static final int MAJIN_RACE = 5;
   private static final int NO_COLOR = -1;
   private static final int[] NO_OVERRIDES = new int[0];
@@ -97,10 +97,7 @@ public final class HairStrandColors {
     return applyColor(rgb);
   }
 
-  /**
-   * Applies an NPC strand override. The caller checks whether the NPC's active DBC Addon form
-   * supplies a hair color, so this class stays free of DBC Addon types.
-   */
+  /** Applies an NPC strand override unless its form colors the hair. */
   public static boolean applyNpcRenderColor(String renderCode, int strand, boolean formColorsHair) {
     return !formColorsHair && applyColor(strandColor(renderCode, strand));
   }
@@ -112,7 +109,7 @@ public final class HairStrandColors {
     return true;
   }
 
-  /** Returns a strand's override color, parsing each hair code once instead of every frame. */
+  /** Cached per hair code. */
   private static int strandColor(String code, int strand) {
     if (code == null || strand < 0 || strand >= STRAND_COUNT) return NO_COLOR;
     int[] colors = PARSED_COLORS.get(code);

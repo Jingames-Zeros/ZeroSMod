@@ -73,8 +73,7 @@ public class ServerWeaponHandler {
         // Run combat tick at the start of the tick
         if(event.phase == TickEvent.Phase.START) {
             state.tick(1.0D);
-            // Periodically send cooldown to resync with server. Floor it, because a script can
-            // set a fractional cooldown that would never land on a multiple of 5.
+            // Periodically send cooldown to resync with server (floored for fractional cooldowns)
             if(state.getRemainingAttackCooldown() > 0 && Math.floor(state.getRemainingAttackCooldown()) % 5 == 0) {
                 sendCooldownPacketToClient((EntityPlayerMP) player, state);
             }

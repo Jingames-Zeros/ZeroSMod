@@ -59,7 +59,7 @@ final class HairPresetStore {
     return -1;
   }
 
-  /** Reads every readable preset. Returns false when a line was damaged, so the file is backed up. */
+  /** Returns false when a line was damaged. */
   private static boolean read(File file) {
     boolean intact = true;
     try (BufferedReader reader = new BufferedReader(new InputStreamReader(
@@ -72,7 +72,7 @@ final class HairPresetStore {
         try {
           name = new String(Base64.getDecoder().decode(line.substring(0, split)), StandardCharsets.UTF_8);
         } catch (IllegalArgumentException damaged) {
-          // Skip only this line; the presets after it are still loaded and rewritten.
+          // Skip only the damaged line
           intact = false;
           continue;
         }

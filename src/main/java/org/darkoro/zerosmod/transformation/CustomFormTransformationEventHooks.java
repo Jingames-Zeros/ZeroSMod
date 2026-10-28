@@ -25,7 +25,7 @@ public final class CustomFormTransformationEventHooks {
   public static final String BEGINS_TRANSFORMING_HOOK = "beginsTransforming";
   public static final CustomFormTransformationEventHooks INSTANCE =
       new CustomFormTransformationEventHooks();
-  /** Target form ID of each player's current attempt, so chaining into the next form fires again. */
+  /** Target form ID per player, so chaining fires again. */
   private static final Map<UUID, Integer> ACTIVE_ATTEMPTS = new HashMap<UUID, Integer>();
 
   private CustomFormTransformationEventHooks() {}

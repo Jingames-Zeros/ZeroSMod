@@ -23,10 +23,7 @@ public final class EnergyDomeEventHooks {
   public static final String EXIT_HOOK = "energyDomeExit";
   public static final EnergyDomeEventHooks INSTANCE = new EnergyDomeEventHooks();
 
-  /**
-   * Domes with entities inside. A dome killed from outside its own tick never ticks again, so the
-   * server tick fires the exit events it still owes.
-   */
+  /** Domes with entities inside, so a killed dome still fires its exits. */
   private static final Set<EntityEnergyDome> OCCUPIED_DOMES =
       Collections.newSetFromMap(new WeakHashMap<EntityEnergyDome, Boolean>());
 
