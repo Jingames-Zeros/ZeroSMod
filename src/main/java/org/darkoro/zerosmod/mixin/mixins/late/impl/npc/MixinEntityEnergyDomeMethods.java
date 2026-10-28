@@ -43,8 +43,7 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
   @Unique private boolean zerosmod$followerOverridden;
   @Unique private int zerosmod$followerEntityId = -1;
   @Unique private UUID zerosmod$followerUuid;
-  // Ticks until the next missing-follower scan
-  @Unique private int zerosmod$followerSearchDelay;
+  @Unique private int zerosmod$followerScanCooldown;
   @Unique private final Map<Integer, Entity> zerosmod$insideEntities =
       new HashMap<Integer, Entity>();
   @Unique private float zerosmod$resizeStartRadius;
@@ -289,11 +288,11 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
     if (zerosmod$isExpectedFollower(follower)) {
       return follower;
     }
-    if (this.zerosmod$followerUuid == null || --this.zerosmod$followerSearchDelay > 0) {
+    if (this.zerosmod$followerUuid == null || --this.zerosmod$followerScanCooldown > 0) {
       return null;
     }
 
-    this.zerosmod$followerSearchDelay = 20;
+    this.zerosmod$followerScanCooldown = 20;
     for (Object loaded : dome.worldObj.loadedEntityList) {
       if (loaded instanceof Entity && zerosmod$isExpectedFollower((Entity)loaded)) {
         follower = (Entity)loaded;

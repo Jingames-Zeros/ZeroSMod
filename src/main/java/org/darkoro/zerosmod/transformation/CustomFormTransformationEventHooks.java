@@ -25,8 +25,7 @@ public final class CustomFormTransformationEventHooks {
   public static final String BEGINS_TRANSFORMING_HOOK = "beginsTransforming";
   public static final CustomFormTransformationEventHooks INSTANCE =
       new CustomFormTransformationEventHooks();
-  /** Target form ID per player, so chaining fires again. */
-  private static final Map<UUID, Integer> ACTIVE_ATTEMPTS = new HashMap<UUID, Integer>();
+  private static final Map<UUID, Integer> ATTEMPT_TARGET_FORMS = new HashMap<UUID, Integer>();
 
   private CustomFormTransformationEventHooks() {}
 
@@ -41,7 +40,7 @@ public final class CustomFormTransformationEventHooks {
         || !isExpectedTarget(player, targetForm)) {
       return;
     }
-    Integer previousTarget = ACTIVE_ATTEMPTS.put(player.getUniqueID(), targetForm.getID());
+    Integer previousTarget = ATTEMPT_TARGET_FORMS.put(player.getUniqueID(), targetForm.getID());
     if (previousTarget != null && previousTarget == targetForm.getID()) {
       return;
     }
@@ -55,19 +54,19 @@ public final class CustomFormTransformationEventHooks {
 
   @SubscribeEvent public void onPlayerTick(PlayerTickEvent event) {
     if (event.side != Side.SERVER || event.phase != Phase.END || event.player == null
-        || !ACTIVE_ATTEMPTS.containsKey(event.player.getUniqueID())) {
+        || !ATTEMPT_TARGET_FORMS.containsKey(event.player.getUniqueID())) {
       return;
     }
 
     DBCData data = DBCData.get(event.player);
     if (data == null || !data.isTransforming()) {
-      ACTIVE_ATTEMPTS.remove(event.player.getUniqueID());
+      ATTEMPT_TARGET_FORMS.remove(event.player.getUniqueID());
     }
   }
 
   @SubscribeEvent public void onPlayerLoggedOut(PlayerLoggedOutEvent event) {
     if (event.player != null) {
-      ACTIVE_ATTEMPTS.remove(event.player.getUniqueID());
+      ATTEMPT_TARGET_FORMS.remove(event.player.getUniqueID());
     }
   }
 

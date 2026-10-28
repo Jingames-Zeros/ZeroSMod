@@ -27,6 +27,5 @@ public interface EnergyDomeExtension {
 
   void zerosmod$setTargetRadius(float radius, int ticks);
 
-  /** Fires exits for every entity still inside. */
   void zerosmod$releaseInsideEntities();
 }

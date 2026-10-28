@@ -13,7 +13,6 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
     private ItemStack currentItem;
     private final CachedWeaponStats itemStats = new CachedWeaponStats();
     private double remainingAttackCooldown = 0;
-    // Length of the running cooldown
     private double attackCooldownLength = 0;
     private boolean waitingToAttack = false;
     private float distanceToTarget = 0.0F;

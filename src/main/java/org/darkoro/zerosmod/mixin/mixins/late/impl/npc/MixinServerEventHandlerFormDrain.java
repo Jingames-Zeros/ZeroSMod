@@ -18,7 +18,7 @@ public abstract class MixinServerEventHandlerFormDrain {
       remap = false)
   private double zerosmod$fireFormDrain(double negativeDrain,
       @Local(argsOnly = true) EntityPlayer player) {
-    // Positive means a negative drain, which restores Ki
+    // Ki regeneration, not a drain
     if (negativeDrain >= 0.0D) {
       return Math.floor(negativeDrain);
     }

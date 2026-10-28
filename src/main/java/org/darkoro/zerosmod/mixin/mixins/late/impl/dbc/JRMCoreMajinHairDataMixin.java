@@ -28,7 +28,7 @@ public abstract class JRMCoreMajinHairDataMixin {
         // force a Majin's independent hair color back to its body color.
         JRMCoreH.setString(dns, player, "jrmcDNS");
       } else {
-        // DBC freezes hair after acceptance; only allow the Majin hair color
+        // Only the hair color may change after acceptance
         String updatedDns = JRMCoreH.dnsHairCSet(currentDns, JRMCoreH.dnsHairC(dns));
         JRMCoreH.setString(updatedDns, player, "jrmcDNS");
       }

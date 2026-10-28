@@ -159,7 +159,6 @@ public abstract class MixinScriptDBCPlayer<T extends EntityPlayerMP>
   private static void setNoFuse(DBCData data, int seconds) {
     String stored = String.valueOf(secondsToStoredIntervals(seconds));
     data.getRawCompound().setString(FUSION_NBT, stored);
-    // Also syncs to clients
     data.loadNBTData(false);
   }
 
