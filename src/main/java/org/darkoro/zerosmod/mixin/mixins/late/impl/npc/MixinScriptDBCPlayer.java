@@ -159,7 +159,8 @@ public abstract class MixinScriptDBCPlayer<T extends EntityPlayerMP>
   private static void setNoFuse(DBCData data, int seconds) {
     String stored = String.valueOf(secondsToStoredIntervals(seconds));
     data.getRawCompound().setString(FUSION_NBT, stored);
-    data.Fusion = stored;
+    // Reload from NBT, which also syncs the change to tracking clients.
+    data.loadNBTData(false);
   }
 
   private static int getNoFuseSeconds(DBCData data) {
@@ -174,9 +175,10 @@ public abstract class MixinScriptDBCPlayer<T extends EntityPlayerMP>
     DBCData data = DBCData.get(participant);
     String cooldown = String.valueOf(Math.max(0, JRMCoreConfig.FznOverTime));
     data.getRawCompound().setString(FUSION_NBT, cooldown);
+    // setSE writes jrmcStatusEff to the raw compound as well as returning the new value.
     data.StatusEffects = data.setSE(10, false);
     data.StatusEffects = data.setSE(11, false);
-    data.Fusion = cooldown;
+    data.loadNBTData(false);
   }
 
   private static EntityPlayerMP findOnlinePlayer(String name) {
