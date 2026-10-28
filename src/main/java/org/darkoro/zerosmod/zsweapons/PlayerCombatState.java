@@ -83,8 +83,7 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
      * Handles a combat-state attack with a cooldown chosen for this attack only.
      */
     public void handleAttack(float distanceToTarget, double cooldown) {
-        remainingAttackCooldown = Math.max(0.0D, cooldown);
-        attackCooldownLength = remainingAttackCooldown;
+        startCooldown(cooldown);
         this.distanceToTarget = distanceToTarget;
         waitingToAttack = true;
     }
@@ -93,15 +92,18 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
      * Resets cooldown after blocking
      */
     public void blockEvent() {
-        remainingAttackCooldown = itemStats.getBlockCooldown();
-        attackCooldownLength = remainingAttackCooldown;
+        startCooldown(itemStats.getBlockCooldown());
     }
 
     /**
      * Triggers an attack cooldown
      */
     public void resetCooldown() {
-        remainingAttackCooldown = itemStats.getCooldown();
+        startCooldown(itemStats.getCooldown());
+    }
+
+    private void startCooldown(double ticks) {
+        remainingAttackCooldown = Math.max(0.0D, ticks);
         attackCooldownLength = remainingAttackCooldown;
     }
 
@@ -125,6 +127,6 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
 
 
     // Setters
-    public void setRemainingAttackCooldown(double remainingAttackCooldown) { this.remainingAttackCooldown = remainingAttackCooldown; }
+    public void setRemainingAttackCooldown(double remainingAttackCooldown) { startCooldown(remainingAttackCooldown); }
     public void setAttackCooldownLength(double attackCooldownLength) { this.attackCooldownLength = attackCooldownLength; }
 }
