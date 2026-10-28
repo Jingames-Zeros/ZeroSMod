@@ -23,9 +23,14 @@ public abstract class DBCHairStrandColorMixin {
       @Local(index = 32) int strandIndex,
       @Local(index = 12) String renderCode,
       @Local(argsOnly = true) DBCDisplay display) {
+    int rgb = HairStrandColors.strandColor(renderCode, strandIndex);
+    if (rgb == HairStrandColors.NO_COLOR || zerosmod$formColorsHair(display)) {
+      renderer.render(scale);
+      return;
+    }
     GL11.glPushAttrib(GL11.GL_CURRENT_BIT);
     try {
-      HairStrandColors.applyNpcRenderColor(renderCode, strandIndex, zerosmod$formColorsHair(display));
+      HairStrandColors.applyColor(rgb);
       renderer.render(scale);
     } finally {
       GL11.glPopAttrib();

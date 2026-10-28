@@ -15,7 +15,7 @@ public final class HairStrandColors {
   private static final int SLOT_LENGTH = 6;
   private static final int DATA_LENGTH = STRAND_COUNT * SLOT_LENGTH;
   public static final int MAJIN_RACE = 5;
-  private static final int NO_COLOR = -1;
+  public static final int NO_COLOR = -1;
   private static final int[] NO_OVERRIDES = new int[0];
   private static final int PARSE_CACHE_SIZE = 64;
   private static final Map<String, int[]> PARSED_COLORS =
@@ -61,10 +61,8 @@ public final class HairStrandColors {
   }
 
   public static String colorSlot(String code, int strand) {
-    if (strand < 0 || strand >= STRAND_COUNT || !hasOverrides(code)) return null;
-    int start = GEOMETRY_LENGTH + MARKER.length() + strand * SLOT_LENGTH;
-    String slot = code.substring(start, start + SLOT_LENGTH);
-    return "------".equals(slot) ? null : slot;
+    int rgb = strandColor(code, strand);
+    return rgb == NO_COLOR ? null : String.format(java.util.Locale.ROOT, "%06X", rgb);
   }
 
   public static String withColor(String code, int strand, int rgb) {
@@ -96,18 +94,14 @@ public final class HairStrandColors {
     return applyColor(rgb);
   }
 
-  public static boolean applyNpcRenderColor(String renderCode, int strand, boolean formColorsHair) {
-    return !formColorsHair && applyColor(strandColor(renderCode, strand));
-  }
-
-  private static boolean applyColor(int rgb) {
+  public static boolean applyColor(int rgb) {
     if (rgb == NO_COLOR) return false;
     GL11.glColor4f(((rgb >> 16) & 255) / 255F, ((rgb >> 8) & 255) / 255F,
         (rgb & 255) / 255F, 1F);
     return true;
   }
 
-  private static int strandColor(String code, int strand) {
+  public static int strandColor(String code, int strand) {
     if (code == null || strand < 0 || strand >= STRAND_COUNT) return NO_COLOR;
     int[] colors = PARSED_COLORS.get(code);
     if (colors == null) {
