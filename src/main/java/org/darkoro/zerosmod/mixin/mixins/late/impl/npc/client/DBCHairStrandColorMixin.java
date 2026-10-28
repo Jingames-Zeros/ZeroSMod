@@ -3,6 +3,7 @@ package org.darkoro.zerosmod.mixin.mixins.late.impl.npc.client;
 import com.llamalad7.mixinextras.sugar.Local;
 import kamkeel.npcdbc.client.model.part.hair.DBCHair;
 import kamkeel.npcdbc.client.model.part.hair.ModelHairRenderer;
+import kamkeel.npcdbc.data.form.Form;
 import kamkeel.npcdbc.data.npc.DBCDisplay;
 import org.darkoro.zerosmod.dbchair.gui.HairStrandColors;
 import org.lwjgl.opengl.GL11;
@@ -24,10 +25,19 @@ public abstract class DBCHairStrandColorMixin {
       @Local(argsOnly = true) DBCDisplay display) {
     GL11.glPushAttrib(GL11.GL_CURRENT_BIT);
     try {
-      HairStrandColors.applyNpcRenderColor(renderCode, strandIndex, display);
+      HairStrandColors.applyNpcRenderColor(renderCode, strandIndex, zerosmod$formColorsHair(display));
       renderer.render(scale);
     } finally {
       GL11.glPopAttrib();
     }
+  }
+
+  /** True when the NPC's active form colors its hair, directly or through a Majin body color. */
+  private static boolean zerosmod$formColorsHair(DBCDisplay display) {
+    Form form = display.getForm();
+    if (form == null || form.display == null || display.formColor == null) return false;
+    return display.formColor.hasAnyColor(form.display, "hair")
+        || display.race == HairStrandColors.MAJIN_RACE
+            && display.formColor.hasAnyColor(form.display, "bodycm");
   }
 }

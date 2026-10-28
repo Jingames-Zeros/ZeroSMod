@@ -4,6 +4,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import org.lwjgl.opengl.GL11;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /** Versioned per-strand color data appended to DBC's unchanged hair geometry. */
 public final class HairStrandColors {
@@ -12,6 +14,17 @@ public final class HairStrandColors {
   private static final int STRAND_COUNT = 56;
   private static final int SLOT_LENGTH = 6;
   private static final int DATA_LENGTH = STRAND_COUNT * SLOT_LENGTH;
+  /** DBC race ID for Majins, whose hair takes the form's body color. */
+  public static final int MAJIN_RACE = 5;
+  private static final int NO_COLOR = -1;
+  private static final int[] NO_OVERRIDES = new int[0];
+  private static final int PARSE_CACHE_SIZE = 64;
+  private static final Map<String, int[]> PARSED_COLORS =
+      new LinkedHashMap<String, int[]>(PARSE_CACHE_SIZE, 0.75F, true) {
+        @Override protected boolean removeEldestEntry(Map.Entry<String, int[]> eldest) {
+          return size() > PARSE_CACHE_SIZE;
+        }
+      };
   private static boolean addonLookupDone;
   private static Method addonGetData, addonGetForm, displayHasColor, displayHasHairColor;
   private static Field formDisplay, dataRace, dataHair;
@@ -75,51 +88,50 @@ public final class HairStrandColors {
   /** Applies a strand override unless DBC Addon explicitly colors this player's active form hair. */
   public static boolean applyRenderColor(String renderCode, int strand, EntityPlayer player) {
     if (player == null) return false;
-    String slotCode = renderCode;
-    String slot = colorSlot(slotCode, strand);
+    int rgb = strandColor(renderCode, strand);
     Object dbcData = addonData(player);
     if (dbcData != null) {
-      if (formHasExplicitHairColor(dbcData)) return false;
-      if (slot == null) {
-        String playerHair = readString(dataHair, dbcData);
-        slot = colorSlot(playerHair, strand);
-      }
+      if (rgb == NO_COLOR) rgb = strandColor(readString(dataHair, dbcData), strand);
+      if (rgb != NO_COLOR && formHasExplicitHairColor(dbcData, player)) return false;
     }
-    if (slot == null) return false;
-    int rgb;
-    try { rgb = Integer.parseInt(slot, 16); }
-    catch (NumberFormatException invalid) { return false; }
+    return applyColor(rgb);
+  }
+
+  /**
+   * Applies an NPC strand override. The caller checks whether the NPC's active DBC Addon form
+   * supplies a hair color, so this class stays free of DBC Addon types.
+   */
+  public static boolean applyNpcRenderColor(String renderCode, int strand, boolean formColorsHair) {
+    return !formColorsHair && applyColor(strandColor(renderCode, strand));
+  }
+
+  private static boolean applyColor(int rgb) {
+    if (rgb == NO_COLOR) return false;
     GL11.glColor4f(((rgb >> 16) & 255) / 255F, ((rgb >> 8) & 255) / 255F,
         (rgb & 255) / 255F, 1F);
     return true;
   }
 
-  /** Applies an NPC strand override unless its active DBC Addon form supplies a hair color. */
-  public static boolean applyNpcRenderColor(String renderCode, int strand, Object npcDisplay) {
-    if (npcDisplay == null || formHasExplicitNpcHairColor(npcDisplay)) return false;
-    String slot = colorSlot(renderCode, strand);
-    if (slot == null) return false;
-    int rgb;
-    try { rgb = Integer.parseInt(slot, 16); }
-    catch (NumberFormatException invalid) { return false; }
-    GL11.glColor4f(((rgb >> 16) & 255) / 255F, ((rgb >> 8) & 255) / 255F,
-        (rgb & 255) / 255F, 1F);
-    return true;
+  /** Returns a strand's override color, parsing each hair code once instead of every frame. */
+  private static int strandColor(String code, int strand) {
+    if (code == null || strand < 0 || strand >= STRAND_COUNT) return NO_COLOR;
+    int[] colors = PARSED_COLORS.get(code);
+    if (colors == null) {
+      colors = parseColors(code);
+      PARSED_COLORS.put(code, colors);
+    }
+    return colors.length == 0 ? NO_COLOR : colors[strand];
   }
 
-  private static boolean formHasExplicitNpcHairColor(Object display) {
-    try {
-      Object form = display.getClass().getMethod("getForm").invoke(display);
-      if (form == null) return false;
-      Object formDisplay = form.getClass().getField("display").get(form);
-      Object formColor = display.getClass().getField("formColor").get(display);
-      if (formDisplay == null || formColor == null) return false;
-      Method hasAnyColor = formColor.getClass().getMethod("hasAnyColor", formDisplay.getClass(), String.class);
-      if (Boolean.TRUE.equals(hasAnyColor.invoke(formColor, formDisplay, "hair"))) return true;
-      Field race = display.getClass().getField("race");
-      return race.getByte(display) == 5
-          && Boolean.TRUE.equals(hasAnyColor.invoke(formColor, formDisplay, "bodycm"));
-    } catch (Exception ignored) { return false; }
+  private static int[] parseColors(String code) {
+    if (!hasOverrides(code)) return NO_OVERRIDES;
+    int[] colors = new int[STRAND_COUNT];
+    int slots = GEOMETRY_LENGTH + MARKER.length();
+    for (int i = 0; i < STRAND_COUNT; i++) {
+      String slot = code.substring(slots + i * SLOT_LENGTH, slots + (i + 1) * SLOT_LENGTH);
+      colors[i] = "------".equals(slot) ? NO_COLOR : Integer.parseInt(slot, 16);
+    }
+    return colors;
   }
 
   private static Object addonData(EntityPlayer player) {
@@ -129,17 +141,17 @@ public final class HairStrandColors {
     catch (Exception ignored) { return null; }
   }
 
-  private static boolean formHasExplicitHairColor(Object data) {
+  private static boolean formHasExplicitHairColor(Object data, EntityPlayer player) {
     initAddonLookup();
     if (addonGetForm == null || displayHasColor == null || formDisplay == null) return false;
     try {
-      Object form = addonGetForm.invoke(null, data.getClass().getField("player").get(data));
+      Object form = addonGetForm.invoke(null, player);
       if (form == null) return false;
       Object display = formDisplay.get(form);
       if (display == null) return false;
       if (Boolean.TRUE.equals(displayHasColor.invoke(display, "hair"))) return true;
       if (Boolean.TRUE.equals(displayHasHairColor.invoke(display, data))) return true;
-      return readInt(dataRace, data) == 3
+      return readInt(dataRace, data) == MAJIN_RACE
           && Boolean.TRUE.equals(displayHasColor.invoke(display, "bodycm"));
     } catch (Exception ignored) { return false; }
   }
