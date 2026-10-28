@@ -32,5 +32,5 @@ public interface ScriptKiAttackBuilderMethods {
   int getDestroyerColor();
 
   /** Restores DBC's normal destroyer colors for this configured attack. */
-  void clearDestroyerColor();
+  boolean clearDestroyerColor();
 }

@@ -403,7 +403,7 @@ export interface IKiAttack {
   getDestroyerColor(): number;
 
   /** Restores DBC's normal destroyer colors for this configured attack. */
-  clearDestroyerColor(): void;
+  clearDestroyerColor(): boolean;
 }
 
 /**
