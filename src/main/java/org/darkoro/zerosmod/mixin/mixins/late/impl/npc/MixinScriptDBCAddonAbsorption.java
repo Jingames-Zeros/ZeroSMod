@@ -6,6 +6,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import org.darkoro.zerosmod.dbc.MajinAbsorptionDataUtil;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -18,17 +19,17 @@ public abstract class MixinScriptDBCAddonAbsorption {
 
   @Inject(method = "setMajinAbsorptionRace(I)V", at = @At("HEAD"), cancellable = true, remap = false)
   private void zerosmod$setAbsorptionRace(int race, CallbackInfo ci) {
-    updateAbsorptionField(1, race);
+    zerosmod$updateAbsorptionField(1, race);
     ci.cancel();
   }
 
   @Inject(method = "setMajinAbsorptionPower(I)V", at = @At("HEAD"), cancellable = true, remap = false)
   private void zerosmod$setAbsorptionPoints(int points, CallbackInfo ci) {
-    updateAbsorptionField(0, points);
+    zerosmod$updateAbsorptionField(0, points);
     ci.cancel();
   }
 
-  private void updateAbsorptionField(int field, int value) {
+  @Unique private void zerosmod$updateAbsorptionField(int field, int value) {
     if (nbt == null || nbt.getByte("jrmcRace") != 5) {
       return;
     }

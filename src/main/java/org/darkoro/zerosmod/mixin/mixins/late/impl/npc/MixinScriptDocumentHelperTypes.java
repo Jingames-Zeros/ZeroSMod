@@ -60,7 +60,7 @@ public abstract class MixinScriptDocumentHelperTypes {
     for (int pass = 0; pass < methods.size(); pass++) {
       boolean changed = false;
       for (MethodInfo method : methods) {
-        if (method.getParameterCount() != 1 || !hasUniqueName(method, methods)) {
+        if (method.getParameterCount() != 1 || !zerosmod$hasUniqueName(method, methods)) {
           continue;
         }
 
@@ -69,7 +69,7 @@ public abstract class MixinScriptDocumentHelperTypes {
           continue;
         }
 
-        TypeInfo type = inferArgumentType(method);
+        TypeInfo type = zerosmod$inferArgumentType(method);
         TypeInfo current = parameter.getEffectiveType();
         if (type != null && (current == null || !type.getFullName().equals(current.getFullName()))) {
           parameter.setInferredType(type);
@@ -155,7 +155,7 @@ public abstract class MixinScriptDocumentHelperTypes {
     }
   }
 
-  private boolean hasUniqueName(MethodInfo method, List<MethodInfo> methods) {
+  @Unique private boolean zerosmod$hasUniqueName(MethodInfo method, List<MethodInfo> methods) {
     for (MethodInfo other : methods) {
       if (other != method && other.getName().equals(method.getName())) {
         return false;
@@ -164,7 +164,7 @@ public abstract class MixinScriptDocumentHelperTypes {
     return true;
   }
 
-  private TypeInfo inferArgumentType(MethodInfo method) {
+  @Unique private TypeInfo zerosmod$inferArgumentType(MethodInfo method) {
     Pattern call = Pattern.compile(
         "\\b" + Pattern.quote(method.getName()) + "\\s*\\(\\s*([A-Za-z_$][A-Za-z0-9_$]*)\\s*\\)");
     Matcher matcher = call.matcher(text);
