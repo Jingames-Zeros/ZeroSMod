@@ -172,7 +172,6 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
     if (code.isEmpty()) return;
     String before = getCode();
     if (before.equals(code)) {
-      syncLive(code);
       refreshValues();
       return;
     }
@@ -182,7 +181,8 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
       redo.clear();
     }
     JRMCoreHairEditorAccess.zerosmod$setHairCode(code);
-    syncLive(code);
+    // Slider drags only preview locally; the final code is sent once when the drag ends.
+    if (activeSlider < 0) syncLive(code);
     refreshValues();
   }
 
@@ -402,8 +402,10 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
       return false;
     }
     String preset = normalize(HairPresetStore.codeAt(JRMCoreGuiScreen.HairPrstsSlcted));
-    if (!preset.isEmpty()) setCode(preset, true);
-    syncLive(preset);
+    if (!preset.isEmpty()) {
+      setCode(preset, true);
+      syncLive(preset);
+    }
     status = "Deleted the selected custom preset.";
     error = false;
     return true;
@@ -508,15 +510,7 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
 
   @Override protected void mouseMovedOrUp(int mouseX, int mouseY, int button) {
     if (button == 0 && activeSlider >= 0) {
-      if (sliderDragStartCode != null && !sliderDragStartCode.equals(getCode())) {
-        undo.push(sliderDragStartCode);
-        while (undo.size() > 50) undo.removeLast();
-        redo.clear();
-        status = "Slider change applied.";
-        error = false;
-      }
-      activeSlider = -1;
-      sliderDragStartCode = null;
+      finishSliderDrag();
     }
     int x = (int) ((mouseX - ox) / scale), y = (int) ((mouseY - oy) / scale);
     if (button == 0 && draggingPreview) {
@@ -524,6 +518,19 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
       draggingPreview = false;
     }
     super.mouseMovedOrUp(x, y, button);
+  }
+
+  private void finishSliderDrag() {
+    activeSlider = -1;
+    if (sliderDragStartCode != null && !sliderDragStartCode.equals(getCode())) {
+      syncLive(getCode());
+      undo.push(sliderDragStartCode);
+      while (undo.size() > 50) undo.removeLast();
+      redo.clear();
+      status = "Slider change applied.";
+      error = false;
+    }
+    sliderDragStartCode = null;
   }
 
   @Override public void handleMouseInput() {
@@ -897,6 +904,7 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
   @Override public boolean doesGuiPauseGame() { return false; }
 
   @Override public void onGuiClosed() {
+    if (activeSlider >= 0) finishSliderDrag();
     Keyboard.enableRepeatEvents(false);
   }
 }
