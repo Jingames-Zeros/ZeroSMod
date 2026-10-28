@@ -28,12 +28,10 @@ public abstract class JRMCoreMajinHairDataMixin {
         // force a Majin's independent hair color back to its body color.
         JRMCoreH.setString(dns, player, "jrmcDNS");
       } else {
-        // With accept enabled DBC freezes every hair field in the incoming DNS. The
-        // barber is the player editing their own character, so merge only its hair
-        // fields into the saved DNS and preserve every other server-side value.
-        String updatedDns = JRMCoreH.dnsHairBSet(currentDns, JRMCoreH.dnsHairB(dns));
-        updatedDns = JRMCoreH.dnsHairFSet(updatedDns, JRMCoreH.dnsHairF(dns));
-        updatedDns = JRMCoreH.dnsHairCSet(updatedDns, JRMCoreH.dnsHairC(dns));
+        // With accept enabled DBC freezes every hair field in the incoming DNS. Majin hair
+        // coloring only needs the hair color, so merge that one field into the saved DNS and
+        // keep every other value, including the other hair fields, as DBC would.
+        String updatedDns = JRMCoreH.dnsHairCSet(currentDns, JRMCoreH.dnsHairC(dns));
         JRMCoreH.setString(updatedDns, player, "jrmcDNS");
       }
       ci.cancel();
