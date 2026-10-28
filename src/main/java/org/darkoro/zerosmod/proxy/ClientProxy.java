@@ -15,6 +15,7 @@ import net.minecraft.world.World;
 import org.darkoro.zerosmod.ZeroSMod;
 import org.darkoro.zerosmod.client.BiomeFogHandler;
 import org.darkoro.zerosmod.client.DimensionVisibilityHandler;
+import org.darkoro.zerosmod.client.MusicPackHintHandler;
 import org.darkoro.zerosmod.client.PhylacterySkyRenderer;
 import org.darkoro.zerosmod.client.ZSTabOverlayHandler;
 import org.darkoro.zerosmod.client.RaceStatEditorClient;
@@ -51,6 +52,7 @@ public class ClientProxy extends CommonProxy {
     KeybindHandler.init();
     FMLCommonHandler.instance().bus().register(new KeyInputHandler());
     FMLCommonHandler.instance().bus().register(ClientWeaponHandler.INSTANCE);
+    FMLCommonHandler.instance().bus().register(MusicPackHintHandler.INSTANCE);
     MinecraftForge.EVENT_BUS.register(new ZSTabOverlayHandler());
     MinecraftForge.EVENT_BUS.register(new BiomeFogHandler());
     MinecraftForge.EVENT_BUS.register(new DimensionVisibilityHandler());
@@ -72,6 +74,10 @@ public class ClientProxy extends CommonProxy {
 
   @Override public void receiveRaceStats(RaceStatResponse packet) {
     RaceStatEditorClient.INSTANCE.receive(packet);
+  }
+
+  @Override public void receiveMusicPackHint(String url) {
+    MusicPackHintHandler.INSTANCE.requestCheck(url);
   }
 
   @Override public void receiveRebirthSnapshot(RebirthSnapshot packet, INetHandler connection) {

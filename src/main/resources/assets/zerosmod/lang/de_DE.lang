@@ -11,3 +11,4 @@ tile.dark_green_water.name=Dunkelgrünes Wasser
 key.zerosmod.spiritcontrol_gui=Öffne das Spirit Control-Menü
 key.categories.zerosmod=Zero S Keybinds
 key.zerosmod.charge_spirit=Aktiviere deine Spirit Control-Fähigkeit
+chat.zerosmod.music_pack_missing=§eDu hast das Zero S Musikpaket nicht installiert. Hier herunterladen, um die Musik des Servers zu hören: %s

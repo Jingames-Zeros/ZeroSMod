@@ -18,6 +18,7 @@ public final class ConfigHandler {
     ClientWeaponConfig.load(event);
     ServerWeaponConfig.load(event);
     KiAttackConfig.load(event);
+    MusicPackConfig.load(event);
   }
 
   public static File getConfigDir(FMLPreInitializationEvent event) {
