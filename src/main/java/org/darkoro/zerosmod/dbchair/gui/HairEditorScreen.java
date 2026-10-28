@@ -168,10 +168,15 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
   public String currentHairCode() { return getCode(); }
 
   private void setCode(String code, boolean remember) {
+    applyCode(code, remember, true);
+  }
+
+  private void applyCode(String code, boolean remember, boolean sync) {
     code = normalize(code);
     if (code.isEmpty()) return;
     String before = getCode();
     if (before.equals(code)) {
+      if (sync) syncIfUnsent(code);
       refreshValues();
       return;
     }
@@ -181,8 +186,12 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
       redo.clear();
     }
     JRMCoreHairEditorAccess.zerosmod$setHairCode(code);
-    if (activeSlider < 0) syncLive(code);
+    if (sync) syncIfUnsent(code);
     refreshValues();
+  }
+
+  private void syncIfUnsent(String code) {
+    if (!code.equals(JRMCoreHairEditorAccess.zerosmod$getLastSentHairCode())) syncLive(code);
   }
 
   private void syncLive(String code) {
@@ -382,8 +391,6 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
       return;
     }
     setCode(preset, true);
-    // DBC's preset action changes dnsH before setCode runs. Always sync even when strings match.
-    syncLive(preset);
     status = "Loaded " + presetDescription(index) + ".";
     error = false;
   }
@@ -401,10 +408,7 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
       return false;
     }
     String preset = normalize(HairPresetStore.codeAt(JRMCoreGuiScreen.HairPrstsSlcted));
-    if (!preset.isEmpty()) {
-      setCode(preset, true);
-      syncLive(preset);
-    }
+    if (!preset.isEmpty()) setCode(preset, true);
     status = "Deleted the selected custom preset.";
     error = false;
     return true;
@@ -453,6 +457,7 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
   }
 
   @Override protected void mouseClicked(int mouseX, int mouseY, int button) {
+    if (activeSlider >= 0) finishSliderDrag();
     int x = (int) ((mouseX - ox) / scale), y = (int) ((mouseY - oy) / scale);
     if (!slidersMode) {
       int clickedField = manualFieldAt(x, y);
@@ -522,7 +527,7 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
   private void finishSliderDrag() {
     activeSlider = -1;
     if (sliderDragStartCode != null && !sliderDragStartCode.equals(getCode())) {
-      syncLive(getCode());
+      syncIfUnsent(getCode());
       undo.push(sliderDragStartCode);
       while (undo.size() > 50) undo.removeLast();
       redo.clear();
@@ -847,7 +852,7 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
     String geometry = HairStrandColors.geometry(code);
     String digits = value < 10 ? "0" + value : Integer.toString(value);
     String updated = JRMCoreH.dnsHair2set(geometry, selected * 14 + index * 2, digits);
-    setCode(updated + (HairStrandColors.hasOverrides(code) ? code.substring(786) : ""), false);
+    applyCode(updated + (HairStrandColors.hasOverrides(code) ? code.substring(786) : ""), false, false);
   }
 
   private String strandColorLabel() {
