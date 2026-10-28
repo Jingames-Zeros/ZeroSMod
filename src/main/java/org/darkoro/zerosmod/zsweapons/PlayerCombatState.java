@@ -13,6 +13,8 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
     private ItemStack currentItem;
     private final CachedWeaponStats itemStats = new CachedWeaponStats();
     private double remainingAttackCooldown = 0;
+    // Full length of the running cooldown, which a script may have changed for one swing
+    private double attackCooldownLength = 0;
     private boolean waitingToAttack = false;
     private float distanceToTarget = 0.0F;
 
@@ -83,6 +85,7 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
      */
     public void handleAttack(float distanceToTarget, double cooldown) {
         remainingAttackCooldown = Math.max(0.0D, cooldown);
+        attackCooldownLength = remainingAttackCooldown;
         this.distanceToTarget = distanceToTarget;
         waitingToAttack = true;
     }
@@ -92,6 +95,7 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
      */
     public void blockEvent() {
         remainingAttackCooldown = itemStats.getBlockCooldown();
+        attackCooldownLength = remainingAttackCooldown;
     }
 
     /**
@@ -99,6 +103,7 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
      */
     public void resetCooldown() {
         remainingAttackCooldown = itemStats.getCooldown();
+        attackCooldownLength = remainingAttackCooldown;
     }
 
     /**
@@ -113,6 +118,7 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
 
     // Getters
     public double getRemainingAttackCooldown() { return remainingAttackCooldown; }
+    public double getAttackCooldownLength() { return attackCooldownLength; }
     public ScriptZSWeapon getCurrentZSWeapon() { return itemStats; }
     public CachedWeaponStats getItemStats() { return itemStats; }
     public ItemStack getCurrentItem() { return currentItem; }
@@ -121,4 +127,5 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
 
     // Setters
     public void setRemainingAttackCooldown(double remainingAttackCooldown) { this.remainingAttackCooldown = remainingAttackCooldown; }
+    public void setAttackCooldownLength(double attackCooldownLength) { this.attackCooldownLength = attackCooldownLength; }
 }
