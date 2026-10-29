@@ -15,3 +15,4 @@ tile.pitclouds.name=Pitclouds
 key.zerosmod.spiritcontrol_gui=Open the Spirit Control Menu
 key.categories.zerosmod=Zero S Keybinds
 key.zerosmod.charge_spirit=Activate your Spirit Control Ability
+chat.zerosmod.music_pack_missing=§eYou don't have the Zero S music pack installed. Get it here to hear the server's music: %s

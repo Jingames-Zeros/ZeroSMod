@@ -92,6 +92,8 @@ public class CommonProxy {
 
   public void receiveRaceStats(RaceStatResponse packet) {}
 
+  public void receiveMusicPackHint(String url) {}
+
   public void receiveRebirthSnapshot(RebirthSnapshot packet, INetHandler connection) {}
 
   public void receiveDBCAEditorSnapshot(DBCAEditorSnapshot packet, INetHandler connection) {}

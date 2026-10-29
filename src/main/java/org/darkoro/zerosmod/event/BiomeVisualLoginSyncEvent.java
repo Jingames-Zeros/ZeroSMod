@@ -4,6 +4,8 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
 import org.darkoro.zerosmod.ZeroSMod;
+import org.darkoro.zerosmod.config.MusicPackConfig;
+import org.darkoro.zerosmod.network.MusicPackHintPacket;
 import org.darkoro.zerosmod.network.BiomeVisualSyncUtil;
 import org.darkoro.zerosmod.network.SyncDimensionConfigPacket;
 
@@ -16,5 +18,8 @@ public class BiomeVisualLoginSyncEvent {
     EntityPlayerMP player = (EntityPlayerMP) event.player;
     ZeroSMod.network.sendTo(BiomeVisualSyncUtil.buildFullPacket(), player);
     ZeroSMod.network.sendTo(SyncDimensionConfigPacket.buildCurrent(), player);
+    if (!MusicPackConfig.getUrl().isEmpty()) {
+      ZeroSMod.network.sendTo(new MusicPackHintPacket(MusicPackConfig.getUrl()), player);
+    }
   }
 }

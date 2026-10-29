@@ -282,6 +282,7 @@ public class CommandZSMod extends CommandBase {
       BiomeConfig.reload();
       DimensionConfig.reload();
       KiAttackConfig.reload();
+      MusicPackConfig.reload();
       ServerWeaponConfig.reload();
 
       IMessage pkt = BiomeVisualSyncUtil.buildFullPacket();
