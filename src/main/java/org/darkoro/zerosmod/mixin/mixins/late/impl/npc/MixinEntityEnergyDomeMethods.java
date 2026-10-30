@@ -51,7 +51,7 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
   @Unique private int zerosmod$resizeDuration;
   @Unique private int zerosmod$resizeElapsed;
 
-  @Inject(method = "onUpdate", at = @At("TAIL"), require = 1, remap = true)
+  @Inject(method = "onUpdate", at = @At("RETURN"), require = 1, remap = true)
   private void zerosmod$afterDomeTick(CallbackInfo ci) {
     EntityEnergyDome dome = zerosmod$self();
     if (dome.worldObj == null) {
