@@ -65,20 +65,26 @@ final class HairPresetStore {
         new FileInputStream(file), StandardCharsets.UTF_8))) {
       String line;
       while ((line = reader.readLine()) != null) {
-        int split = line.indexOf('\t');
-        if (split < 0) continue;
-        String name;
-        try {
-          name = new String(Base64.getDecoder().decode(line.substring(0, split)), StandardCharsets.UTF_8);
-        } catch (IllegalArgumentException damaged) {
-          intact = false;
-          continue;
-        }
-        String code = line.substring(split + 1);
-        if (validCode(code)) CUSTOM.add(new Preset(name, code));
+        if (line.isEmpty()) continue;
+        Preset preset = parse(line);
+        if (preset == null) intact = false;
+        else CUSTOM.add(preset);
       }
       return intact;
     } catch (Exception ignored) { return false; }
+  }
+
+  private static Preset parse(String line) {
+    int split = line.indexOf('\t');
+    if (split < 0) return null;
+    String code = line.substring(split + 1);
+    if (!validCode(code)) return null;
+    try {
+      return new Preset(new String(Base64.getDecoder().decode(line.substring(0, split)),
+          StandardCharsets.UTF_8), code);
+    } catch (IllegalArgumentException damaged) {
+      return null;
+    }
   }
 
   private static void importLegacyPresets() {
