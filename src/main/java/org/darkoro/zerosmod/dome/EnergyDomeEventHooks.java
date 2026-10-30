@@ -10,6 +10,8 @@ import kamkeel.npcs.entity.EntityEnergyDome;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import noppes.npcs.controllers.ScriptController;
+import noppes.npcs.controllers.data.DataScript;
+import noppes.npcs.controllers.data.IScriptUnit;
 import noppes.npcs.controllers.data.PlayerDataScript;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.scripted.NpcAPI;
@@ -76,7 +78,13 @@ public final class EnergyDomeEventHooks {
 
     Entity owner = dome.getOwnerEntity();
     if (owner instanceof EntityNPCInterface) {
-      ((EntityNPCInterface)owner).script.callScript(event.getHookName(), event);
+      // NPC callScript(String) only knows CNPC+'s built-in hooks.
+      DataScript scripts = ((EntityNPCInterface)owner).script;
+      if (scripts.isEnabled()) {
+        for (IScriptUnit unit : scripts.getScripts()) {
+          unit.run(event.getHookName(), event);
+        }
+      }
     } else if (owner instanceof EntityPlayer) {
       PlayerDataScript scripts = ScriptController.Instance.getPlayerScripts((EntityPlayer)owner);
       if (scripts != null) {
