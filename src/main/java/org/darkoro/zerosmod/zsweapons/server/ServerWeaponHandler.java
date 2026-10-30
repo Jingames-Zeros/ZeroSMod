@@ -73,8 +73,9 @@ public class ServerWeaponHandler {
         // Run combat tick at the start of the tick
         if(event.phase == TickEvent.Phase.START) {
             state.tick(1.0D);
-            // Periodically send cooldown to resync with server
-            if(state.getRemainingAttackCooldown() > 0 && Math.floor(state.getRemainingAttackCooldown()) % 5 == 0) {
+            // Send script changes and periodically resync with server
+            double remaining = state.getRemainingAttackCooldown();
+            if(state.isCooldownUnsent() || remaining > 0 && Math.floor(remaining) % 5 == 0) {
                 sendCooldownPacketToClient((EntityPlayerMP) player, state);
             }
         } else {
@@ -124,6 +125,7 @@ public class ServerWeaponHandler {
         CooldownToClientPacket packet = new CooldownToClientPacket(
                 state.getRemainingAttackCooldown(), state.getAttackCooldownLength(), meanTPS);
         ZeroSMod.network.sendTo(packet, player);
+        state.markCooldownSent();
     }
 
     /**

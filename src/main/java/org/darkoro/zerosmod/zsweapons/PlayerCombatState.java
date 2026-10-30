@@ -14,6 +14,7 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
     private final CachedWeaponStats itemStats = new CachedWeaponStats();
     private double remainingAttackCooldown = 0;
     private double attackCooldownLength = 0;
+    private boolean cooldownUnsent = false;
     private boolean waitingToAttack = false;
     private float distanceToTarget = 0.0F;
 
@@ -105,7 +106,11 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
     private void startCooldown(double ticks) {
         remainingAttackCooldown = Math.max(0.0D, ticks);
         attackCooldownLength = remainingAttackCooldown;
+        cooldownUnsent = true;
     }
+
+    public boolean isCooldownUnsent() { return cooldownUnsent; }
+    public void markCooldownSent() { cooldownUnsent = false; }
 
     /**
      * Resolves sweet spot of an attack returning the extra sweet spot multiplier
