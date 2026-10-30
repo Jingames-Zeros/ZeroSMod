@@ -8,6 +8,7 @@ import kamkeel.npcdbc.data.npc.DBCDisplay;
 import org.darkoro.zerosmod.dbchair.gui.HairStrandColors;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
@@ -37,7 +38,7 @@ public abstract class DBCHairStrandColorMixin {
     }
   }
 
-  private static boolean zerosmod$formColorsHair(DBCDisplay display) {
+  @Unique private static boolean zerosmod$formColorsHair(DBCDisplay display) {
     Form form = display.getForm();
     if (form == null || form.display == null || display.formColor == null) return false;
     return display.formColor.hasAnyColor(form.display, "hair")
