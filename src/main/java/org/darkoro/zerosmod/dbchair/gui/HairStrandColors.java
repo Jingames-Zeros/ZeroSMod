@@ -2,6 +2,7 @@ package org.darkoro.zerosmod.dbchair.gui;
 
 import net.minecraft.entity.player.EntityPlayer;
 import org.lwjgl.opengl.GL11;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
@@ -24,6 +25,12 @@ public final class HairStrandColors {
           return size() > PARSE_CACHE_SIZE;
         }
       };
+  private static String lastParsedCode;
+  private static int[] lastParsedColors = NO_OVERRIDES;
+  private static WeakReference<EntityPlayer> lastPlayer = new WeakReference<EntityPlayer>(null);
+  private static int lastPlayerTick;
+  private static String lastPlayerHair;
+  private static boolean lastPlayerFormColorsHair;
   private static boolean addonLookupDone;
   private static Method addonGetData, addonGetForm, displayHasColor, displayHasHairColor;
   private static Field formDisplay, dataRace, dataHair;
@@ -85,13 +92,19 @@ public final class HairStrandColors {
   /** Applies a strand override unless DBC Addon explicitly colors this player's active form hair. */
   public static boolean applyRenderColor(String renderCode, int strand, EntityPlayer player) {
     if (player == null) return false;
+    refreshPlayerState(player);
     int rgb = strandColor(renderCode, strand);
+    if (rgb == NO_COLOR) rgb = strandColor(lastPlayerHair, strand);
+    return !lastPlayerFormColorsHair && applyColor(rgb);
+  }
+
+  private static void refreshPlayerState(EntityPlayer player) {
+    if (player == lastPlayer.get() && player.ticksExisted == lastPlayerTick) return;
+    lastPlayer = new WeakReference<EntityPlayer>(player);
+    lastPlayerTick = player.ticksExisted;
     Object dbcData = addonData(player);
-    if (dbcData != null) {
-      if (rgb == NO_COLOR) rgb = strandColor(readString(dataHair, dbcData), strand);
-      if (rgb != NO_COLOR && formHasExplicitHairColor(dbcData, player)) return false;
-    }
-    return applyColor(rgb);
+    lastPlayerHair = dbcData == null ? null : readString(dataHair, dbcData);
+    lastPlayerFormColorsHair = dbcData != null && formHasExplicitHairColor(dbcData, player);
   }
 
   public static boolean applyColor(int rgb) {
@@ -103,12 +116,16 @@ public final class HairStrandColors {
 
   public static int strandColor(String code, int strand) {
     if (code == null || strand < 0 || strand >= STRAND_COUNT) return NO_COLOR;
-    int[] colors = PARSED_COLORS.get(code);
-    if (colors == null) {
-      colors = parseColors(code);
-      PARSED_COLORS.put(code, colors);
+    if (code != lastParsedCode) {
+      int[] colors = PARSED_COLORS.get(code);
+      if (colors == null) {
+        colors = parseColors(code);
+        PARSED_COLORS.put(code, colors);
+      }
+      lastParsedCode = code;
+      lastParsedColors = colors;
     }
-    return colors.length == 0 ? NO_COLOR : colors[strand];
+    return lastParsedColors.length == 0 ? NO_COLOR : lastParsedColors[strand];
   }
 
   private static int[] parseColors(String code) {

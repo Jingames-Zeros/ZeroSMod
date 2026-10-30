@@ -350,9 +350,10 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
     String reset = currentGeometry.substring(0, start) + originalGeometry.substring(start, start + 14)
         + currentGeometry.substring(start + 14)
         + (HairStrandColors.hasOverrides(current) ? current.substring(786) : "");
-    String originalColor = HairStrandColors.colorSlot(originalCode, selected);
-    reset = originalColor == null ? HairStrandColors.withoutColor(reset, selected)
-        : HairStrandColors.withColor(reset, selected, Integer.parseInt(originalColor, 16));
+    int originalColor = HairStrandColors.strandColor(originalCode, selected);
+    reset = originalColor == HairStrandColors.NO_COLOR
+        ? HairStrandColors.withoutColor(reset, selected)
+        : HairStrandColors.withColor(reset, selected, originalColor);
     if (reset.equals(current)) {
       status = "Segment " + selected + " already matches its opening value.";
     } else {
