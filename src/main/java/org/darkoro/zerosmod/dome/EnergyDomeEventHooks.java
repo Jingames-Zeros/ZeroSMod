@@ -4,9 +4,8 @@ import com.google.common.collect.MapMaker;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import kamkeel.npcs.entity.EntityEnergyDome;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -23,34 +22,36 @@ public final class EnergyDomeEventHooks {
   public static final String EXIT_HOOK = "energyDomeExit";
   public static final EnergyDomeEventHooks INSTANCE = new EnergyDomeEventHooks();
 
-  /** Killed domes stop ticking, so their exits fire from the server tick. */
-  private static final Set<EntityEnergyDome> OCCUPIED_DOMES =
-      Collections.newSetFromMap(new MapMaker().weakKeys().<EntityEnergyDome, Boolean>makeMap());
+  /** Removed or unloaded domes stop ticking, so their exits fire from the server tick. */
+  private static final Map<EntityEnergyDome, Long> OCCUPIED_DOME_TICKS =
+      new MapMaker().weakKeys().makeMap();
+  private static long serverTick;
 
   private EnergyDomeEventHooks() {}
 
   public static void setOccupied(EntityEnergyDome dome, boolean occupied) {
     if (occupied) {
-      OCCUPIED_DOMES.add(dome);
+      OCCUPIED_DOME_TICKS.put(dome, serverTick);
     } else {
-      OCCUPIED_DOMES.remove(dome);
+      OCCUPIED_DOME_TICKS.remove(dome);
     }
   }
 
   @SubscribeEvent public void onServerTick(TickEvent.ServerTickEvent event) {
-    if (event.phase != TickEvent.Phase.END || OCCUPIED_DOMES.isEmpty()) {
+    if (event.phase != TickEvent.Phase.END) {
       return;
     }
 
-    List<EntityEnergyDome> dead = new ArrayList<EntityEnergyDome>();
-    for (EntityEnergyDome dome : OCCUPIED_DOMES) {
-      if (dome.isDead) {
-        dead.add(dome);
+    List<EntityEnergyDome> stopped = new ArrayList<EntityEnergyDome>();
+    for (Map.Entry<EntityEnergyDome, Long> entry : OCCUPIED_DOME_TICKS.entrySet()) {
+      if (entry.getKey().isDead || entry.getValue() < serverTick) {
+        stopped.add(entry.getKey());
       }
     }
-    for (EntityEnergyDome dome : dead) {
+    for (EntityEnergyDome dome : stopped) {
       ((EnergyDomeExtension)dome).zerosmod$releaseInsideEntities();
     }
+    serverTick++;
   }
 
   public static void fireEnter(EntityEnergyDome dome, Entity entity) {
