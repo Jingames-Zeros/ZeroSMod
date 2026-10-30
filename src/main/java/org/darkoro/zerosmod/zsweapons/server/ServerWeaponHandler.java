@@ -160,7 +160,7 @@ public class ServerWeaponHandler {
             PlayerCombatState newState = new PlayerCombatState();
             newState.changeItem(player.getHeldItem());
             startCooldown(player, newState);
-            stateMap.put(player.getUniqueID(), new PlayerCombatState());
+            stateMap.put(player.getUniqueID(), newState);
         }
     }
 }
