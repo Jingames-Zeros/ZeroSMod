@@ -619,7 +619,8 @@ export namespace IZeroSEvent {
   }
 
   /**
-   * Fired in the dome owner's script when an entity leaves a dome, also when the dome is removed.
+   * Fired in the dome owner's script when an entity leaves a dome. Removed or unloaded domes
+   * fire it only while the owner is loaded.
    * @hookName energyDomeExit
    */
   interface EnergyDomeExitEvent extends IEnergyBarrierEvent {
