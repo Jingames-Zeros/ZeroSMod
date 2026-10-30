@@ -18,10 +18,6 @@ public abstract class MixinServerEventHandlerFormDrain {
       remap = false)
   private double zerosmod$fireFormDrain(double negativeDrain,
       @Local(argsOnly = true) EntityPlayer player) {
-    // Ki regeneration, not a drain
-    if (negativeDrain >= 0.0D) {
-      return Math.floor(negativeDrain);
-    }
     double replacementDrain = CustomFormDrainEventHooks.fire(player, -negativeDrain);
     return Math.floor(-replacementDrain);
   }
