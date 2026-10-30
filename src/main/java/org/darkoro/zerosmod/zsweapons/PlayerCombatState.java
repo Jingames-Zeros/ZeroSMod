@@ -132,6 +132,13 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
 
 
     // Setters
-    public void setRemainingAttackCooldown(double remainingAttackCooldown) { startCooldown(remainingAttackCooldown); }
+    public void setRemainingAttackCooldown(double remainingAttackCooldown) {
+        if(this.remainingAttackCooldown > 0 && remainingAttackCooldown <= attackCooldownLength) {
+            this.remainingAttackCooldown = Math.max(0.0D, remainingAttackCooldown);
+            cooldownUnsent = true;
+        } else {
+            startCooldown(remainingAttackCooldown);
+        }
+    }
     public void setAttackCooldownLength(double attackCooldownLength) { this.attackCooldownLength = attackCooldownLength; }
 }
