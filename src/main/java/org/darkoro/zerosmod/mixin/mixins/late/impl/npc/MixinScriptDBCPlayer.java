@@ -147,12 +147,12 @@ public abstract class MixinScriptDBCPlayer<T extends EntityPlayerMP>
   @Unique private static void zerosmod$setToggle(
       DBCData data, DBCStatusEffects effect, boolean enabled) {
     effect.set(data.player, enabled);
-    data.loadNBTData(false);
+    data.loadNBTData(true);
   }
 
   @Unique private static void zerosmod$setTimed(DBCData data, String nbtName, int seconds) {
     data.getRawCompound().setInteger(nbtName, zerosmod$secondsToStoredIntervals(seconds));
-    data.loadNBTData(false);
+    data.loadNBTData(true);
   }
 
   @Unique private static int zerosmod$getTimedSeconds(DBCData data, String nbtName) {
@@ -162,7 +162,7 @@ public abstract class MixinScriptDBCPlayer<T extends EntityPlayerMP>
   @Unique private static void zerosmod$setNoFuse(DBCData data, int seconds) {
     String stored = String.valueOf(zerosmod$secondsToStoredIntervals(seconds));
     data.getRawCompound().setString(ZEROSMOD$FUSION_NBT, stored);
-    data.loadNBTData(false);
+    data.loadNBTData(true);
   }
 
   @Unique private static int zerosmod$getNoFuseSeconds(DBCData data) {
@@ -179,7 +179,7 @@ public abstract class MixinScriptDBCPlayer<T extends EntityPlayerMP>
     data.getRawCompound().setString(ZEROSMOD$FUSION_NBT, cooldown);
     data.StatusEffects = data.setSE(10, false);
     data.StatusEffects = data.setSE(11, false);
-    data.loadNBTData(false);
+    data.loadNBTData(true);
   }
 
   @Unique private static EntityPlayerMP zerosmod$findOnlinePlayer(String name) {
