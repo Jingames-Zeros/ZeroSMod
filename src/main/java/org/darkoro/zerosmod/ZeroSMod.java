@@ -9,6 +9,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
@@ -51,7 +52,7 @@ public class ZeroSMod {
 
 	public static final String MODID = "zerosmod";
 	// Bump VERSION only when clients must update. Forge uses this for the client/server mod handshake.
-	public static final String VERSION = "2.2.6";
+	public static final String VERSION = "2.2.7";
 	public static final String ACCEPTABLE_REMOTE_VERSIONS = "[" + VERSION + "]";
 	// modVersion from gradle.properties, injected at build time. Bump it there for server-only
 	// emergency builds that should still allow clients on VERSION.
@@ -102,6 +103,10 @@ public class ZeroSMod {
 
 	@EventHandler public void serverStarting(FMLServerStartingEvent event) {
 		proxy.serverStarting(event);
+	}
+
+	@EventHandler public void serverStopping(FMLServerStoppingEvent event) {
+		proxy.serverStopping(event);
 	}
 
 	@EventHandler public void postInit(FMLPostInitializationEvent event) {

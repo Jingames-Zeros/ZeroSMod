@@ -11,6 +11,8 @@ import net.minecraft.server.MinecraftServer;
 import noppes.npcs.scripted.CustomNPCsException;
 import noppes.npcs.scripted.entity.ScriptDBCPlayer;
 import org.darkoro.zerosmod.api.ScriptDBCPlayerMethods;
+import org.darkoro.zerosmod.tpbank.TpBank;
+import org.darkoro.zerosmod.tpbank.TpBankServer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
@@ -140,6 +142,35 @@ public abstract class MixinScriptDBCPlayer<T extends EntityPlayerMP>
       default:
         throw invalidEffect(effect);
     }
+  }
+
+  @Override public boolean isTpBankUnlocked() {
+    return TpBank.isUnlocked(this.player);
+  }
+
+  @Override public void setTpBankUnlocked(boolean unlocked) {
+    TpBank.setUnlocked(this.player, unlocked);
+  }
+
+  @Override public long getBankedTP() {
+    return TpBank.getBanked(this.player);
+  }
+
+  @Override public void setBankedTP(long amount) {
+    TpBank.setBanked(this.player, amount);
+  }
+
+  @Override public long depositBankedTP(long amount) {
+    TpBank.deposit(this.player, amount);
+    return TpBank.getBanked(this.player);
+  }
+
+  @Override public long withdrawBankedTP(long amount) {
+    return TpBank.withdraw(this.player, amount);
+  }
+
+  @Override public void openTpBank() {
+    TpBankServer.open(this.player);
   }
 
   private static void setToggle(DBCData data, DBCStatusEffects effect, boolean enabled) {

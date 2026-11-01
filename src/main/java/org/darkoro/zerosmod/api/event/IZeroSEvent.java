@@ -143,4 +143,36 @@ public interface IZeroSEvent {
      */
     String getTargetName();
   }
+
+  /**
+   * Fired when {@code /jrmctp} would push a player with an unlocked TP Bank past DBC's TP cap.
+   * The part above the cap, which DBC would otherwise discard, is stored in the bank of the
+   * player's current DBC character after the configured deposit loss. Other TP gains, such as kills
+   * and training, are not banked. Cancel the event to let DBC
+   * discard the overflow instead. This hook does not fire while the bank is locked.
+   *
+   * @hookName tpOverflow
+   */
+  @Cancelable
+  interface TpOverflowEvent extends IPlayerEvent {
+
+    /** @return TP above the cap that DBC is about to discard, before the deposit loss */
+    long getOverflow();
+
+    /**
+     * @return TP that will be stored in the bank; starts at {@link #getOverflow()} minus the
+     *     configured deposit loss. The bank's balance limit can still reduce what is stored.
+     */
+    long getAmount();
+
+    /**
+     * Replaces the TP stored in the bank for this gain. Negative values become zero.
+     *
+     * @param amount TP to bank
+     */
+    void setAmount(long amount);
+
+    /** @return bank balance before this deposit */
+    long getBankedTP();
+  }
 }

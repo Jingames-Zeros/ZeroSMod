@@ -64,4 +64,65 @@ public interface ScriptDBCPlayerMethods {
    * @throws RuntimeException when {@code effect} is not a supported status-effect name
    */
   int getDBCStatusEffect(String effect);
+
+  /**
+   * Checks whether the player's TP Bank is unlocked. Each DBC character (CNPC profile slot) has
+   * its own bank, which starts locked unless the server config unlocks it by default. While
+   * locked, overflow TP is discarded as DBC normally does and the balance is frozen: it accrues
+   * no interest and cannot be withdrawn.
+   *
+   * @return true when the bank accepts deposits and withdrawals
+   */
+  boolean isTpBankUnlocked();
+
+  /**
+   * Unlocks or locks the player's TP Bank for their current DBC character. Locking keeps the
+   * balance; unlocking again restarts interest from that moment. For example, call
+   * {@code event.player.getDBCPlayer().setTpBankUnlocked(true)} when an unlock quest completes.
+   *
+   * @param unlocked true to unlock, false to lock
+   */
+  void setTpBankUnlocked(boolean unlocked);
+
+  /**
+   * Gets the player's TP Bank balance for their current DBC character, after any interest due.
+   * The bank holds TP that {@code /jrmctp} gave above DBC's TP cap; see the {@code tpOverflow} hook. Works while
+   * the bank is locked.
+   *
+   * @return banked TP, never negative
+   */
+  long getBankedTP();
+
+  /**
+   * Replaces the TP Bank balance, even while the bank is locked. Values above the configured
+   * balance limit are clamped to it.
+   *
+   * @param amount new balance; negative values become zero
+   */
+  void setBankedTP(long amount);
+
+  /**
+   * Adds TP to the TP Bank, even while the bank is locked. No deposit loss is applied. TP above
+   * the configured balance limit is lost.
+   *
+   * @param amount TP to add; negative values add nothing
+   * @return the new balance
+   */
+  long depositBankedTP(long amount);
+
+  /**
+   * Gives the player TP from an unlocked bank, never past DBC's TP cap. The configured
+   * withdrawal fee is taken from the bank on top of what the player receives.
+   *
+   * @param amount most TP the player should receive
+   * @return TP the player received; 0 while the bank is locked
+   */
+  long withdrawBankedTP(long amount);
+
+  /**
+   * Opens the TP Bank screen, where the player can withdraw banked TP. A locked bank opens in a
+   * read-only state. For example, call this from a banker NPC's {@code interact} hook with
+   * {@code event.player.getDBCPlayer().openTpBank()}.
+   */
+  void openTpBank();
 }

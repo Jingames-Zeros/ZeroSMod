@@ -347,6 +347,30 @@ export interface IDBCPlayer {
    * Names are case-insensitive. Throws a script error for an unsupported name.
    */
   getDBCStatusEffect(effect: string): number;
+
+  /**
+   * Returns true when this DBC character's TP Bank is unlocked. Banks start locked unless the server
+   * config unlocks them by default. A locked bank discards overflow TP and freezes its balance.
+   */
+  isTpBankUnlocked(): boolean;
+
+  /** Unlocks or locks this DBC character's TP Bank. Locking keeps the balance. Example: setTpBankUnlocked(true) when an unlock quest completes. */
+  setTpBankUnlocked(unlocked: boolean): void;
+
+  /** Returns the TP Bank balance for the current DBC character after any interest due: TP given above DBC's TP cap by /jrmctp. */
+  getBankedTP(): number;
+
+  /** Replaces the TP Bank balance, even while locked. Clamped to the configured balance limit; negative values become zero. */
+  setBankedTP(amount: number): void;
+
+  /** Adds TP to the bank without the deposit loss, even while locked, and returns the new balance. TP above the balance limit is lost. */
+  depositBankedTP(amount: number): number;
+
+  /** Gives the player up to amount TP from an unlocked bank, never past DBC's TP cap; the withdrawal fee comes from the bank. Returns the TP received, or 0 while locked. */
+  withdrawBankedTP(amount: number): number;
+
+  /** Opens the TP Bank withdraw screen; read-only while locked. Example: event.player.getDBCPlayer().openTpBank() in a banker NPC's interact hook. */
+  openTpBank(): void;
 }
 
 /**
@@ -613,6 +637,13 @@ export interface ScriptDBCPlayer extends IDBCPlayer {
   getFusionTimeLeft(): number;
   setDBCStatusEffect(effect: string, duration: number): void;
   getDBCStatusEffect(effect: string): number;
+  isTpBankUnlocked(): boolean;
+  setTpBankUnlocked(unlocked: boolean): void;
+  getBankedTP(): number;
+  setBankedTP(amount: number): void;
+  depositBankedTP(amount: number): number;
+  withdrawBankedTP(amount: number): number;
+  openTpBank(): void;
 }
 
 /**
@@ -741,5 +772,26 @@ export namespace IZeroSEvent {
 
     /** Returns the selected target name, or an empty string. */
     getTargetName(): string;
+  }
+
+  /**
+   * Fired when /jrmctp would push a player with an unlocked TP Bank past DBC's TP cap.
+   * The overflow, minus the configured deposit loss, is stored in the bank instead of being discarded.
+   * Other TP gains, such as kills and training, are not banked.
+   * Cancel the event to let DBC discard the overflow. Does not fire while the bank is locked.
+   * @hookName tpOverflow
+   */
+  interface TpOverflowEvent extends IPlayerEvent {
+    /** Returns the TP above the cap that DBC is about to discard, before the deposit loss. */
+    getOverflow(): number;
+
+    /** Returns the TP that will be banked. Starts at getOverflow() minus the deposit loss; the balance limit can still reduce it. */
+    getAmount(): number;
+
+    /** Replaces the TP banked for this gain. Negative values become zero. */
+    setAmount(amount: number): void;
+
+    /** Returns the bank balance before this deposit. */
+    getBankedTP(): number;
   }
 }
