@@ -6,6 +6,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import net.minecraft.network.INetHandler;
 import net.minecraftforge.common.MinecraftForge;
 import noppes.npcs.constants.ScriptContext;
@@ -99,6 +100,10 @@ public class CommonProxy {
 
   public void serverStarting(FMLServerStartingEvent event) {
     event.registerServerCommand(new CommandZSMod());
+  }
+
+  public void serverStopping(FMLServerStoppingEvent event) {
+    EnergyDomeEventHooks.clear();
   }
 
   public void configurePhylacterySky(WorldProviderPhylactery provider) {}

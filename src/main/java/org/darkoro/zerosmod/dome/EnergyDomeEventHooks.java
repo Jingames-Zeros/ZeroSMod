@@ -43,6 +43,11 @@ public final class EnergyDomeEventHooks {
     }
   }
 
+  /** Drops domes of a stopping server, so a singleplayer restart starts clean. */
+  public static void clear() {
+    OCCUPIED_DOMES.clear();
+  }
+
   @SubscribeEvent public void onServerTick(TickEvent.ServerTickEvent event) {
     if (event.phase != TickEvent.Phase.END || OCCUPIED_DOMES.isEmpty()) {
       return;
