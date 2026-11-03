@@ -32,6 +32,7 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
   @Unique private static final String NBT_PREFIX = "ZeroSDome";
 
   @Shadow protected float domeRadius;
+  @Shadow protected float targetDomeRadius;
   @Shadow protected boolean followCaster;
   @Shadow public abstract void setDomeRadius(float radius);
   @Shadow public abstract boolean isEntityInside(Entity entity);
@@ -142,6 +143,7 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
 
   @Inject(method = "writeBarrierClientSyncData", at = @At("RETURN"), require = 1, remap = false)
   private void zerosmod$writeClientState(NBTTagCompound nbt, CallbackInfo ci) {
+    nbt.setFloat(NBT_PREFIX + "ChargeTarget", this.targetDomeRadius);
     nbt.setBoolean(NBT_PREFIX + "FollowerOverridden", this.zerosmod$followerOverridden);
     nbt.setInteger(NBT_PREFIX + "FollowerId", this.zerosmod$followerEntityId);
     if (this.zerosmod$followerUuid != null) {
@@ -156,6 +158,9 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
 
   @Inject(method = "applyBarrierClientSyncData", at = @At("RETURN"), require = 1, remap = false)
   private void zerosmod$applyClientState(NBTTagCompound nbt, CallbackInfo ci) {
+    if (nbt.hasKey(NBT_PREFIX + "ChargeTarget")) {
+      this.targetDomeRadius = nbt.getFloat(NBT_PREFIX + "ChargeTarget");
+    }
     this.zerosmod$followerOverridden = nbt.getBoolean(NBT_PREFIX + "FollowerOverridden");
     this.zerosmod$followerEntityId = nbt.hasKey(NBT_PREFIX + "FollowerId")
         ? nbt.getInteger(NBT_PREFIX + "FollowerId") : -1;
@@ -247,12 +252,19 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
 
     EntityEnergyDome dome = zerosmod$self();
     float target = Math.max(0.1F, radius);
-    if (ticks <= 0 || target == this.domeRadius) {
-      this.setDomeRadius(target);
+    // A charging dome grows to targetDomeRadius, so resizes start from there.
+    boolean charging = dome.isCharging();
+    float current = charging ? this.targetDomeRadius : this.domeRadius;
+    if (ticks <= 0 || target == current) {
+      if (charging) {
+        this.targetDomeRadius = target;
+      } else {
+        this.setDomeRadius(target);
+      }
       this.zerosmod$resizeDuration = 0;
       this.zerosmod$resizeElapsed = 0;
     } else {
-      this.zerosmod$resizeStartRadius = this.domeRadius;
+      this.zerosmod$resizeStartRadius = current;
       this.zerosmod$resizeTargetRadius = target;
       this.zerosmod$resizeDuration = ticks;
       this.zerosmod$resizeElapsed = 0;

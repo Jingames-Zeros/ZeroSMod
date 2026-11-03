@@ -59,7 +59,8 @@ public interface ScriptEnergyDomeMethods {
   boolean isInside(IEntity entity);
 
   /**
-   * Resizes the dome over time.
+   * Resizes the dome over time. A charging dome finishes its charge first; with 0 ticks it
+   * charges to the new radius.
    *
    * @param radius target radius in blocks, at least 0.1
    * @param ticks duration; 0 resizes immediately

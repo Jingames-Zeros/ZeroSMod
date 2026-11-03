@@ -307,7 +307,10 @@ export interface IEnergyBarrier<T> {
   /** Returns true when the entity is inside the dome. */
   isInside(entity: IEntity<any>): boolean;
 
-  /** Resizes the dome to radius (at least 0.1) over ticks; 0 ticks resizes immediately. */
+  /**
+   * Resizes the dome to radius (at least 0.1) over ticks; 0 ticks resizes immediately.
+   * A charging dome finishes its charge first; with 0 ticks it charges to the new radius.
+   */
   setTargetRadius(radius: number, ticks: number): void;
 }
 
