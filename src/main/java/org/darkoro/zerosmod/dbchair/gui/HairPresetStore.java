@@ -21,6 +21,8 @@ final class HairPresetStore {
   private static final String FILE_NAME = "zerosmod_hair_presets.txt";
   private static final List<Preset> CUSTOM = new ArrayList<Preset>();
   private static boolean loaded;
+  // Set when an unreadable file could not be backed up, so it is never overwritten.
+  private static boolean writeBlocked;
 
   static final class Preset {
     final String name;
@@ -37,8 +39,12 @@ final class HairPresetStore {
       if (file.isFile()) {
         if (!read(file)) {
           File backup = new File(gameDir, FILE_NAME + ".corrupt-" + System.currentTimeMillis());
-          try { Files.copy(file.toPath(), backup.toPath()); } catch (Exception ignored) { }
-          write(gameDir);
+          try {
+            Files.copy(file.toPath(), backup.toPath());
+            write(gameDir);
+          } catch (Exception backupFailed) {
+            writeBlocked = true;
+          }
         }
       } else {
         importLegacyPresets();
@@ -155,6 +161,7 @@ final class HairPresetStore {
   }
 
   private static boolean write(File gameDir) {
+    if (writeBlocked) return false;
     File file = new File(gameDir, FILE_NAME);
     File temp = new File(gameDir, FILE_NAME + ".tmp");
     try (FileOutputStream stream = new FileOutputStream(temp);
