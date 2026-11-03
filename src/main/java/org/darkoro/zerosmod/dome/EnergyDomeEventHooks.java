@@ -14,6 +14,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import noppes.npcs.EventHooks;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.DataScript;
 import noppes.npcs.controllers.data.IScriptUnit;
@@ -124,13 +125,7 @@ public final class EnergyDomeEventHooks {
 
     Entity owner = dome.getOwnerEntity();
     if (owner instanceof EntityNPCInterface) {
-      // NPC callScript(String) only knows CNPC+'s built-in hooks.
-      DataScript scripts = ((EntityNPCInterface)owner).script;
-      if (scripts.isEnabled()) {
-        for (IScriptUnit unit : scripts.getScripts()) {
-          unit.run(event.getHookName(), event);
-        }
-      }
+      callNpcScripts((EntityNPCInterface)owner, event);
     } else if (owner instanceof EntityPlayer) {
       PlayerDataScript scripts = ScriptController.Instance.getPlayerScripts((EntityPlayer)owner);
       if (scripts != null) {
@@ -139,5 +134,36 @@ public final class EnergyDomeEventHooks {
     }
 
     NpcAPI.EVENT_BUS.post(event);
+  }
+
+  /** NPC callScript(String) only knows CNPC+'s built-in hooks, so this mirrors its housekeeping. */
+  private static void callNpcScripts(EntityNPCInterface npc, EnergyDomeEvent event) {
+    DataScript scripts = npc.script;
+    applyPendingUpdates(npc, scripts);
+    if (!scripts.isEnabled()) {
+      return;
+    }
+    if (!scripts.hasInited) {
+      scripts.hasInited = true;
+      for (IScriptUnit unit : scripts.getScripts()) {
+        unit.setErrored(false);
+      }
+      EventHooks.onNPCInit(npc);
+    }
+    for (IScriptUnit unit : scripts.getScripts()) {
+      unit.run(event.getHookName(), event);
+    }
+    applyPendingUpdates(npc, scripts);
+  }
+
+  private static void applyPendingUpdates(EntityNPCInterface npc, DataScript scripts) {
+    if (scripts.aiNeedsUpdate) {
+      npc.updateAI = true;
+      scripts.aiNeedsUpdate = false;
+    }
+    if (scripts.clientNeedsUpdate) {
+      npc.updateClient = true;
+      scripts.clientNeedsUpdate = false;
+    }
   }
 }
