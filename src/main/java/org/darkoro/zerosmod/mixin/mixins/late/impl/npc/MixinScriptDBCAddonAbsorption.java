@@ -1,5 +1,6 @@
 package org.darkoro.zerosmod.mixin.mixins.late.impl.npc;
 
+import JinRyuu.JRMCore.JRMCoreH;
 import kamkeel.npcdbc.data.dbcdata.DBCData;
 import kamkeel.npcdbc.scripted.ScriptDBCAddon;
 import net.minecraft.nbt.NBTTagCompound;
@@ -30,7 +31,7 @@ public abstract class MixinScriptDBCAddonAbsorption {
   }
 
   @Unique private void zerosmod$updateAbsorptionField(int field, int value) {
-    if (nbt == null || nbt.getByte("jrmcRace") != 5) {
+    if (nbt == null || !JRMCoreH.isRaceMajin(nbt.getByte("jrmcRace"))) {
       return;
     }
 

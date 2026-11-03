@@ -1,5 +1,6 @@
 package org.darkoro.zerosmod.dbchair.gui;
 
+import JinRyuu.JRMCore.JRMCoreH;
 import net.minecraft.entity.player.EntityPlayer;
 import org.lwjgl.opengl.GL11;
 import java.lang.ref.WeakReference;
@@ -15,7 +16,6 @@ public final class HairStrandColors {
   private static final int STRAND_COUNT = 56;
   private static final int SLOT_LENGTH = 6;
   private static final int DATA_LENGTH = STRAND_COUNT * SLOT_LENGTH;
-  public static final int MAJIN_RACE = 5;
   public static final int NO_COLOR = -1;
   private static final int[] NO_OVERRIDES = new int[0];
   private static final int PARSE_CACHE_SIZE = 64;
@@ -156,7 +156,7 @@ public final class HairStrandColors {
       if (display == null) return false;
       if (Boolean.TRUE.equals(displayHasColor.invoke(display, "hair"))) return true;
       if (Boolean.TRUE.equals(displayHasHairColor.invoke(display, data))) return true;
-      return readInt(dataRace, data) == MAJIN_RACE
+      return JRMCoreH.isRaceMajin(readInt(dataRace, data))
           && Boolean.TRUE.equals(displayHasColor.invoke(display, "bodycm"));
     } catch (Exception ignored) { return false; }
   }

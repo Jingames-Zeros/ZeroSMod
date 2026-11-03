@@ -1,5 +1,6 @@
 package org.darkoro.zerosmod.mixin.mixins.late.impl.npc.client;
 
+import JinRyuu.JRMCore.JRMCoreH;
 import com.llamalad7.mixinextras.sugar.Local;
 import kamkeel.npcdbc.client.model.part.hair.DBCHair;
 import kamkeel.npcdbc.client.model.part.hair.ModelHairRenderer;
@@ -44,7 +45,7 @@ public abstract class DBCHairStrandColorMixin {
       Form form = display.getForm();
       if (form == null || form.display == null || display.formColor == null) return false;
       return display.formColor.hasAnyColor(form.display, "hair")
-          || display.race == HairStrandColors.MAJIN_RACE
+          || JRMCoreH.isRaceMajin(display.race)
               && display.formColor.hasAnyColor(form.display, "bodycm");
     } catch (RuntimeException lookupFailed) {
       return false;
