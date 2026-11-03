@@ -25,7 +25,8 @@ public abstract class DBCHairStrandColorMixin {
       @Local(index = 12) String renderCode,
       @Local(argsOnly = true) DBCDisplay display) {
     int rgb = HairStrandColors.strandColor(renderCode, strandIndex);
-    if (rgb == HairStrandColors.NO_COLOR || zerosmod$formColorsHair(display)) {
+    if (rgb == HairStrandColors.NO_COLOR || display == null
+        || zerosmod$formColorsHair(display)) {
       renderer.render(scale);
       return;
     }
@@ -39,10 +40,14 @@ public abstract class DBCHairStrandColorMixin {
   }
 
   @Unique private static boolean zerosmod$formColorsHair(DBCDisplay display) {
-    Form form = display.getForm();
-    if (form == null || form.display == null || display.formColor == null) return false;
-    return display.formColor.hasAnyColor(form.display, "hair")
-        || display.race == HairStrandColors.MAJIN_RACE
-            && display.formColor.hasAnyColor(form.display, "bodycm");
+    try {
+      Form form = display.getForm();
+      if (form == null || form.display == null || display.formColor == null) return false;
+      return display.formColor.hasAnyColor(form.display, "hair")
+          || display.race == HairStrandColors.MAJIN_RACE
+              && display.formColor.hasAnyColor(form.display, "bodycm");
+    } catch (RuntimeException lookupFailed) {
+      return false;
+    }
   }
 }
