@@ -104,9 +104,14 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
     }
 
     private void startCooldown(double ticks) {
-        remainingAttackCooldown = Math.max(0.0D, ticks);
+        remainingAttackCooldown = validCooldown(ticks);
         attackCooldownLength = remainingAttackCooldown;
         cooldownUnsent = true;
+    }
+
+    // NaN or infinite cooldowns from scripts would block attacks for good.
+    private static double validCooldown(double ticks) {
+        return Double.isNaN(ticks) || Double.isInfinite(ticks) ? 0.0D : Math.max(0.0D, ticks);
     }
 
     public boolean isCooldownUnsent() { return cooldownUnsent; }
@@ -134,7 +139,7 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
     // Setters
     public void setRemainingAttackCooldown(double remainingAttackCooldown) {
         if(this.remainingAttackCooldown > 0 && remainingAttackCooldown <= attackCooldownLength) {
-            this.remainingAttackCooldown = Math.max(0.0D, remainingAttackCooldown);
+            this.remainingAttackCooldown = validCooldown(remainingAttackCooldown);
             cooldownUnsent = true;
         } else {
             startCooldown(remainingAttackCooldown);
