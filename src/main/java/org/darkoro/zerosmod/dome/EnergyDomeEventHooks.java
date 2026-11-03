@@ -4,11 +4,16 @@ import com.google.common.collect.MapMaker;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import kamkeel.npcs.entity.EntityEnergyDome;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.event.world.ChunkEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.DataScript;
 import noppes.npcs.controllers.data.IScriptUnit;
@@ -24,36 +29,72 @@ public final class EnergyDomeEventHooks {
   public static final String EXIT_HOOK = "energyDomeExit";
   public static final EnergyDomeEventHooks INSTANCE = new EnergyDomeEventHooks();
 
-  /** Removed or unloaded domes stop ticking, so their exits fire from the server tick. */
-  private static final Map<EntityEnergyDome, Long> OCCUPIED_DOME_TICKS =
-      new MapMaker().weakKeys().makeMap();
-  private static long serverTick;
+  /** Domes with entities inside; removed or unloaded ones fire their exits from here. */
+  private static final Set<EntityEnergyDome> OCCUPIED_DOMES =
+      Collections.newSetFromMap(new MapMaker().weakKeys().<EntityEnergyDome, Boolean>makeMap());
 
   private EnergyDomeEventHooks() {}
 
   public static void setOccupied(EntityEnergyDome dome, boolean occupied) {
     if (occupied) {
-      OCCUPIED_DOME_TICKS.put(dome, serverTick);
+      OCCUPIED_DOMES.add(dome);
     } else {
-      OCCUPIED_DOME_TICKS.remove(dome);
+      OCCUPIED_DOMES.remove(dome);
     }
   }
 
   @SubscribeEvent public void onServerTick(TickEvent.ServerTickEvent event) {
-    if (event.phase != TickEvent.Phase.END) {
+    if (event.phase != TickEvent.Phase.END || OCCUPIED_DOMES.isEmpty()) {
       return;
     }
 
-    List<EntityEnergyDome> stopped = new ArrayList<EntityEnergyDome>();
-    for (Map.Entry<EntityEnergyDome, Long> entry : OCCUPIED_DOME_TICKS.entrySet()) {
-      if (entry.getKey().isDead || entry.getValue() < serverTick) {
-        stopped.add(entry.getKey());
+    // Killed domes are removed before their next tick.
+    List<EntityEnergyDome> removed = new ArrayList<EntityEnergyDome>();
+    for (EntityEnergyDome dome : OCCUPIED_DOMES) {
+      if (dome.isDead) {
+        removed.add(dome);
       }
     }
-    for (EntityEnergyDome dome : stopped) {
+    release(removed);
+  }
+
+  @SubscribeEvent public void onChunkUnload(ChunkEvent.Unload event) {
+    Chunk chunk = event.getChunk();
+    if (OCCUPIED_DOMES.isEmpty() || event.world == null || event.world.isRemote
+        || chunk == null || chunk.entityLists == null) {
+      return;
+    }
+
+    List<EntityEnergyDome> unloaded = new ArrayList<EntityEnergyDome>();
+    for (List list : chunk.entityLists) {
+      for (Object value : list) {
+        if (value instanceof EntityEnergyDome && OCCUPIED_DOMES.contains(value)) {
+          unloaded.add((EntityEnergyDome)value);
+        }
+      }
+    }
+    release(unloaded);
+  }
+
+  @SubscribeEvent public void onWorldUnload(WorldEvent.Unload event) {
+    World world = event.world;
+    if (OCCUPIED_DOMES.isEmpty() || world == null || world.isRemote) {
+      return;
+    }
+
+    List<EntityEnergyDome> unloaded = new ArrayList<EntityEnergyDome>();
+    for (EntityEnergyDome dome : OCCUPIED_DOMES) {
+      if (dome.worldObj == world) {
+        unloaded.add(dome);
+      }
+    }
+    release(unloaded);
+  }
+
+  private static void release(List<EntityEnergyDome> domes) {
+    for (EntityEnergyDome dome : domes) {
       ((EnergyDomeExtension)dome).zerosmod$releaseInsideEntities();
     }
-    serverTick++;
   }
 
   public static void fireEnter(EntityEnergyDome dome, Entity entity) {

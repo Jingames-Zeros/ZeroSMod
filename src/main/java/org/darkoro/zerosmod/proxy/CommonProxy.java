@@ -75,6 +75,7 @@ public class CommonProxy {
     NpcAPI.Instance().addGlobalObject("WeaponAPI", WeaponAPI.INSTANCE);
     registerScriptHooks();
     MinecraftForge.EVENT_BUS.register(KiAttackGuard.INSTANCE);
+    MinecraftForge.EVENT_BUS.register(EnergyDomeEventHooks.INSTANCE);
     if (ServerWeaponConfig.isEnabled()) {
       FMLCommonHandler.instance().bus().register(ServerWeaponHandler.INSTANCE);
       MinecraftForge.EVENT_BUS.register(ServerWeaponHandler.INSTANCE);
