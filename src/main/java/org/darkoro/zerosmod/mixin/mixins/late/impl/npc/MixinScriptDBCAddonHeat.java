@@ -25,7 +25,7 @@ public abstract class MixinScriptDBCAddonHeat implements ScriptDBCAddonHeatMetho
     }
 
     float currentHeat = getCurrentHeat();
-    if (!zerosmod$isFinite(currentHeat)) {
+    if (!Float.isFinite(currentHeat)) {
       return 0.0F;
     }
 
@@ -48,7 +48,7 @@ public abstract class MixinScriptDBCAddonHeat implements ScriptDBCAddonHeatMetho
 
   @Override public void setCurrentHeat(float amount) {
     int maxHeat = getMaxHeat();
-    if (dbcData == null || maxHeat <= 0 || !zerosmod$isFinite(amount)) {
+    if (dbcData == null || maxHeat <= 0 || !Float.isFinite(amount)) {
       return;
     }
 
@@ -57,7 +57,7 @@ public abstract class MixinScriptDBCAddonHeat implements ScriptDBCAddonHeatMetho
 
   @Override public void setHeatPercentage(float percent) {
     int maxHeat = getMaxHeat();
-    if (dbcData == null || maxHeat <= 0 || !zerosmod$isFinite(percent)) {
+    if (dbcData == null || maxHeat <= 0 || !Float.isFinite(percent)) {
       return;
     }
 
@@ -69,9 +69,5 @@ public abstract class MixinScriptDBCAddonHeat implements ScriptDBCAddonHeatMetho
     if (dbcData != null) {
       dbcData.setAddonHeat(0.0F);
     }
-  }
-
-  @Unique private static boolean zerosmod$isFinite(float value) {
-    return !Float.isNaN(value) && !Float.isInfinite(value);
   }
 }

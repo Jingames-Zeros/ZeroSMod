@@ -249,7 +249,7 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
   }
 
   @Override public void zerosmod$setTargetRadius(float radius, int ticks) {
-    if (!zerosmod$isFinite(radius)) {
+    if (!Float.isFinite(radius)) {
       return;
     }
 
@@ -438,11 +438,7 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
     return (EntityEnergyDome)(Object)this;
   }
 
-  @Unique private static boolean zerosmod$isFinite(float value) {
-    return !Float.isNaN(value) && !Float.isInfinite(value);
-  }
-
   @Unique private static float zerosmod$finiteNonNegative(float value) {
-    return zerosmod$isFinite(value) ? Math.max(0.0F, value) : 0.0F;
+    return Float.isFinite(value) ? Math.max(0.0F, value) : 0.0F;
   }
 }

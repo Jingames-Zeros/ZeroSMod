@@ -111,7 +111,7 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
 
     // NaN or infinite cooldowns from scripts would block attacks for good.
     private static double validCooldown(double ticks) {
-        return Double.isNaN(ticks) || Double.isInfinite(ticks) ? 0.0D : Math.max(0.0D, ticks);
+        return Double.isFinite(ticks) ? Math.max(0.0D, ticks) : 0.0D;
     }
 
     public boolean isCooldownUnsent() { return cooldownUnsent; }
