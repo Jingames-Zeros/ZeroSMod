@@ -73,15 +73,16 @@ public final class EnergyDomeEventHooks {
   @SubscribeEvent public void onChunkUnload(ChunkEvent.Unload event) {
     Chunk chunk = event.getChunk();
     if (OCCUPIED_DOMES.isEmpty() || event.world == null || event.world.isRemote
-        || chunk == null || chunk.entityLists == null) {
+        || chunk == null) {
       return;
     }
 
-    for (List list : chunk.entityLists) {
-      for (Object value : list) {
-        if (value instanceof EntityEnergyDome && OCCUPIED_DOMES.remove(value)) {
-          UNLOADED_DOMES.add((EntityEnergyDome)value);
-        }
+    for (Iterator<EntityEnergyDome> it = OCCUPIED_DOMES.iterator(); it.hasNext(); ) {
+      EntityEnergyDome dome = it.next();
+      if (dome.worldObj == event.world && dome.addedToChunk
+          && dome.chunkCoordX == chunk.xPosition && dome.chunkCoordZ == chunk.zPosition) {
+        it.remove();
+        UNLOADED_DOMES.add(dome);
       }
     }
   }
