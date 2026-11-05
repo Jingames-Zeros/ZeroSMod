@@ -11,11 +11,22 @@ import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /** Applies ZeroSMod's appended strand colors while DBC Addon renders CNPC hair. */
 @Mixin(value = DBCHair.class, remap = false)
 public abstract class DBCHairStrandColorMixin {
+  // Resolved once per renderHairs call; null until the first colored strand needs it.
+  @Unique private static Boolean zerosmod$formCheck;
+
+  @Inject(method = "renderHairs(Lkamkeel/npcdbc/data/npc/DBCDisplay;)V", at = @At("HEAD"),
+      remap = false)
+  private void zerosmod$resetFormCheck(DBCDisplay display, CallbackInfo ci) {
+    zerosmod$formCheck = null;
+  }
+
   @Redirect(method = "renderHairs(Lkamkeel/npcdbc/data/npc/DBCDisplay;)V",
       at = @At(value = "INVOKE",
           target = "Lkamkeel/npcdbc/client/model/part/hair/ModelHairRenderer;render(F)V",
@@ -26,8 +37,14 @@ public abstract class DBCHairStrandColorMixin {
       @Local(index = 12) String renderCode,
       @Local(argsOnly = true) DBCDisplay display) {
     int rgb = HairStrandColors.strandColor(renderCode, strandIndex);
-    if (rgb == HairStrandColors.NO_COLOR || display == null
-        || zerosmod$formColorsHair(display)) {
+    if (rgb == HairStrandColors.NO_COLOR || display == null) {
+      renderer.render(scale);
+      return;
+    }
+    if (zerosmod$formCheck == null) {
+      zerosmod$formCheck = zerosmod$formColorsHair(display);
+    }
+    if (zerosmod$formCheck) {
       renderer.render(scale);
       return;
     }
