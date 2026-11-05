@@ -5,6 +5,7 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import kamkeel.npcs.entity.EntityEnergyDome;
@@ -33,6 +34,8 @@ public final class EnergyDomeEventHooks {
   /** Domes with entities inside; removed or unloaded ones fire their exits from here. */
   private static final Set<EntityEnergyDome> OCCUPIED_DOMES =
       Collections.newSetFromMap(new MapMaker().weakKeys().<EntityEnergyDome, Boolean>makeMap());
+  /** Unloaded domes; their exits wait for the next server tick so scripts don't run mid-unload. */
+  private static final List<EntityEnergyDome> UNLOADED_DOMES = new ArrayList<EntityEnergyDome>();
 
   private EnergyDomeEventHooks() {}
 
@@ -47,15 +50,18 @@ public final class EnergyDomeEventHooks {
   /** Drops domes of a stopping server, so a singleplayer restart starts clean. */
   public static void clear() {
     OCCUPIED_DOMES.clear();
+    UNLOADED_DOMES.clear();
   }
 
   @SubscribeEvent public void onServerTick(TickEvent.ServerTickEvent event) {
-    if (event.phase != TickEvent.Phase.END || OCCUPIED_DOMES.isEmpty()) {
+    if (event.phase != TickEvent.Phase.END
+        || OCCUPIED_DOMES.isEmpty() && UNLOADED_DOMES.isEmpty()) {
       return;
     }
 
+    List<EntityEnergyDome> removed = new ArrayList<EntityEnergyDome>(UNLOADED_DOMES);
+    UNLOADED_DOMES.clear();
     // Killed domes are removed before their next tick.
-    List<EntityEnergyDome> removed = new ArrayList<EntityEnergyDome>();
     for (EntityEnergyDome dome : OCCUPIED_DOMES) {
       if (dome.isDead) {
         removed.add(dome);
@@ -71,15 +77,13 @@ public final class EnergyDomeEventHooks {
       return;
     }
 
-    List<EntityEnergyDome> unloaded = new ArrayList<EntityEnergyDome>();
     for (List list : chunk.entityLists) {
       for (Object value : list) {
-        if (value instanceof EntityEnergyDome && OCCUPIED_DOMES.contains(value)) {
-          unloaded.add((EntityEnergyDome)value);
+        if (value instanceof EntityEnergyDome && OCCUPIED_DOMES.remove(value)) {
+          UNLOADED_DOMES.add((EntityEnergyDome)value);
         }
       }
     }
-    release(unloaded);
   }
 
   @SubscribeEvent public void onWorldUnload(WorldEvent.Unload event) {
@@ -88,13 +92,13 @@ public final class EnergyDomeEventHooks {
       return;
     }
 
-    List<EntityEnergyDome> unloaded = new ArrayList<EntityEnergyDome>();
-    for (EntityEnergyDome dome : OCCUPIED_DOMES) {
+    for (Iterator<EntityEnergyDome> it = OCCUPIED_DOMES.iterator(); it.hasNext(); ) {
+      EntityEnergyDome dome = it.next();
       if (dome.worldObj == world) {
-        unloaded.add(dome);
+        it.remove();
+        UNLOADED_DOMES.add(dome);
       }
     }
-    release(unloaded);
   }
 
   private static void release(List<EntityEnergyDome> domes) {
