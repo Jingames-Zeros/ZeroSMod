@@ -32,9 +32,14 @@ public abstract class ModelBipedDBCHairHighlightMixin {
       }
       return;
     }
+    int rgb = HairStrandColors.playerStrandColor(hairCode, segmentIndex, player);
+    if (rgb == HairStrandColors.NO_COLOR) {
+      renderer.render(scale);
+      return;
+    }
     GL11.glPushAttrib(GL11.GL_CURRENT_BIT);
     try {
-      HairStrandColors.applyRenderColor(hairCode, segmentIndex, player);
+      HairStrandColors.applyColor(rgb);
       renderer.render(scale);
     } finally {
       GL11.glPopAttrib();
