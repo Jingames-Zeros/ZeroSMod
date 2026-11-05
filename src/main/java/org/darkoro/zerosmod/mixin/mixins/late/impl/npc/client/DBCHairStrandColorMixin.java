@@ -47,7 +47,7 @@ public abstract class DBCHairStrandColorMixin {
       return display.formColor.hasAnyColor(form.display, "hair")
           || JRMCoreH.isRaceMajin(display.race)
               && display.formColor.hasAnyColor(form.display, "bodycm");
-    } catch (RuntimeException lookupFailed) {
+    } catch (RuntimeException | LinkageError lookupFailed) {
       return false;
     }
   }
