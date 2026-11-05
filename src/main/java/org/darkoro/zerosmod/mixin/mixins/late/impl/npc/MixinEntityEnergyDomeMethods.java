@@ -84,9 +84,12 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
       }
     }
 
+    boolean wasOccupied = !this.zerosmod$insideEntities.isEmpty();
     this.zerosmod$insideEntities.clear();
     this.zerosmod$insideEntities.putAll(current);
-    EnergyDomeEventHooks.setOccupied(dome, !current.isEmpty());
+    if (wasOccupied != !current.isEmpty()) {
+      EnergyDomeEventHooks.setOccupied(dome, !current.isEmpty());
+    }
     if (!dome.isDead) {
       zerosmod$damageEntities(current);
     }
