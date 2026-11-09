@@ -1,10 +1,9 @@
 package org.darkoro.zerosmod.dome;
 
-import com.google.common.collect.MapMaker;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -31,9 +30,8 @@ public final class EnergyDomeEventHooks {
   public static final String EXIT_HOOK = "energyDomeExit";
   public static final EnergyDomeEventHooks INSTANCE = new EnergyDomeEventHooks();
 
-  /** Domes with entities inside; removed or unloaded ones fire their exits from here. */
-  private static final Set<EntityEnergyDome> OCCUPIED_DOMES =
-      Collections.newSetFromMap(new MapMaker().weakKeys().<EntityEnergyDome, Boolean>makeMap());
+  /** Domes with entities inside; held strongly so killed domes still fire their exits. */
+  private static final Set<EntityEnergyDome> OCCUPIED_DOMES = new HashSet<EntityEnergyDome>();
   /** Unloaded domes; their exits wait for the next server tick so scripts don't run mid-unload. */
   private static final List<EntityEnergyDome> UNLOADED_DOMES = new ArrayList<EntityEnergyDome>();
 
