@@ -39,7 +39,7 @@ public abstract class DBCHairStrandColorMixin {
       @Local(index = 12) String renderCode,
       @Local(argsOnly = true) DBCDisplay display) {
     int rgb = HairStrandColors.strandColor(renderCode, strandIndex);
-    if (rgb == HairStrandColors.NO_COLOR || display == null) {
+    if (rgb == HairStrandColors.NO_COLOR) {
       renderer.render(scale);
       return;
     }
