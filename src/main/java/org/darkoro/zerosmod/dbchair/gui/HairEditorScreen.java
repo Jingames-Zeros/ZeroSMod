@@ -168,15 +168,11 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
   public String currentHairCode() { return getCode(); }
 
   private void setCode(String code, boolean remember) {
-    applyCode(code, remember, true);
-  }
-
-  private void applyCode(String code, boolean remember, boolean sync) {
     code = normalize(code);
     if (code.isEmpty()) return;
     String before = getCode();
     if (before.equals(code)) {
-      if (sync) syncIfUnsent(code);
+      syncIfUnsent(code);
       refreshValues();
       return;
     }
@@ -186,7 +182,7 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
       redo.clear();
     }
     JRMCoreHairEditorAccess.zerosmod$setHairCode(code);
-    if (sync) syncIfUnsent(code);
+    syncIfUnsent(code);
     refreshValues();
   }
 
@@ -856,7 +852,8 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
     String geometry = HairStrandColors.geometry(code);
     String digits = value < 10 ? "0" + value : Integer.toString(value);
     String updated = JRMCoreH.dnsHair2set(geometry, selected * 14 + index * 2, digits);
-    applyCode(updated + (HairStrandColors.hasOverrides(code) ? code.substring(786) : ""), false, false);
+    // The preview shows the synced hair, so each drag step is sent.
+    setCode(updated + (HairStrandColors.hasOverrides(code) ? code.substring(786) : ""), false);
   }
 
   private String strandColorLabel() {
