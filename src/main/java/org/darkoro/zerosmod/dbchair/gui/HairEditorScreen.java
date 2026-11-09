@@ -382,10 +382,13 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
 
   public void loadPreset(int index) {
     if (index < 0 || index >= presetCount()) return;
+    String current = getCode();
     JRMCoreGuiScreen.HairPrstsSlcted = index;
     JRMCoreGuiScreen.HairCstmResetPreset();
     String preset = normalize(HairPresetStore.codeAt(index));
     if (preset.isEmpty()) preset = normalize(JRMCoreHairEditorAccess.zerosmod$getHairCode());
+    // DBC's reset already wrote the preset; restore it so undo keeps the edited hair.
+    JRMCoreHairEditorAccess.zerosmod$setHairCode(current);
     if (preset.isEmpty()) {
       status = "The selected DBC preset is not a supported hair code.";
       error = true;
