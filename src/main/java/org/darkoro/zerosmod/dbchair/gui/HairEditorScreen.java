@@ -403,7 +403,8 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
     }
     int selected = selectedPreset();
     if (!HairPresetStore.delete(selected, mc.mcDataDir)) {
-      status = "Could not save the preset deletion to this client.";
+      status = HairPresetStore.isWriteBlocked() ? HairPresetStore.BLOCKED_MESSAGE
+          : "Could not save the preset deletion to this client.";
       error = true;
       return false;
     }
@@ -418,7 +419,8 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
     String cleanName = name == null ? "" : name.trim();
     if (cleanName.isEmpty() || HairStrandColors.geometry(getCode()).length() != 786) return false;
     if (HairPresetStore.add(cleanName, getCode(), mc.mcDataDir) < 0) {
-      status = "Could not write the preset to this client's game folder.";
+      status = HairPresetStore.isWriteBlocked() ? HairPresetStore.BLOCKED_MESSAGE
+          : "Could not write the preset to this client's game folder.";
       error = true;
       return false;
     }

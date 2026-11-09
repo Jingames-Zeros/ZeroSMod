@@ -15,10 +15,13 @@ import java.util.Base64;
 import java.util.List;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import org.darkoro.zerosmod.ZeroSMod;
 
 /** Keeps editor presets as normal DBC hair codes without touching DBC's shared NBT file. */
 final class HairPresetStore {
   private static final String FILE_NAME = "zerosmod_hair_presets.txt";
+  static final String BLOCKED_MESSAGE =
+      "Presets can't be saved this session: the damaged preset file couldn't be backed up.";
   private static final List<Preset> CUSTOM = new ArrayList<Preset>();
   private static boolean loaded;
   // Set when an unreadable file could not be backed up, so it is never overwritten.
@@ -44,6 +47,10 @@ final class HairPresetStore {
             write(gameDir);
           } catch (Exception backupFailed) {
             writeBlocked = true;
+            if (ZeroSMod.LOGGER != null) {
+              ZeroSMod.LOGGER.warn("Hair presets won't be saved this session: {} has unreadable"
+                  + " lines and couldn't be backed up to {}: {}", file, backup, backupFailed.toString());
+            }
           }
         }
       } else {
@@ -105,6 +112,8 @@ final class HairPresetStore {
       }
     }
   }
+
+  static boolean isWriteBlocked() { return writeBlocked; }
 
   static int customCount() { return CUSTOM.size(); }
   static Preset customAt(int index) { return index >= 0 && index < CUSTOM.size() ? CUSTOM.get(index) : null; }
