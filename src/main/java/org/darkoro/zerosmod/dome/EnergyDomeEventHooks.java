@@ -57,15 +57,23 @@ public final class EnergyDomeEventHooks {
       return;
     }
 
-    List<EntityEnergyDome> removed = new ArrayList<EntityEnergyDome>(UNLOADED_DOMES);
-    UNLOADED_DOMES.clear();
+    List<EntityEnergyDome> removed = null;
+    if (!UNLOADED_DOMES.isEmpty()) {
+      removed = new ArrayList<EntityEnergyDome>(UNLOADED_DOMES);
+      UNLOADED_DOMES.clear();
+    }
     // Killed domes are removed before their next tick.
     for (EntityEnergyDome dome : OCCUPIED_DOMES) {
       if (dome.isDead) {
+        if (removed == null) {
+          removed = new ArrayList<EntityEnergyDome>();
+        }
         removed.add(dome);
       }
     }
-    release(removed);
+    if (removed != null) {
+      release(removed);
+    }
   }
 
   @SubscribeEvent public void onChunkUnload(ChunkEvent.Unload event) {
