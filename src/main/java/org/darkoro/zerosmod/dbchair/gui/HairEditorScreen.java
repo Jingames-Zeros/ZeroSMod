@@ -426,7 +426,7 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
       error = true;
       return false;
     }
-    syncLive(getCode());
+    syncIfUnsent(getCode());
     status = "Saved “" + cleanName + "” as a new custom preset.";
     error = false;
     return true;
