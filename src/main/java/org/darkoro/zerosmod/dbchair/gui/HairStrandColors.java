@@ -25,8 +25,6 @@ public final class HairStrandColors {
           return size() > PARSE_CACHE_SIZE;
         }
       };
-  private static String lastParsedCode;
-  private static int[] lastParsedColors = NO_OVERRIDES;
   private static WeakReference<EntityPlayer> lastPlayer = new WeakReference<EntityPlayer>(null);
   private static int lastPlayerTick;
   private static int[] lastPlayerColors = NO_OVERRIDES;
@@ -120,11 +118,8 @@ public final class HairStrandColors {
 
   public static int strandColor(String code, int strand) {
     if (code == null || strand < 0 || strand >= STRAND_COUNT) return NO_COLOR;
-    if (code != lastParsedCode) {
-      lastParsedColors = colors(code);
-      lastParsedCode = code;
-    }
-    return lastParsedColors.length == 0 ? NO_COLOR : lastParsedColors[strand];
+    int[] colors = colors(code);
+    return colors.length == 0 ? NO_COLOR : colors[strand];
   }
 
   private static int[] colors(String code) {
