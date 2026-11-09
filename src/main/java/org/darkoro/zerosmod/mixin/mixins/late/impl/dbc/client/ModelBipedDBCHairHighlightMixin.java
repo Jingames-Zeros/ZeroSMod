@@ -8,6 +8,7 @@ import org.darkoro.zerosmod.dbchair.gui.HairStrandColors;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
@@ -21,25 +22,37 @@ public abstract class ModelBipedDBCHairHighlightMixin {
       @Local(argsOnly = true) String hairCode,
       @Local(argsOnly = true) AbstractClientPlayer player) {
     HairEditorScreen.zerosmod$recordPreviewHairHit(segmentIndex, renderer, scale);
-    if (HairEditorScreen.zerosmod$isPreviewDrawActive()
-        && segmentIndex == HairEditorScreen.zerosmod$getPreviewSelectedSegment()) {
+    int rgb = HairStrandColors.playerStrandColor(hairCode, segmentIndex, player);
+    if (rgb == HairStrandColors.NO_COLOR) {
+      renderer.render(scale);
+    } else {
       GL11.glPushAttrib(GL11.GL_CURRENT_BIT);
-      GL11.glColor4f(0.48F, 1F, 0.34F, 1F);
       try {
+        HairStrandColors.applyColor(rgb);
         renderer.render(scale);
       } finally {
         GL11.glPopAttrib();
       }
-      return;
     }
-    int rgb = HairStrandColors.playerStrandColor(hairCode, segmentIndex, player);
-    if (rgb == HairStrandColors.NO_COLOR) {
-      renderer.render(scale);
-      return;
+    if (HairEditorScreen.zerosmod$isPreviewDrawActive()
+        && segmentIndex == HairEditorScreen.zerosmod$getPreviewSelectedSegment()) {
+      zerosmod$outline(renderer, scale);
     }
-    GL11.glPushAttrib(GL11.GL_CURRENT_BIT);
+  }
+
+  /** Draws the selected strand's edges in white so its own color stays visible. */
+  @Unique private static void zerosmod$outline(ModelRendererJBRA renderer, float scale) {
+    GL11.glPushAttrib(GL11.GL_CURRENT_BIT | GL11.GL_ENABLE_BIT | GL11.GL_LINE_BIT
+        | GL11.GL_POLYGON_BIT);
     try {
-      HairStrandColors.applyColor(rgb);
+      GL11.glDisable(GL11.GL_TEXTURE_2D);
+      GL11.glDisable(GL11.GL_LIGHTING);
+      GL11.glDisable(GL11.GL_CULL_FACE);
+      GL11.glEnable(GL11.GL_POLYGON_OFFSET_LINE);
+      GL11.glPolygonOffset(-1F, -1F);
+      GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
+      GL11.glLineWidth(2.5F);
+      GL11.glColor4f(1F, 1F, 1F, 1F);
       renderer.render(scale);
     } finally {
       GL11.glPopAttrib();
