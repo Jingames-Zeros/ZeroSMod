@@ -308,6 +308,10 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
     }
 
     Entity follower = dome.worldObj.getEntityByID(this.zerosmod$followerEntityId);
+    // Clients give non-player entities random UUIDs, so they trust the synced id.
+    if (dome.worldObj.isRemote) {
+      return follower != null && !follower.isDead && follower != dome ? follower : null;
+    }
     if (zerosmod$isExpectedFollower(follower)) {
       return follower;
     }
@@ -320,6 +324,7 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
       if (loaded instanceof Entity && zerosmod$isExpectedFollower((Entity)loaded)) {
         follower = (Entity)loaded;
         this.zerosmod$followerEntityId = follower.getEntityId();
+        dome.sendClientSync();
         return follower;
       }
     }
