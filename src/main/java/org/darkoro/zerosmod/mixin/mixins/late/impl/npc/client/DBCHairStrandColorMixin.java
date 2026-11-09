@@ -20,6 +20,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class DBCHairStrandColorMixin {
   // Resolved once per renderHairs call; null until the first colored strand needs it.
   @Unique private static Boolean zerosmod$formCheck;
+  // Set once this DBC Addon build lacks form colors, so the failure isn't repeated every frame.
+  @Unique private static boolean zerosmod$formColorsMissing;
 
   @Inject(method = "renderHairs(Lkamkeel/npcdbc/data/npc/DBCDisplay;)V", at = @At("HEAD"),
       remap = false)
@@ -58,13 +60,17 @@ public abstract class DBCHairStrandColorMixin {
   }
 
   @Unique private static boolean zerosmod$formColorsHair(DBCDisplay display) {
+    if (zerosmod$formColorsMissing) return false;
     try {
       Form form = display.getForm();
       if (form == null || form.display == null || display.formColor == null) return false;
       return display.formColor.hasAnyColor(form.display, "hair")
           || JRMCoreH.isRaceMajin(display.race)
               && display.formColor.hasAnyColor(form.display, "bodycm");
-    } catch (RuntimeException | LinkageError lookupFailed) {
+    } catch (LinkageError missing) {
+      zerosmod$formColorsMissing = true;
+      return false;
+    } catch (RuntimeException lookupFailed) {
       return false;
     }
   }
