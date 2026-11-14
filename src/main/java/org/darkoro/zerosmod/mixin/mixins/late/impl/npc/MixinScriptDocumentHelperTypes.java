@@ -28,6 +28,16 @@ public abstract class MixinScriptDocumentHelperTypes {
   @Shadow public abstract MethodInfo findContainingMethod(int offset);
   @Shadow public abstract TypeInfo resolveExpressionType(String expression, int offset);
 
+  @Unique private static final Pattern ZEROSMOD$INDEXED_ACCESS = Pattern.compile(
+      "^\\s*([A-Za-z_$][A-Za-z0-9_$]*)(?:\\s*\\[[^]]+\\])?\\s*\\.\\s*([A-Za-z_$][A-Za-z0-9_$]*)\\s*$");
+  @Unique private static final Pattern ZEROSMOD$INDEXED_ASSIGNMENT = Pattern.compile(
+      "\\b([A-Za-z_$][A-Za-z0-9_$]*)\\s*\\[[^]]+\\]\\s*=\\s*\\{([^{}]*)\\}");
+  @Unique private static final Pattern ZEROSMOD$OBJECT_PROPERTY = Pattern.compile(
+      "\\b([A-Za-z_$][A-Za-z0-9_$]*)\\s*:\\s*"
+          + "([A-Za-z_$][A-Za-z0-9_$]*(?:\\.[A-Za-z_$][A-Za-z0-9_$]*\\(\\))?)(?=\\s*(?:,|$))");
+  @Unique private static final Pattern ZEROSMOD$INDEXED_ALIAS = Pattern.compile(
+      "\\b(?:var|let|const)\\s+([A-Za-z_$][A-Za-z0-9_$]*)\\s*=\\s*([A-Za-z_$][A-Za-z0-9_$]*)\\s*\\[[^]]+\\]");
+
   @Unique private final Map<String, Map<String, TypeInfo>> zerosmod$indexedProperties = new HashMap<String, Map<String, TypeInfo>>();
   @Unique private final Map<Integer, Map<String, String>> zerosmod$indexedAliases = new HashMap<Integer, Map<String, String>>();
 
@@ -50,7 +60,7 @@ public abstract class MixinScriptDocumentHelperTypes {
     for (int pass = 0; pass < methods.size(); pass++) {
       boolean changed = false;
       for (MethodInfo method : methods) {
-        if (method.getParameterCount() != 1 || !hasUniqueName(method, methods)) {
+        if (method.getParameterCount() != 1 || !zerosmod$hasUniqueName(method, methods)) {
           continue;
         }
 
@@ -59,7 +69,7 @@ public abstract class MixinScriptDocumentHelperTypes {
           continue;
         }
 
-        TypeInfo type = inferArgumentType(method);
+        TypeInfo type = zerosmod$inferArgumentType(method);
         TypeInfo current = parameter.getEffectiveType();
         if (type != null && (current == null || !type.getFullName().equals(current.getFullName()))) {
           parameter.setInferredType(type);
@@ -90,9 +100,7 @@ public abstract class MixinScriptDocumentHelperTypes {
       return;
     }
 
-    Matcher access = Pattern.compile(
-        "^\\s*([A-Za-z_$][A-Za-z0-9_$]*)(?:\\s*\\[[^]]+\\])?\\s*\\.\\s*([A-Za-z_$][A-Za-z0-9_$]*)\\s*$")
-        .matcher(expression);
+    Matcher access = ZEROSMOD$INDEXED_ACCESS.matcher(expression);
     if (!access.matches()) {
       return;
     }
@@ -111,12 +119,7 @@ public abstract class MixinScriptDocumentHelperTypes {
   }
 
   private void zerosmod$collectIndexedObjects() {
-    Pattern assignment = Pattern.compile(
-        "\\b([A-Za-z_$][A-Za-z0-9_$]*)\\s*\\[[^]]+\\]\\s*=\\s*\\{([^{}]*)\\}");
-    Pattern property = Pattern.compile(
-        "\\b([A-Za-z_$][A-Za-z0-9_$]*)\\s*:\\s*"
-            + "([A-Za-z_$][A-Za-z0-9_$]*(?:\\.[A-Za-z_$][A-Za-z0-9_$]*\\(\\))?)(?=\\s*(?:,|$))");
-    Matcher objects = assignment.matcher(text);
+    Matcher objects = ZEROSMOD$INDEXED_ASSIGNMENT.matcher(text);
     while (objects.find()) {
       if (isExcluded(objects.start())) {
         continue;
@@ -126,7 +129,7 @@ public abstract class MixinScriptDocumentHelperTypes {
         types = new HashMap<String, TypeInfo>();
         zerosmod$indexedProperties.put(objects.group(1), types);
       }
-      Matcher fields = property.matcher(objects.group(2));
+      Matcher fields = ZEROSMOD$OBJECT_PROPERTY.matcher(objects.group(2));
       while (fields.find()) {
         int valueOffset = objects.start(2) + fields.start(2);
         TypeInfo valueType = resolveExpressionType(fields.group(2), valueOffset);
@@ -136,9 +139,7 @@ public abstract class MixinScriptDocumentHelperTypes {
       }
     }
 
-    Pattern alias = Pattern.compile(
-        "\\b(?:var|let|const)\\s+([A-Za-z_$][A-Za-z0-9_$]*)\\s*=\\s*([A-Za-z_$][A-Za-z0-9_$]*)\\s*\\[[^]]+\\]");
-    Matcher aliases = alias.matcher(text);
+    Matcher aliases = ZEROSMOD$INDEXED_ALIAS.matcher(text);
     while (aliases.find()) {
       if (isExcluded(aliases.start()) || !zerosmod$indexedProperties.containsKey(aliases.group(2))) {
         continue;
@@ -154,7 +155,7 @@ public abstract class MixinScriptDocumentHelperTypes {
     }
   }
 
-  private boolean hasUniqueName(MethodInfo method, List<MethodInfo> methods) {
+  @Unique private boolean zerosmod$hasUniqueName(MethodInfo method, List<MethodInfo> methods) {
     for (MethodInfo other : methods) {
       if (other != method && other.getName().equals(method.getName())) {
         return false;
@@ -163,7 +164,7 @@ public abstract class MixinScriptDocumentHelperTypes {
     return true;
   }
 
-  private TypeInfo inferArgumentType(MethodInfo method) {
+  @Unique private TypeInfo zerosmod$inferArgumentType(MethodInfo method) {
     Pattern call = Pattern.compile(
         "\\b" + Pattern.quote(method.getName()) + "\\s*\\(\\s*([A-Za-z_$][A-Za-z0-9_$]*)\\s*\\)");
     Matcher matcher = call.matcher(text);

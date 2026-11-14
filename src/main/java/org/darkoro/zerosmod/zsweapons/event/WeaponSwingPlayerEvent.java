@@ -34,10 +34,6 @@ public final class WeaponSwingPlayerEvent extends PlayerEvent
   }
 
   @Override public void setCooldown(double ticks) {
-    this.cooldown = isFinite(ticks) ? Math.max(0.0D, ticks) : 0.0D;
-  }
-
-  private static boolean isFinite(double value) {
-    return !Double.isNaN(value) && !Double.isInfinite(value);
+    if (Double.isFinite(ticks)) this.cooldown = Math.max(0.0D, ticks);
   }
 }

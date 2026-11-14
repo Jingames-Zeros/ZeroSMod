@@ -18,7 +18,7 @@ public abstract class MixinServerEventHandlerFormDrain {
       remap = false)
   private double zerosmod$fireFormDrain(double negativeDrain,
       @Local(argsOnly = true) EntityPlayer player) {
-    double replacementDrain = CustomFormDrainEventHooks.fire(player, Math.max(0.0D, -negativeDrain));
+    double replacementDrain = CustomFormDrainEventHooks.fire(player, -negativeDrain);
     return Math.floor(-replacementDrain);
   }
 }

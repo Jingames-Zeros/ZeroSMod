@@ -17,6 +17,11 @@ public interface JRMCoreHairEditorAccess {
   }
 
   @Accessor("dnsHSent")
+  static String zerosmod$getLastSentHairCode() {
+    throw new AssertionError();
+  }
+
+  @Accessor("dnsHSent")
   static void zerosmod$setLastSentHairCode(String code) {
     throw new AssertionError();
   }

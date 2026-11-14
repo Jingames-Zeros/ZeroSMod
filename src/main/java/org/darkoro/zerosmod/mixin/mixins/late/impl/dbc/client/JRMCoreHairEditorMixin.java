@@ -45,6 +45,9 @@ public abstract class JRMCoreHairEditorMixin {
     String code = JRMCoreH.JFC() && target != null && JRMCoreHJFC.isChildNPC(target)
         ? JRMCoreHJFC.childDNSH(target) : JRMCoreH.dnsH;
     if (code == null || code.length() < 3) code = JRMCoreHairEditorAccess.zerosmod$getHairCode();
+    if ((code == null || code.length() < 3) && JRMCoreH.defHairPrsts.length > 0) {
+      code = JRMCoreH.defHairPrsts[0];
+    }
     if (code == null || code.length() < 3) return;
     JRMCoreHairEditorAccess.zerosmod$setHairCode(code);
     Minecraft.getMinecraft().displayGuiScreen(new HairEditorScreen(origin, button.id - 5100, code));

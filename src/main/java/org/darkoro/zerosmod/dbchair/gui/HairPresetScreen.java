@@ -13,7 +13,8 @@ public final class HairPresetScreen extends GuiScreen {
   private final HairEditorScreen editor;
   private int scrollOffset;
   private float scale, ox, oy;
-  private String status = "Choose a preset to preview it, or save your current hair as a preset.";
+  private String status = HairPresetStore.isWriteBlocked() ? HairPresetStore.BLOCKED_MESSAGE
+      : "Choose a preset to preview it, or save your current hair as a preset.";
 
   public HairPresetScreen(HairEditorScreen editor) { this.editor = editor; }
 
@@ -48,9 +49,9 @@ public final class HairPresetScreen extends GuiScreen {
     } else if (button.id == 3) {
       mc.displayGuiScreen(new HairPresetNameScreen(this));
     } else if (button.id == 4) {
-      boolean deleted = editor.deleteSelectedPreset();
+      editor.deleteSelectedPreset();
       scrollOffset = Math.min(scrollOffset, Math.max(0, editor.presetCount() - 9));
-      status = deleted ? "Deleted the selected custom preset." : "Default presets cannot be deleted.";
+      status = editor.status();
       initGui();
     } else if (button.id == 5) {
       editor.closePresets();
@@ -63,12 +64,8 @@ public final class HairPresetScreen extends GuiScreen {
   }
 
   void saveNamedPreset(String name) {
-    if (editor.saveNamedPreset(name)) {
-      scrollOffset = Math.max(0, editor.presetCount() - 9);
-      status = "Saved “" + name.trim() + "” as a new preset. It is selected in the list.";
-    } else {
-      status = "Could not save preset. Enter a name and make sure the hair is editable.";
-    }
+    if (editor.saveNamedPreset(name)) scrollOffset = Math.max(0, editor.presetCount() - 9);
+    status = editor.status();
     mc.displayGuiScreen(this);
     initGui();
   }

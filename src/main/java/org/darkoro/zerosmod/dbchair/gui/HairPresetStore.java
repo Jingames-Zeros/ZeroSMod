@@ -15,12 +15,17 @@ import java.util.Base64;
 import java.util.List;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import org.darkoro.zerosmod.ZeroSMod;
 
 /** Keeps editor presets as normal DBC hair codes without touching DBC's shared NBT file. */
 final class HairPresetStore {
   private static final String FILE_NAME = "zerosmod_hair_presets.txt";
+  static final String BLOCKED_MESSAGE =
+      "Presets can't be saved this session: the damaged preset file couldn't be backed up.";
   private static final List<Preset> CUSTOM = new ArrayList<Preset>();
   private static boolean loaded;
+  // Set when an unreadable file could not be backed up, so it is never overwritten.
+  private static boolean writeBlocked;
 
   static final class Preset {
     final String name;
@@ -37,8 +42,16 @@ final class HairPresetStore {
       if (file.isFile()) {
         if (!read(file)) {
           File backup = new File(gameDir, FILE_NAME + ".corrupt-" + System.currentTimeMillis());
-          try { Files.copy(file.toPath(), backup.toPath()); } catch (Exception ignored) { }
-          write(gameDir);
+          try {
+            Files.copy(file.toPath(), backup.toPath());
+            write(gameDir);
+          } catch (Exception backupFailed) {
+            writeBlocked = true;
+            if (ZeroSMod.LOGGER != null) {
+              ZeroSMod.LOGGER.warn("Hair presets won't be saved this session: {} has unreadable"
+                  + " lines and couldn't be backed up to {}: {}", file, backup, backupFailed.toString());
+            }
+          }
         }
       } else {
         importLegacyPresets();
@@ -60,18 +73,31 @@ final class HairPresetStore {
   }
 
   private static boolean read(File file) {
+    boolean intact = true;
     try (BufferedReader reader = new BufferedReader(new InputStreamReader(
         new FileInputStream(file), StandardCharsets.UTF_8))) {
       String line;
       while ((line = reader.readLine()) != null) {
-        int split = line.indexOf('\t');
-        if (split < 0) continue;
-        String name = new String(Base64.getDecoder().decode(line.substring(0, split)), StandardCharsets.UTF_8);
-        String code = line.substring(split + 1);
-        if (validCode(code)) CUSTOM.add(new Preset(name, code));
+        if (line.isEmpty()) continue;
+        Preset preset = parse(line);
+        if (preset == null) intact = false;
+        else CUSTOM.add(preset);
       }
-      return true;
+      return intact;
     } catch (Exception ignored) { return false; }
+  }
+
+  private static Preset parse(String line) {
+    int split = line.indexOf('\t');
+    if (split < 0) return null;
+    String code = line.substring(split + 1);
+    if (!validCode(code)) return null;
+    try {
+      return new Preset(new String(Base64.getDecoder().decode(line.substring(0, split)),
+          StandardCharsets.UTF_8), code);
+    } catch (IllegalArgumentException damaged) {
+      return null;
+    }
   }
 
   private static void importLegacyPresets() {
@@ -86,6 +112,8 @@ final class HairPresetStore {
       }
     }
   }
+
+  static boolean isWriteBlocked() { return writeBlocked; }
 
   static int customCount() { return CUSTOM.size(); }
   static Preset customAt(int index) { return index >= 0 && index < CUSTOM.size() ? CUSTOM.get(index) : null; }
@@ -142,6 +170,7 @@ final class HairPresetStore {
   }
 
   private static boolean write(File gameDir) {
+    if (writeBlocked) return false;
     File file = new File(gameDir, FILE_NAME);
     File temp = new File(gameDir, FILE_NAME + ".tmp");
     try (FileOutputStream stream = new FileOutputStream(temp);

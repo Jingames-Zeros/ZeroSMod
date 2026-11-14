@@ -15,114 +15,81 @@ import org.darkoro.zerosmod.api.ScriptZSWeapon;
 public interface IZeroSEvent {
 
   /**
-   * Fired in the dome owner's NPC or player script when a loaded entity enters an active energy
-   * dome. The dome entity itself is excluded. This also fires when following or resizing moves
-   * the dome boundary across an entity.
+   * Fired in the dome owner's script when an entity enters a dome.
    *
    * @hookName energyDomeEnter
    */
   interface EnergyDomeEnterEvent extends IEnergyBarrierEvent {
 
-    /** @return spawned dome whose boundary was entered; never null */
+    /** @return the dome */
     IEnergyDome getDome();
 
-    /** @return entity that entered the dome; never null */
+    /** @return the entity that entered */
     IEntity getEntity();
   }
 
   /**
-   * Fired in the dome owner's NPC or player script when a loaded entity leaves an active energy
-   * dome. This also fires when following or resizing moves the dome boundary past an entity.
-   * Removing the dome itself does not emit exit events for every entity that remained inside.
+   * Fired in the dome owner's script when an entity leaves a dome. Removed or unloaded domes
+   * fire it only while the owner is loaded.
    *
    * @hookName energyDomeExit
    */
   interface EnergyDomeExitEvent extends IEnergyBarrierEvent {
 
-    /** @return spawned dome whose boundary was left; never null */
+    /** @return the dome */
     IEnergyDome getDome();
 
-    /** @return entity that left the dome; never null */
+    /** @return the entity that left */
     IEntity getEntity();
   }
 
   /**
-   * Fired immediately before a valid Zero S weapon hit queues its damage state and cooldown.
-   * Cancel the event to prevent the hit and its cooldown. Attacks rejected for an existing
-   * cooldown, invalid target, changed held item, or excessive range do not fire this hook.
+   * Fired before a valid Zero S weapon hit. Cancel it to prevent the hit and its cooldown.
    *
    * @hookName zsWeaponSwing
    */
   @Cancelable
   interface WeaponSwingEvent extends IPlayerEvent {
 
-    /**
-     * Gets the live stats of the weapon being swung.
-     *
-     * @return current Zero S weapon stats; never null
-     */
+    /** @return live stats of the swung weapon */
     ScriptZSWeapon getWeapon();
 
-    /**
-     * @return cooldown this swing will start, in ticks
-     */
+    /** @return cooldown this swing starts, in ticks */
     double getCooldown();
 
-    /**
-     * Replaces the cooldown started by this swing without changing the weapon's configured
-     * cooldown. Zero allows another attack immediately. Negative or non-finite values become zero.
-     *
-     * @param ticks replacement cooldown in ticks
-     */
+    /** @param ticks cooldown for this swing only; 0 allows the next attack immediately */
     void setCooldown(double ticks);
   }
 
   /**
-   * Fired immediately before NPCDBC applies one scheduled custom-form Ki drain.
-   * Cancel the event to skip that drain. Each later drain interval fires a new event.
-   * This hook does not fire for creative-mode players or forms without Ki drain enabled.
-   * For example, {@code event.setDrain(event.getDrain() * 0.5)} halves this drain and
-   * {@code event.setCanceled(true)} skips it.
+   * Fired before NPCDBC drains Ki for a custom form. Cancel it to skip this drain.
    *
    * @hookName dbcFormDrain
    */
   @Cancelable
   interface FormDrainEvent extends IPlayerEvent {
 
-    /**
-     * Gets NPCDBC's calculated drain before it is rounded to whole Ki.
-     *
-     * @return non-negative Ki amount about to be drained
-     */
+    /** @return Ki about to be drained */
     double getDrain();
 
-    /**
-     * Replaces the amount drained this interval. DBC stores Ki as a whole number, so positive
-     * decimals round up when applied. Zero skips the drain. Negative or non-finite values become
-     * zero, and values above the integer Ki limit are clamped.
-     *
-     * @param drain replacement Ki drain amount
-     */
+    /** @param drain Ki to drain instead, rounded up; 0 skips the drain */
     void setDrain(double drain);
   }
 
   /**
-   * Fired once when a player begins charging an NPCDBC custom-form transformation.
-   * This runs before the form changes and still fires if the player releases the key before
-   * completing the transformation. Releasing and starting again fires a new event.
-   * Vanilla DBC transformations and programmatic form changes do not fire this hook.
+   * Fired when a player starts charging an NPCDBC custom-form transformation.
    *
    * @hookName beginsTransforming
    */
   interface BeginsTransformingEvent extends IPlayerEvent {
 
-    /** @return custom form the player is attempting to transform into; never null */
+    /** @return the target form */
     IForm getTargetForm();
 
-    /** @return numeric ID of the target custom form */
+    /** @return the target form's ID */
     int getTargetFormId();
 
-    /** @return internal name of the target custom form */
+    /** @return the target form's name */
     String getTargetFormName();
   }
 

@@ -255,155 +255,128 @@ export interface PlayerCombatState<T> extends ScriptPlayerCombatState<T> {
 }
 
 /**
- * Dome settings exposed on CNPC+ ability objects. These methods apply only when the ability is
- * a Dome ability; changes affect later casts and do not modify an already spawned dome.
+ * Dome ability settings; only dome abilities have them. Changes apply to later casts.
  * @javaFqn noppes.npcs.api.ability.IAbility
  */
 export interface IAbility {
-  /** Returns the configured dome radius in blocks. */
+  /** Returns the dome radius in blocks. */
   getDomeRadius(): number;
 
-  /** Sets the radius for later casts. CNPC+ clamps values below one block to one. */
+  /** Sets the dome radius in blocks, at least 1. */
   setDomeRadius(radius: number): void;
 
-  /** Returns the configured dome lifetime in ticks. Duration must also be enabled on the ability. */
+  /** Returns the dome lifetime in ticks, used only when the ability's duration is enabled. */
   getBarrierDuration(): number;
 
-  /** Sets the lifetime for later casts. CNPC+ clamps values below one tick to one. */
+  /** Sets the dome lifetime in ticks, at least 1. */
   setBarrierDuration(ticks: number): void;
 }
 
 /**
- * Zero S methods exposed on CNPC+ energy barriers. Call these only when getBarrierType() is 0
- * (Dome). Damage defaults to zero, its interval defaults to 20 ticks, and owner damage defaults
- * to disabled.
+ * Spawned dome methods; only domes (getBarrierType() 0) have them.
  * @javaFqn noppes.npcs.api.entity.IEnergyBarrier
  */
 export interface IEnergyBarrier<T> {
-  /** Returns damage dealt to each living entity inside per hit, or zero when disabled. */
+  /** Returns damage per hit to living entities inside, 0 when disabled. */
   getDamage(): number;
 
-  /** Sets damage per hit. Negative or non-finite values become zero; zero disables damage. */
+  /** Sets damage per hit; 0 disables it. */
   setDamage(damage: number): void;
 
-  /** Returns ticks between damage hits. */
+  /** Returns ticks between hits. */
   getDamageInterval(): number;
 
-  /** Sets ticks between hits, clamped to at least one. */
+  /** Sets ticks between hits, at least 1. */
   setDamageInterval(ticks: number): void;
 
-  /** Returns true when the dome can damage its owner. */
+  /** Returns true when the dome also damages its owner. */
   affectOwner(): boolean;
 
-  /** Controls whether the dome can damage its owner. */
+  /** Sets whether the dome also damages its owner. */
   setAffectOwner(affects: boolean): void;
 
-  /** Returns the followed entity, including the native followed caster, or null. */
+  /** Returns the followed entity, including a followed caster, or null. */
   getFollower(): IEntity<any>;
 
-  /** Follows an entity in the same world, or disables following when null. Other worlds are ignored. */
+  /** Follows an entity in the same world, or stays in place with null. */
   setFollower(entity: IEntity<any>): void;
 
-  /** Returns all loaded entities currently inside; includes the owner and excludes the dome. */
+  /** Returns the entities inside the dome, including the owner. */
   getEntitiesInside(): IEntity<any>[];
 
-  /** Returns true when the entity's midpoint is inside the dome's current radius. */
+  /** Returns true when the entity is inside the dome. */
   isInside(entity: IEntity<any>): boolean;
 
   /**
-   * Linearly resizes the dome. Radius is clamped to at least 0.1 blocks;
-   * zero or fewer ticks applies it immediately. Non-finite radii are ignored.
+   * Resizes the dome to radius (at least 0.1) over ticks; 0 ticks resizes immediately.
+   * A charging dome finishes its charge first; with 0 ticks it charges to the new radius.
    */
   setTargetRadius(radius: number, ticks: number): void;
 }
 
 /**
- * Zero S DBC methods for the player wrapper returned by player.getDBCPlayer().
+ * DBC methods on player.getDBCPlayer(). Status effects, case-insensitive: timed Strain, GodPower,
+ * Fatigue, NoFuse, Pain, Heat, KO; on/off Majin, Legendary, Divine, GodOfDestruction.
  * @javaFqn noppes.npcs.api.entity.IDBCPlayer
  */
 export interface IDBCPlayer {
-  /** Returns DBC's life state: true while alive and false while the player has a halo. This is separate from inherited isAlive(). */
+  /** Returns false while the player is dead in DBC (has a halo). */
   isDBCAlive(): boolean;
 
-  /** Ends an active fusion for both online participants and applies DBC's configured fusion cooldown. */
+  /** Ends the fusion for both online participants and applies DBC's fusion cooldown. */
   defuse(): void;
 
-  /** Returns active fusion time left in seconds, excluding the post-fusion cooldown, or 0 when unfused. */
+  /** Returns the remaining fusion time in seconds, or 0 when not fused. */
   getFusionTimeLeft(): number;
 
   /**
-   * Sets one DBC status effect without replacing other effects. Names are case-insensitive.
-   * Timed effects use seconds and round positive durations up to DBC's five-second interval;
-   * zero or less removes them. Timed names: Strain, GodPower, Fatigue, NoFuse, Pain, Heat, KO.
-   * NoFuse does nothing while fused. Heat is legacy DBC UI heat, not NPCDBC custom-form heat.
-   * Toggle names: Majin, Legendary, Divine, GodOfDestruction. Zero disables; any other value enables.
-   * Example: setDBCStatusEffect("Pain", 30) applies 30 seconds; setDBCStatusEffect("Majin", 1) enables Majin.
-   * Throws a script error for an unsupported name.
+   * Sets one status effect. Timed effects take seconds, rounded up to 5; 0 removes them.
+   * On/off effects turn off with 0 and on with any other value. NoFuse is ignored while fused.
+   * Throws for an unknown effect name.
    */
   setDBCStatusEffect(effect: string, duration: number): void;
 
-  /**
-   * Returns remaining seconds for a timed DBC status effect, in multiples of five, or 1/0 for a toggle.
-   * Names are case-insensitive. Throws a script error for an unsupported name.
-   */
+  /** Returns remaining seconds for a timed effect, or 1/0 for an on/off effect. Throws for an unknown name. */
   getDBCStatusEffect(effect: string): number;
 }
 
 /**
- * Custom-form heat methods for the DBC Addon player wrapper returned by player.getDBCPlayer().
- * These methods do not read or change vanilla DBC heat.
+ * NPCDBC custom-form heat on player.getDBCPlayer(). Vanilla DBC heat is not affected.
  * @javaFqn kamkeel.npcdbc.api.IDBCAddon
  */
 export interface IDBCAddon {
-  /** Returns stored custom-form heat as a raw amount, including heat that is cooling down after leaving a form. */
+  /** Returns stored heat, including heat still cooling down after leaving a form. */
   getCurrentHeat(): number;
 
-  /**
-   * Returns current heat as a percentage from 0 to 100 of the active custom form's maximum.
-   * Stored heat above that maximum returns 100. Returns 0 without a heat-enabled custom form,
-   * including while stored heat is cooling down after leaving a form.
-   */
+  /** Returns heat from 0 to 100 percent of getMaxHeat(), or 0 without a heat form. */
   getCurrentHeatPercent(): number;
 
-  /** Returns the active custom form's maximum heat, or 0 when no heat-enabled custom form is active. */
+  /** Returns the active form's maximum heat, or 0 without a heat form. */
   getMaxHeat(): number;
 
-  /**
-   * Sets raw custom-form heat, clamped from 0 to getMaxHeat().
-   * If the maximum is 200, setCurrentHeat(50) fills one quarter of the bar.
-   * Does nothing when no heat-enabled custom form is active or amount is not finite.
-   */
+  /** Sets heat, clamped to 0 through getMaxHeat(). Does nothing without a heat form. */
   setCurrentHeat(amount: number): void;
 
-  /**
-   * Sets custom-form heat to a percentage of getMaxHeat(), clamped from 0 to 100.
-   * If the maximum is 200, setHeatPercentage(50) sets the heat to 100.
-   * Does nothing when no heat-enabled custom form is active or percent is not finite.
-   */
+  /** Sets heat as 0 to 100 percent of getMaxHeat(). Does nothing without a heat form. */
   setHeatPercentage(percent: number): void;
 
-  /** Sets stored custom-form heat to 0, including heat that is cooling down outside a form. */
+  /** Sets stored heat to 0, also outside a form. */
   clearHeat(): void;
 }
 
 /**
- * Zero S Mod patch for NPCDBC ki attack configurations returned by createKiAttack().
- * Set the destroyer color before passing the configuration to fireKiAttack().
+ * Destroyer accent color on createKiAttack() objects, set before fireKiAttack().
  * @javaFqn kamkeel.npcdbc.api.IKiAttack
  */
 export interface IKiAttack {
-  /**
-   * Stores a destroyer accent override as 0xRRGGBB.
-   * Returns false when rgb is outside 0x000000 through 0xFFFFFF.
-   * The setting has no visible effect unless the fired attack is a destroyer attack.
-   */
+  /** Sets the accent color (0x000000 to 0xFFFFFF). Returns false when out of range. */
   setDestroyerColor(rgb: number): boolean;
 
-  /** Returns the custom destroyer accent as 0xRRGGBB, or -1 when DBC's default is active. */
+  /** Returns the accent color as 0xRRGGBB, or -1 for DBC's default. */
   getDestroyerColor(): number;
 
-  /** Restores DBC's normal destroyer colors for this configured attack. */
-  clearDestroyerColor(): void;
+  /** Restores DBC's default destroyer colors. Returns true. */
+  clearDestroyerColor(): boolean;
 }
 
 /**
@@ -423,16 +396,13 @@ export interface IEntity<T> {
   /** Returns true when this ki attack has the DBC/NPCDBC destroyer flag. */
   isDestroyerAttack(): boolean;
 
-  /**
-   * Changes this destroyer attack's purple accent using a 0xRRGGBB color.
-   * Returns false for non-ki, non-destroyer attacks, or values outside 0x000000 through 0xFFFFFF.
-   */
+  /** Sets the destroyer accent color (0x000000 to 0xFFFFFF). Returns false for non-destroyer ki or out of range. */
   setDestroyerColor(rgb: number): boolean;
 
-  /** Returns the custom destroyer accent as 0xRRGGBB, or -1 when DBC's default is active. */
+  /** Returns the destroyer accent color as 0xRRGGBB, or -1 for DBC's default. */
   getDestroyerColor(): number;
 
-  /** Restores DBC's normal destroyer colors. Returns false unless this is a destroyer ki attack. */
+  /** Restores DBC's default destroyer colors. Returns false for non-destroyer ki. */
   clearDestroyerColor(): boolean;
 
   /** Returns the Minecraft entity id for this ki attack, or -1. */
@@ -519,28 +489,16 @@ export interface IEntityLivingBase<T> {
  * @javaFqn noppes.npcs.api.entity.IPlayer
  */
 export interface IPlayer<T> {
-  /**
-   * Returns the width of the player's client window in scaled GUI coordinates,
-   * rather than physical display pixels. Returns -1 before the client has reported it.
-   */
+  /** Returns the screen width in scaled GUI coordinates, or -1 before the client reported it. */
   getScaledScreenWidth(): number;
 
-  /**
-   * Returns the height of the player's client window in scaled GUI coordinates,
-   * rather than physical display pixels. Returns -1 before the client has reported it.
-   */
+  /** Returns the screen height in scaled GUI coordinates, or -1 before the client reported it. */
   getScaledScreenHeight(): number;
 
-  /**
-   * Returns the player's raw Minecraft GUI Scale setting, where 0 means Auto,
-   * or -1 before the client has reported it.
-   */
+  /** Returns Minecraft's GUI Scale setting, 0 for Auto, or -1 before the client reported it. */
   getGuiScale(): number;
 
-  /**
-   * Returns true while normal transform input is charging an NPCDBC custom form.
-   * Returns false after charging stops or completes. Programmatic form changes do not count.
-   */
+  /** Returns true while the player charges an NPCDBC custom-form transformation. */
   isTransforming(): boolean;
 
   /** Returns the current short-range Instant Transmission target name only while the player is preparing IT. */
@@ -584,16 +542,16 @@ export interface ScriptNpc<T> extends ScriptLiving<T> {
  * @javaFqn noppes.npcs.scripted.entity.ScriptPlayer
  */
 export interface ScriptPlayer<T> extends IPlayer<T> {
-  /** Returns the width of the player's client window in scaled GUI coordinates. */
+  /** Returns the screen width in scaled GUI coordinates. */
   getScaledScreenWidth(): number;
 
-  /** Returns the height of the player's client window in scaled GUI coordinates. */
+  /** Returns the screen height in scaled GUI coordinates. */
   getScaledScreenHeight(): number;
 
-  /** Returns the player's raw Minecraft GUI Scale setting, where 0 means Auto. */
+  /** Returns Minecraft's GUI Scale setting, 0 for Auto. */
   getGuiScale(): number;
 
-  /** Returns true while normal input is charging an NPCDBC custom form. */
+  /** Returns true while the player charges a custom-form transformation. */
   isTransforming(): boolean;
 
   /** Returns the current short-range Instant Transmission target while preparing IT. */
@@ -652,12 +610,11 @@ export interface AbilityDome extends IAbility {
  */
 export namespace IZeroSEvent {
   /**
-   * Fired in the dome owner's NPC or player script when a loaded entity enters an active dome.
-   * Following and resizing can also move the boundary across an entity.
+   * Fired in the dome owner's script when an entity enters a dome.
    * @hookName energyDomeEnter
    */
   interface EnergyDomeEnterEvent extends IEnergyBarrierEvent {
-    /** Returns the dome whose boundary was entered. */
+    /** Returns the dome. */
     getDome(): IEnergyDome<any>;
 
     /** Returns the entity that entered. */
@@ -665,12 +622,12 @@ export namespace IZeroSEvent {
   }
 
   /**
-   * Fired in the dome owner's NPC or player script when a loaded entity leaves an active dome.
-   * Dome removal does not emit one exit event for every entity remaining inside.
+   * Fired in the dome owner's script when an entity leaves a dome. Removed or unloaded domes
+   * fire it only while the owner is loaded.
    * @hookName energyDomeExit
    */
   interface EnergyDomeExitEvent extends IEnergyBarrierEvent {
-    /** Returns the dome whose boundary was left. */
+    /** Returns the dome. */
     getDome(): IEnergyDome<any>;
 
     /** Returns the entity that left. */
@@ -678,56 +635,44 @@ export namespace IZeroSEvent {
   }
 
   /**
-   * Fired before a valid Zero S weapon hit queues damage state and starts its cooldown.
-   * Canceling prevents both the hit and cooldown. Rejected attacks do not fire this hook.
+   * Fired before a valid Zero S weapon hit. Cancel it to prevent the hit and its cooldown.
    * @hookName zsWeaponSwing
    */
   interface WeaponSwingEvent extends IPlayerEvent {
-    /** Returns the live stats of the weapon being swung. */
+    /** Returns the live stats of the swung weapon. */
     getWeapon(): ScriptZSWeapon<any>;
 
-    /** Returns the cooldown this swing will start, in ticks. */
+    /** Returns the cooldown this swing starts, in ticks. */
     getCooldown(): number;
 
-    /**
-     * Replaces only this swing's cooldown. Zero allows another attack immediately;
-     * negative or non-finite values become zero.
-     */
+    /** Sets the cooldown for this swing only; 0 allows the next attack immediately. */
     setCooldown(ticks: number): void;
   }
 
   /**
-   * Fired immediately before NPCDBC applies one scheduled custom-form Ki drain.
-   * Cancel the event to skip that drain. Each later drain interval fires a new event.
-   * This does not fire for creative-mode players or forms without Ki drain enabled.
-   * Example: event.setDrain(event.getDrain() * 0.5) halves this drain.
+   * Fired before NPCDBC drains Ki for a custom form. Cancel it to skip this drain.
    * @hookName dbcFormDrain
    */
   interface FormDrainEvent extends IPlayerEvent {
-    /** Returns NPCDBC's non-negative calculated drain before whole-Ki rounding. */
+    /** Returns the Ki about to be drained. */
     getDrain(): number;
 
-    /**
-     * Replaces this drain. Positive decimals round up when applied. Zero skips the drain;
-     * negative or non-finite values become zero. Values above the integer Ki limit are clamped.
-     */
+    /** Sets the Ki to drain instead, rounded up; 0 skips the drain. */
     setDrain(drain: number): void;
   }
 
   /**
-   * Fired once when a player begins charging an NPCDBC custom-form transformation.
-   * It runs before the form changes and still fires if charging is later abandoned.
-   * Releasing and starting again fires a new event. Vanilla and programmatic changes do not fire it.
+   * Fired when a player starts charging an NPCDBC custom-form transformation.
    * @hookName beginsTransforming
    */
   interface BeginsTransformingEvent extends IPlayerEvent {
-    /** Returns the custom form the player is attempting to transform into. Never null. */
+    /** Returns the target form. */
     getTargetForm(): IForm;
 
-    /** Returns the numeric ID of the target custom form. */
+    /** Returns the target form's ID. */
     getTargetFormId(): number;
 
-    /** Returns the internal name of the target custom form. */
+    /** Returns the target form's name. */
     getTargetFormName(): string;
   }
 

@@ -7,6 +7,7 @@ import kamkeel.npcdbc.scripted.ScriptDBCAddon;
 import org.darkoro.zerosmod.api.ScriptDBCAddonHeatMethods;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(value = ScriptDBCAddon.class, remap = false)
 public abstract class MixinScriptDBCAddonHeat implements ScriptDBCAddonHeatMethods {
@@ -24,7 +25,7 @@ public abstract class MixinScriptDBCAddonHeat implements ScriptDBCAddonHeatMetho
     }
 
     float currentHeat = getCurrentHeat();
-    if (!isFinite(currentHeat)) {
+    if (!Float.isFinite(currentHeat)) {
       return 0.0F;
     }
 
@@ -47,7 +48,7 @@ public abstract class MixinScriptDBCAddonHeat implements ScriptDBCAddonHeatMetho
 
   @Override public void setCurrentHeat(float amount) {
     int maxHeat = getMaxHeat();
-    if (dbcData == null || maxHeat <= 0 || !isFinite(amount)) {
+    if (dbcData == null || maxHeat <= 0 || !Float.isFinite(amount)) {
       return;
     }
 
@@ -56,7 +57,7 @@ public abstract class MixinScriptDBCAddonHeat implements ScriptDBCAddonHeatMetho
 
   @Override public void setHeatPercentage(float percent) {
     int maxHeat = getMaxHeat();
-    if (dbcData == null || maxHeat <= 0 || !isFinite(percent)) {
+    if (dbcData == null || maxHeat <= 0 || !Float.isFinite(percent)) {
       return;
     }
 
@@ -68,9 +69,5 @@ public abstract class MixinScriptDBCAddonHeat implements ScriptDBCAddonHeatMetho
     if (dbcData != null) {
       dbcData.setAddonHeat(0.0F);
     }
-  }
-
-  private static boolean isFinite(float value) {
-    return !Float.isNaN(value) && !Float.isInfinite(value);
   }
 }

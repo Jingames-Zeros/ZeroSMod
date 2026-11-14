@@ -6,6 +6,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import net.minecraft.network.INetHandler;
 import net.minecraftforge.common.MinecraftForge;
 import noppes.npcs.constants.ScriptContext;
@@ -66,6 +67,7 @@ public class CommonProxy {
     SaiyanMasteryMergeEvent saiyanMasteryMergeEvent = new SaiyanMasteryMergeEvent();
     FMLCommonHandler.instance().bus().register(saiyanMasteryMergeEvent);
     FMLCommonHandler.instance().bus().register(KiAttackGuard.INSTANCE);
+    FMLCommonHandler.instance().bus().register(EnergyDomeEventHooks.INSTANCE);
     if (Loader.isModLoaded("npcdbc")) {
       FMLCommonHandler.instance().bus().register(CustomFormTransformationEventHooks.INSTANCE);
     }
@@ -74,6 +76,7 @@ public class CommonProxy {
     NpcAPI.Instance().addGlobalObject("WeaponAPI", WeaponAPI.INSTANCE);
     registerScriptHooks();
     MinecraftForge.EVENT_BUS.register(KiAttackGuard.INSTANCE);
+    MinecraftForge.EVENT_BUS.register(EnergyDomeEventHooks.INSTANCE);
     if (ServerWeaponConfig.isEnabled()) {
       FMLCommonHandler.instance().bus().register(ServerWeaponHandler.INSTANCE);
       MinecraftForge.EVENT_BUS.register(ServerWeaponHandler.INSTANCE);
@@ -97,6 +100,10 @@ public class CommonProxy {
 
   public void serverStarting(FMLServerStartingEvent event) {
     event.registerServerCommand(new CommandZSMod());
+  }
+
+  public void serverStopping(FMLServerStoppingEvent event) {
+    EnergyDomeEventHooks.clear();
   }
 
   public void configurePhylacterySky(WorldProviderPhylactery provider) {}

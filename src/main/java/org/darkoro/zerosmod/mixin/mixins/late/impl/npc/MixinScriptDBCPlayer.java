@@ -13,14 +13,15 @@ import noppes.npcs.scripted.entity.ScriptDBCPlayer;
 import org.darkoro.zerosmod.api.ScriptDBCPlayerMethods;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(value = ScriptDBCPlayer.class, remap = false)
 public abstract class MixinScriptDBCPlayer<T extends EntityPlayerMP>
     implements ScriptDBCPlayerMethods {
 
-  private static final int DBC_TIMER_SECONDS = 5;
-  private static final String FUSION_NBT = "jrmcFuzion";
-  private static final String VALID_EFFECTS =
+  @Unique private static final int ZEROSMOD$DBC_TIMER_SECONDS = 5;
+  @Unique private static final String ZEROSMOD$FUSION_NBT = "jrmcFuzion";
+  @Unique private static final String ZEROSMOD$VALID_EFFECTS =
       "Strain, GodPower, Fatigue, NoFuse, Pain, Heat, KO, Majin, Legendary, Divine, "
           + "GodOfDestruction";
 
@@ -32,7 +33,8 @@ public abstract class MixinScriptDBCPlayer<T extends EntityPlayerMP>
 
   @Override public void defuse() {
     DBCData playerData = DBCData.get(this.player);
-    String[] fusion = getActiveFusion(playerData.Fusion, this.player.getCommandSenderName());
+    String[] fusion =
+        zerosmod$getActiveFusion(playerData.Fusion, this.player.getCommandSenderName());
     if (fusion == null) {
       return;
     }
@@ -40,58 +42,58 @@ public abstract class MixinScriptDBCPlayer<T extends EntityPlayerMP>
     String partnerName = fusion[0].equalsIgnoreCase(this.player.getCommandSenderName())
         ? fusion[1]
         : fusion[0];
-    EntityPlayerMP partner = findOnlinePlayer(partnerName);
+    EntityPlayerMP partner = zerosmod$findOnlinePlayer(partnerName);
 
-    applyFusionCooldown(this.player);
+    zerosmod$applyFusionCooldown(this.player);
     if (partner != null && partner != this.player) {
-      applyFusionCooldown(partner);
+      zerosmod$applyFusionCooldown(partner);
     }
   }
 
   @Override public int getFusionTimeLeft() {
     DBCData data = DBCData.get(this.player);
-    String[] fusion = getActiveFusion(data.Fusion, this.player.getCommandSenderName());
+    String[] fusion = zerosmod$getActiveFusion(data.Fusion, this.player.getCommandSenderName());
     if (fusion == null) {
       return 0;
     }
 
-    return storedIntervalsToSeconds(parsePositiveInt(fusion[2]));
+    return zerosmod$storedIntervalsToSeconds(zerosmod$parsePositiveInt(fusion[2]));
   }
 
   @Override public void setDBCStatusEffect(String effect, int duration) {
-    String normalized = normalizeEffect(effect);
+    String normalized = zerosmod$normalizeEffect(effect);
     DBCData data = DBCData.get(this.player);
 
     switch (normalized) {
       case "majin":
-        setToggle(data, DBCStatusEffects.Majin, duration != 0);
+        zerosmod$setToggle(data, DBCStatusEffects.Majin, duration != 0);
         return;
       case "legendary":
-        setToggle(data, DBCStatusEffects.Legendary, duration != 0);
+        zerosmod$setToggle(data, DBCStatusEffects.Legendary, duration != 0);
         return;
       case "divine":
-        setToggle(data, DBCStatusEffects.Divine, duration != 0);
+        zerosmod$setToggle(data, DBCStatusEffects.Divine, duration != 0);
         return;
       case "godofdestruction":
-        setToggle(data, DBCStatusEffects.GodOfDestruction, duration != 0);
+        zerosmod$setToggle(data, DBCStatusEffects.GodOfDestruction, duration != 0);
         return;
       case "nofuse":
         if (data.stats.isFused()) {
           return;
         }
-        setNoFuse(data, duration);
+        zerosmod$setNoFuse(data, duration);
         return;
       case "strain":
-        setTimed(data, "jrmcStrain", duration);
+        zerosmod$setTimed(data, "jrmcStrain", duration);
         return;
       case "godpower":
-        setTimed(data, "jrmcGodPwr", duration);
+        zerosmod$setTimed(data, "jrmcGodPwr", duration);
         return;
       case "fatigue":
-        setTimed(data, "jrmcGodStrain", duration);
+        zerosmod$setTimed(data, "jrmcGodStrain", duration);
         return;
       case "pain":
-        setTimed(data, "jrmcGyJ7dp", duration);
+        zerosmod$setTimed(data, "jrmcGyJ7dp", duration);
         if (duration > 0) {
           NBTTagCompound nbt = data.getRawCompound();
           nbt.setInteger("jrmcUIWasInPainDuration", 0);
@@ -99,19 +101,19 @@ public abstract class MixinScriptDBCPlayer<T extends EntityPlayerMP>
         }
         return;
       case "heat":
-        setTimed(data, "jrmcEf8slc", duration);
+        zerosmod$setTimed(data, "jrmcEf8slc", duration);
         data.getRawCompound().setDouble("jrmcEf8slcD", 0.0D);
         return;
       case "ko":
-        setTimed(data, "jrmcHar4va", duration);
+        zerosmod$setTimed(data, "jrmcHar4va", duration);
         return;
       default:
-        throw invalidEffect(effect);
+        throw zerosmod$invalidEffect(effect);
     }
   }
 
   @Override public int getDBCStatusEffect(String effect) {
-    String normalized = normalizeEffect(effect);
+    String normalized = zerosmod$normalizeEffect(effect);
     DBCData data = DBCData.get(this.player);
 
     switch (normalized) {
@@ -124,67 +126,68 @@ public abstract class MixinScriptDBCPlayer<T extends EntityPlayerMP>
       case "godofdestruction":
         return DBCStatusEffects.GodOfDestruction.has(this.player) ? 1 : 0;
       case "nofuse":
-        return getNoFuseSeconds(data);
+        return zerosmod$getNoFuseSeconds(data);
       case "strain":
-        return getTimedSeconds(data, "jrmcStrain");
+        return zerosmod$getTimedSeconds(data, "jrmcStrain");
       case "godpower":
-        return getTimedSeconds(data, "jrmcGodPwr");
+        return zerosmod$getTimedSeconds(data, "jrmcGodPwr");
       case "fatigue":
-        return getTimedSeconds(data, "jrmcGodStrain");
+        return zerosmod$getTimedSeconds(data, "jrmcGodStrain");
       case "pain":
-        return getTimedSeconds(data, "jrmcGyJ7dp");
+        return zerosmod$getTimedSeconds(data, "jrmcGyJ7dp");
       case "heat":
-        return getTimedSeconds(data, "jrmcEf8slc");
+        return zerosmod$getTimedSeconds(data, "jrmcEf8slc");
       case "ko":
-        return getTimedSeconds(data, "jrmcHar4va");
+        return zerosmod$getTimedSeconds(data, "jrmcHar4va");
       default:
-        throw invalidEffect(effect);
+        throw zerosmod$invalidEffect(effect);
     }
   }
 
-  private static void setToggle(DBCData data, DBCStatusEffects effect, boolean enabled) {
+  @Unique private static void zerosmod$setToggle(
+      DBCData data, DBCStatusEffects effect, boolean enabled) {
     effect.set(data.player, enabled);
-    data.loadNBTData(false);
+    data.loadNBTData(true);
   }
 
-  private static void setTimed(DBCData data, String nbtName, int seconds) {
-    data.getRawCompound().setInteger(nbtName, secondsToStoredIntervals(seconds));
-    data.loadNBTData(false);
+  @Unique private static void zerosmod$setTimed(DBCData data, String nbtName, int seconds) {
+    data.getRawCompound().setInteger(nbtName, zerosmod$secondsToStoredIntervals(seconds));
+    data.loadNBTData(true);
   }
 
-  private static int getTimedSeconds(DBCData data, String nbtName) {
-    return storedIntervalsToSeconds(data.getRawCompound().getInteger(nbtName));
+  @Unique private static int zerosmod$getTimedSeconds(DBCData data, String nbtName) {
+    return zerosmod$storedIntervalsToSeconds(data.getRawCompound().getInteger(nbtName));
   }
 
-  private static void setNoFuse(DBCData data, int seconds) {
-    String stored = String.valueOf(secondsToStoredIntervals(seconds));
-    data.getRawCompound().setString(FUSION_NBT, stored);
-    data.Fusion = stored;
+  @Unique private static void zerosmod$setNoFuse(DBCData data, int seconds) {
+    String stored = String.valueOf(zerosmod$secondsToStoredIntervals(seconds));
+    data.getRawCompound().setString(ZEROSMOD$FUSION_NBT, stored);
+    data.loadNBTData(true);
   }
 
-  private static int getNoFuseSeconds(DBCData data) {
+  @Unique private static int zerosmod$getNoFuseSeconds(DBCData data) {
     String fusion = data.Fusion == null ? "" : data.Fusion.trim();
     if (fusion.isEmpty() || fusion.contains(",")) {
       return 0;
     }
-    return storedIntervalsToSeconds(parsePositiveInt(fusion));
+    return zerosmod$storedIntervalsToSeconds(zerosmod$parsePositiveInt(fusion));
   }
 
-  private static void applyFusionCooldown(EntityPlayerMP participant) {
+  @Unique private static void zerosmod$applyFusionCooldown(EntityPlayerMP participant) {
     DBCData data = DBCData.get(participant);
     String cooldown = String.valueOf(Math.max(0, JRMCoreConfig.FznOverTime));
-    data.getRawCompound().setString(FUSION_NBT, cooldown);
+    data.getRawCompound().setString(ZEROSMOD$FUSION_NBT, cooldown);
     data.StatusEffects = data.setSE(10, false);
     data.StatusEffects = data.setSE(11, false);
-    data.Fusion = cooldown;
+    data.loadNBTData(true);
   }
 
-  private static EntityPlayerMP findOnlinePlayer(String name) {
+  @Unique private static EntityPlayerMP zerosmod$findOnlinePlayer(String name) {
     MinecraftServer server = MinecraftServer.getServer();
     return server == null ? null : server.getConfigurationManager().func_152612_a(name);
   }
 
-  private static String[] getActiveFusion(String value, String playerName) {
+  @Unique private static String[] zerosmod$getActiveFusion(String value, String playerName) {
     if (value == null) {
       return null;
     }
@@ -197,24 +200,25 @@ public abstract class MixinScriptDBCPlayer<T extends EntityPlayerMP>
     return parts;
   }
 
-  private static int secondsToStoredIntervals(int seconds) {
+  @Unique private static int zerosmod$secondsToStoredIntervals(int seconds) {
     if (seconds <= 0) {
       return 0;
     }
-    return seconds / DBC_TIMER_SECONDS + (seconds % DBC_TIMER_SECONDS == 0 ? 0 : 1);
+    return seconds / ZEROSMOD$DBC_TIMER_SECONDS
+        + (seconds % ZEROSMOD$DBC_TIMER_SECONDS == 0 ? 0 : 1);
   }
 
-  private static int storedIntervalsToSeconds(int intervals) {
+  @Unique private static int zerosmod$storedIntervalsToSeconds(int intervals) {
     if (intervals <= 0) {
       return 0;
     }
-    if (intervals > Integer.MAX_VALUE / DBC_TIMER_SECONDS) {
+    if (intervals > Integer.MAX_VALUE / ZEROSMOD$DBC_TIMER_SECONDS) {
       return Integer.MAX_VALUE;
     }
-    return intervals * DBC_TIMER_SECONDS;
+    return intervals * ZEROSMOD$DBC_TIMER_SECONDS;
   }
 
-  private static int parsePositiveInt(String value) {
+  @Unique private static int zerosmod$parsePositiveInt(String value) {
     try {
       return Math.max(0, Integer.parseInt(value.trim()));
     } catch (NumberFormatException ignored) {
@@ -222,15 +226,15 @@ public abstract class MixinScriptDBCPlayer<T extends EntityPlayerMP>
     }
   }
 
-  private static String normalizeEffect(String effect) {
+  @Unique private static String zerosmod$normalizeEffect(String effect) {
     if (effect == null) {
-      throw invalidEffect(null);
+      throw zerosmod$invalidEffect(null);
     }
     return effect.trim().toLowerCase(Locale.ROOT);
   }
 
-  private static CustomNPCsException invalidEffect(String effect) {
+  @Unique private static CustomNPCsException zerosmod$invalidEffect(String effect) {
     return new CustomNPCsException(
-        "Invalid DBC status effect '%s'. Valid effects: %s", effect, VALID_EFFECTS);
+        "Invalid DBC status effect '%s'. Valid effects: %s", effect, ZEROSMOD$VALID_EFFECTS);
   }
 }

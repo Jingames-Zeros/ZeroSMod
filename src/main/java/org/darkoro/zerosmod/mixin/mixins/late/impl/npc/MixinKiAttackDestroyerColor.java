@@ -20,8 +20,8 @@ public abstract class MixinKiAttackDestroyerColor
     return this.zerosmod$destroyerColor;
   }
 
-  @Override public void clearDestroyerColor() {
-    this.zerosmod$destroyerColor = DestroyerKiColor.DEFAULT;
+  @Override public boolean clearDestroyerColor() {
+    return DestroyerKiColor.clear(this);
   }
 
   @Unique @Override public int zerosmod$getDestroyerColor() {

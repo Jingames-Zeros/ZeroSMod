@@ -1,9 +1,13 @@
 package org.darkoro.zerosmod.dbchair.gui;
 
+import JinRyuu.JRMCore.JRMCoreH;
 import net.minecraft.entity.player.EntityPlayer;
 import org.lwjgl.opengl.GL11;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /** Versioned per-strand color data appended to DBC's unchanged hair geometry. */
 public final class HairStrandColors {
@@ -12,6 +16,19 @@ public final class HairStrandColors {
   private static final int STRAND_COUNT = 56;
   private static final int SLOT_LENGTH = 6;
   private static final int DATA_LENGTH = STRAND_COUNT * SLOT_LENGTH;
+  public static final int NO_COLOR = -1;
+  private static final int[] NO_OVERRIDES = new int[0];
+  private static final int PARSE_CACHE_SIZE = 64;
+  private static final Map<String, int[]> PARSED_COLORS =
+      new LinkedHashMap<String, int[]>(PARSE_CACHE_SIZE, 0.75F, true) {
+        @Override protected boolean removeEldestEntry(Map.Entry<String, int[]> eldest) {
+          return size() > PARSE_CACHE_SIZE;
+        }
+      };
+  private static WeakReference<EntityPlayer> lastPlayer = new WeakReference<EntityPlayer>(null);
+  private static int lastPlayerTick;
+  private static int[] lastPlayerColors = NO_OVERRIDES;
+  private static boolean lastPlayerFormColorsHair;
   private static boolean addonLookupDone;
   private static Method addonGetData, addonGetForm, displayHasColor, displayHasHairColor;
   private static Field formDisplay, dataRace, dataHair;
@@ -49,10 +66,8 @@ public final class HairStrandColors {
   }
 
   public static String colorSlot(String code, int strand) {
-    if (strand < 0 || strand >= STRAND_COUNT || !hasOverrides(code)) return null;
-    int start = GEOMETRY_LENGTH + MARKER.length() + strand * SLOT_LENGTH;
-    String slot = code.substring(start, start + SLOT_LENGTH);
-    return "------".equals(slot) ? null : slot;
+    int rgb = strandColor(code, strand);
+    return rgb == NO_COLOR ? null : String.format(java.util.Locale.ROOT, "%06X", rgb);
   }
 
   public static String withColor(String code, int strand, int rgb) {
@@ -72,54 +87,59 @@ public final class HairStrandColors {
     return result.toString();
   }
 
-  /** Applies a strand override unless DBC Addon explicitly colors this player's active form hair. */
-  public static boolean applyRenderColor(String renderCode, int strand, EntityPlayer player) {
-    if (player == null) return false;
-    String slotCode = renderCode;
-    String slot = colorSlot(slotCode, strand);
-    Object dbcData = addonData(player);
-    if (dbcData != null) {
-      if (formHasExplicitHairColor(dbcData)) return false;
-      if (slot == null) {
-        String playerHair = readString(dataHair, dbcData);
-        slot = colorSlot(playerHair, strand);
-      }
+  /** Returns a strand override, or NO_COLOR when DBC Addon colors this player's active form hair. */
+  public static int playerStrandColor(String renderCode, int strand, EntityPlayer player) {
+    if (player == null) return NO_COLOR;
+    refreshPlayerState(player);
+    if (lastPlayerFormColorsHair) return NO_COLOR;
+    int rgb = strandColor(renderCode, strand);
+    if (rgb == NO_COLOR && strand >= 0 && strand < lastPlayerColors.length) {
+      rgb = lastPlayerColors[strand];
     }
-    if (slot == null) return false;
-    int rgb;
-    try { rgb = Integer.parseInt(slot, 16); }
-    catch (NumberFormatException invalid) { return false; }
+    return rgb;
+  }
+
+  private static void refreshPlayerState(EntityPlayer player) {
+    if (player == lastPlayer.get() && player.ticksExisted == lastPlayerTick) return;
+    lastPlayer = new WeakReference<EntityPlayer>(player);
+    lastPlayerTick = player.ticksExisted;
+    Object dbcData = addonData(player);
+    String hair = dbcData == null ? null : readString(dataHair, dbcData);
+    lastPlayerColors = hair == null ? NO_OVERRIDES : colors(hair);
+    lastPlayerFormColorsHair = dbcData != null && formHasExplicitHairColor(dbcData, player);
+  }
+
+  public static boolean applyColor(int rgb) {
+    if (rgb == NO_COLOR) return false;
     GL11.glColor4f(((rgb >> 16) & 255) / 255F, ((rgb >> 8) & 255) / 255F,
         (rgb & 255) / 255F, 1F);
     return true;
   }
 
-  /** Applies an NPC strand override unless its active DBC Addon form supplies a hair color. */
-  public static boolean applyNpcRenderColor(String renderCode, int strand, Object npcDisplay) {
-    if (npcDisplay == null || formHasExplicitNpcHairColor(npcDisplay)) return false;
-    String slot = colorSlot(renderCode, strand);
-    if (slot == null) return false;
-    int rgb;
-    try { rgb = Integer.parseInt(slot, 16); }
-    catch (NumberFormatException invalid) { return false; }
-    GL11.glColor4f(((rgb >> 16) & 255) / 255F, ((rgb >> 8) & 255) / 255F,
-        (rgb & 255) / 255F, 1F);
-    return true;
+  public static int strandColor(String code, int strand) {
+    if (code == null || strand < 0 || strand >= STRAND_COUNT) return NO_COLOR;
+    int[] colors = colors(code);
+    return colors.length == 0 ? NO_COLOR : colors[strand];
   }
 
-  private static boolean formHasExplicitNpcHairColor(Object display) {
-    try {
-      Object form = display.getClass().getMethod("getForm").invoke(display);
-      if (form == null) return false;
-      Object formDisplay = form.getClass().getField("display").get(form);
-      Object formColor = display.getClass().getField("formColor").get(display);
-      if (formDisplay == null || formColor == null) return false;
-      Method hasAnyColor = formColor.getClass().getMethod("hasAnyColor", formDisplay.getClass(), String.class);
-      if (Boolean.TRUE.equals(hasAnyColor.invoke(formColor, formDisplay, "hair"))) return true;
-      Field race = display.getClass().getField("race");
-      return race.getByte(display) == 5
-          && Boolean.TRUE.equals(hasAnyColor.invoke(formColor, formDisplay, "bodycm"));
-    } catch (Exception ignored) { return false; }
+  private static int[] colors(String code) {
+    int[] colors = PARSED_COLORS.get(code);
+    if (colors == null) {
+      colors = parseColors(code);
+      PARSED_COLORS.put(code, colors);
+    }
+    return colors;
+  }
+
+  private static int[] parseColors(String code) {
+    if (!hasOverrides(code)) return NO_OVERRIDES;
+    int[] colors = new int[STRAND_COUNT];
+    int slots = GEOMETRY_LENGTH + MARKER.length();
+    for (int i = 0; i < STRAND_COUNT; i++) {
+      String slot = code.substring(slots + i * SLOT_LENGTH, slots + (i + 1) * SLOT_LENGTH);
+      colors[i] = "------".equals(slot) ? NO_COLOR : Integer.parseInt(slot, 16);
+    }
+    return colors;
   }
 
   private static Object addonData(EntityPlayer player) {
@@ -129,17 +149,17 @@ public final class HairStrandColors {
     catch (Exception ignored) { return null; }
   }
 
-  private static boolean formHasExplicitHairColor(Object data) {
+  private static boolean formHasExplicitHairColor(Object data, EntityPlayer player) {
     initAddonLookup();
     if (addonGetForm == null || displayHasColor == null || formDisplay == null) return false;
     try {
-      Object form = addonGetForm.invoke(null, data.getClass().getField("player").get(data));
+      Object form = addonGetForm.invoke(null, player);
       if (form == null) return false;
       Object display = formDisplay.get(form);
       if (display == null) return false;
       if (Boolean.TRUE.equals(displayHasColor.invoke(display, "hair"))) return true;
       if (Boolean.TRUE.equals(displayHasHairColor.invoke(display, data))) return true;
-      return readInt(dataRace, data) == 3
+      return JRMCoreH.isRaceMajin(readInt(dataRace, data))
           && Boolean.TRUE.equals(displayHasColor.invoke(display, "bodycm"));
     } catch (Exception ignored) { return false; }
   }

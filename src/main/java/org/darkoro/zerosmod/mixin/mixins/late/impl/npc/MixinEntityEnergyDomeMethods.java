@@ -1,5 +1,6 @@
 package org.darkoro.zerosmod.mixin.mixins.late.impl.npc;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
   @Unique private static final String NBT_PREFIX = "ZeroSDome";
 
   @Shadow protected float domeRadius;
+  @Shadow protected float targetDomeRadius;
   @Shadow protected boolean followCaster;
   @Shadow public abstract void setDomeRadius(float radius);
   @Shadow public abstract boolean isEntityInside(Entity entity);
@@ -42,6 +44,7 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
   @Unique private boolean zerosmod$followerOverridden;
   @Unique private int zerosmod$followerEntityId = -1;
   @Unique private UUID zerosmod$followerUuid;
+  @Unique private int zerosmod$followerScanCooldown;
   @Unique private final Map<Integer, Entity> zerosmod$insideEntities =
       new HashMap<Integer, Entity>();
   @Unique private float zerosmod$resizeStartRadius;
@@ -49,11 +52,16 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
   @Unique private int zerosmod$resizeDuration;
   @Unique private int zerosmod$resizeElapsed;
 
-  @Inject(method = "func_70071_h_", at = @At("TAIL"), require = 1, remap = false)
+  @Inject(method = "onUpdate", at = @At("RETURN"), require = 1, remap = true)
   private void zerosmod$afterDomeTick(CallbackInfo ci) {
     EntityEnergyDome dome = zerosmod$self();
-    if (dome.worldObj == null || dome.isDead) {
-      this.zerosmod$insideEntities.clear();
+    if (dome.worldObj == null) {
+      return;
+    }
+    if (dome.isDead) {
+      if (!dome.worldObj.isRemote) {
+        zerosmod$releaseInsideEntities();
+      }
       return;
     }
 
@@ -76,8 +84,12 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
       }
     }
 
+    boolean wasOccupied = !this.zerosmod$insideEntities.isEmpty();
     this.zerosmod$insideEntities.clear();
     this.zerosmod$insideEntities.putAll(current);
+    if (wasOccupied != !current.isEmpty()) {
+      EnergyDomeEventHooks.setOccupied(dome, !current.isEmpty());
+    }
     if (!dome.isDead) {
       zerosmod$damageEntities(current);
     }
@@ -134,6 +146,7 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
 
   @Inject(method = "writeBarrierClientSyncData", at = @At("RETURN"), require = 1, remap = false)
   private void zerosmod$writeClientState(NBTTagCompound nbt, CallbackInfo ci) {
+    nbt.setFloat(NBT_PREFIX + "ChargeTarget", this.targetDomeRadius);
     nbt.setBoolean(NBT_PREFIX + "FollowerOverridden", this.zerosmod$followerOverridden);
     nbt.setInteger(NBT_PREFIX + "FollowerId", this.zerosmod$followerEntityId);
     if (this.zerosmod$followerUuid != null) {
@@ -148,6 +161,9 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
 
   @Inject(method = "applyBarrierClientSyncData", at = @At("RETURN"), require = 1, remap = false)
   private void zerosmod$applyClientState(NBTTagCompound nbt, CallbackInfo ci) {
+    if (nbt.hasKey(NBT_PREFIX + "ChargeTarget")) {
+      this.targetDomeRadius = nbt.getFloat(NBT_PREFIX + "ChargeTarget");
+    }
     this.zerosmod$followerOverridden = nbt.getBoolean(NBT_PREFIX + "FollowerOverridden");
     this.zerosmod$followerEntityId = nbt.hasKey(NBT_PREFIX + "FollowerId")
         ? nbt.getInteger(NBT_PREFIX + "FollowerId") : -1;
@@ -233,18 +249,25 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
   }
 
   @Override public void zerosmod$setTargetRadius(float radius, int ticks) {
-    if (!zerosmod$isFinite(radius)) {
+    if (!Float.isFinite(radius)) {
       return;
     }
 
     EntityEnergyDome dome = zerosmod$self();
     float target = Math.max(0.1F, radius);
-    if (ticks <= 0 || target == this.domeRadius) {
-      this.setDomeRadius(target);
+    // A charging dome grows to targetDomeRadius, so resizes start from there.
+    boolean charging = dome.isCharging();
+    float current = charging ? this.targetDomeRadius : this.domeRadius;
+    if (ticks <= 0 || target == current) {
+      if (charging) {
+        this.targetDomeRadius = target;
+      } else {
+        this.setDomeRadius(target);
+      }
       this.zerosmod$resizeDuration = 0;
       this.zerosmod$resizeElapsed = 0;
     } else {
-      this.zerosmod$resizeStartRadius = this.domeRadius;
+      this.zerosmod$resizeStartRadius = current;
       this.zerosmod$resizeTargetRadius = target;
       this.zerosmod$resizeDuration = ticks;
       this.zerosmod$resizeElapsed = 0;
@@ -252,9 +275,25 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
     dome.sendClientSync();
   }
 
+  @Override public void zerosmod$releaseInsideEntities() {
+    EntityEnergyDome dome = zerosmod$self();
+    EnergyDomeEventHooks.setOccupied(dome, false);
+    if (this.zerosmod$insideEntities.isEmpty()) {
+      return;
+    }
+    List<Entity> remaining = new ArrayList<Entity>(this.zerosmod$insideEntities.values());
+    this.zerosmod$insideEntities.clear();
+    for (Entity entity : remaining) {
+      EnergyDomeEventHooks.fireExit(dome, entity);
+    }
+  }
+
   @Unique private void zerosmod$updateFollower() {
     if (!this.zerosmod$followerOverridden) {
       return;
+    }
+    if (this.zerosmod$followerScanCooldown > 0) {
+      --this.zerosmod$followerScanCooldown;
     }
     Entity follower = zerosmod$resolveCustomFollower();
     if (follower != null && !follower.isDead) {
@@ -269,17 +308,23 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
     }
 
     Entity follower = dome.worldObj.getEntityByID(this.zerosmod$followerEntityId);
+    // Clients give non-player entities random UUIDs, so they trust the synced id.
+    if (dome.worldObj.isRemote) {
+      return follower != null && !follower.isDead && follower != dome ? follower : null;
+    }
     if (zerosmod$isExpectedFollower(follower)) {
       return follower;
     }
-    if (this.zerosmod$followerUuid == null) {
+    if (this.zerosmod$followerUuid == null || this.zerosmod$followerScanCooldown > 0) {
       return null;
     }
 
+    this.zerosmod$followerScanCooldown = 20;
     for (Object loaded : dome.worldObj.loadedEntityList) {
       if (loaded instanceof Entity && zerosmod$isExpectedFollower((Entity)loaded)) {
         follower = (Entity)loaded;
         this.zerosmod$followerEntityId = follower.getEntityId();
+        dome.sendClientSync();
         return follower;
       }
     }
@@ -398,11 +443,7 @@ public abstract class MixinEntityEnergyDomeMethods implements EnergyDomeExtensio
     return (EntityEnergyDome)(Object)this;
   }
 
-  @Unique private static boolean zerosmod$isFinite(float value) {
-    return !Float.isNaN(value) && !Float.isInfinite(value);
-  }
-
   @Unique private static float zerosmod$finiteNonNegative(float value) {
-    return zerosmod$isFinite(value) ? Math.max(0.0F, value) : 0.0F;
+    return Float.isFinite(value) ? Math.max(0.0F, value) : 0.0F;
   }
 }
