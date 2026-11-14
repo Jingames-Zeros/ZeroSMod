@@ -138,8 +138,9 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
 
     // Setters
     public void setRemainingAttackCooldown(double remainingAttackCooldown) {
+        if(!Double.isFinite(remainingAttackCooldown)) return;
         if(this.remainingAttackCooldown > 0 && remainingAttackCooldown <= attackCooldownLength) {
-            this.remainingAttackCooldown = validCooldown(remainingAttackCooldown);
+            this.remainingAttackCooldown = Math.max(0.0D, remainingAttackCooldown);
             cooldownUnsent = true;
         } else {
             startCooldown(remainingAttackCooldown);
