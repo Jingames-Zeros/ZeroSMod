@@ -168,8 +168,7 @@ public class ClientWeaponHandler {
      * @param message .
      */
     public void handleCooldownPacket(CooldownToClientPacket message) {
-        clientCombatState.setRemainingAttackCooldown(message.cooldown);
-        clientCombatState.setAttackCooldownLength(message.cooldownLength);
+        clientCombatState.syncCooldown(message.cooldown, message.cooldownLength);
         this.currentTps = message.tps;
         calculateOverlayDimensions();
     }
