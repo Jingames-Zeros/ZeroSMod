@@ -167,6 +167,8 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
 
   public String currentHairCode() { return getCode(); }
 
+  String status() { return status; }
+
   private void setCode(String code, boolean remember) {
     code = normalize(code);
     if (code.isEmpty()) return;
@@ -419,7 +421,11 @@ public final class HairEditorScreen extends GuiScreen implements GuiYesNoCallbac
 
   public boolean saveNamedPreset(String name) {
     String cleanName = name == null ? "" : name.trim();
-    if (cleanName.isEmpty() || HairStrandColors.geometry(getCode()).length() != 786) return false;
+    if (cleanName.isEmpty() || HairStrandColors.geometry(getCode()).length() != 786) {
+      status = "Could not save the preset. Enter a name and make sure the hair is editable.";
+      error = true;
+      return false;
+    }
     if (HairPresetStore.add(cleanName, getCode(), mc.mcDataDir) < 0) {
       status = HairPresetStore.isWriteBlocked() ? HairPresetStore.BLOCKED_MESSAGE
           : "Could not write the preset to this client's game folder.";
