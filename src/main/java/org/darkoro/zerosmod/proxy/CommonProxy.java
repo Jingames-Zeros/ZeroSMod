@@ -76,6 +76,7 @@ public class CommonProxy {
     FMLCommonHandler.instance().bus().register(saiyanMasteryMergeEvent);
     FMLCommonHandler.instance().bus().register(KiAttackGuard.INSTANCE);
     FMLCommonHandler.instance().bus().register(TpBankServer.INSTANCE);
+    FMLCommonHandler.instance().bus().register(EnergyDomeEventHooks.INSTANCE);
     if (Loader.isModLoaded("npcdbc")) {
       FMLCommonHandler.instance().bus().register(CustomFormTransformationEventHooks.INSTANCE);
     }
@@ -88,6 +89,7 @@ public class CommonProxy {
       MinecraftForge.EVENT_BUS.register(TpBankCommandHandler.INSTANCE);
       FMLCommonHandler.instance().bus().register(TpBankStats.INSTANCE);
     }
+    MinecraftForge.EVENT_BUS.register(EnergyDomeEventHooks.INSTANCE);
     if (ServerWeaponConfig.isEnabled()) {
       FMLCommonHandler.instance().bus().register(ServerWeaponHandler.INSTANCE);
       MinecraftForge.EVENT_BUS.register(ServerWeaponHandler.INSTANCE);
@@ -115,6 +117,7 @@ public class CommonProxy {
 
   public void serverStopping(FMLServerStoppingEvent event) {
     TpBankStats.onServerStopping();
+    EnergyDomeEventHooks.clear();
   }
 
   public void configurePhylacterySky(WorldProviderPhylactery provider) {}

@@ -73,8 +73,9 @@ public class ServerWeaponHandler {
         // Run combat tick at the start of the tick
         if(event.phase == TickEvent.Phase.START) {
             state.tick(1.0D);
-            // Periodically send cooldown to resync with server
-            if(state.getRemainingAttackCooldown() > 0 && state.getRemainingAttackCooldown() % 5 == 0) {
+            // Send script changes and periodically resync with server
+            double remaining = state.getRemainingAttackCooldown();
+            if(state.isCooldownUnsent() || remaining > 0 && Math.floor(remaining) % 5 == 0) {
                 sendCooldownPacketToClient((EntityPlayerMP) player, state);
             }
         } else {
@@ -121,8 +122,10 @@ public class ServerWeaponHandler {
         double meanTPS = Math.min(1000.0/meanTickTime, 20);
         
         // Build and send packet
-        CooldownToClientPacket packet = new CooldownToClientPacket(state.getRemainingAttackCooldown(), meanTPS);
+        CooldownToClientPacket packet = new CooldownToClientPacket(
+                state.getRemainingAttackCooldown(), state.getAttackCooldownLength(), meanTPS);
         ZeroSMod.network.sendTo(packet, player);
+        state.markCooldownSent();
     }
 
     /**
@@ -157,7 +160,7 @@ public class ServerWeaponHandler {
             PlayerCombatState newState = new PlayerCombatState();
             newState.changeItem(player.getHeldItem());
             startCooldown(player, newState);
-            stateMap.put(player.getUniqueID(), new PlayerCombatState());
+            stateMap.put(player.getUniqueID(), newState);
         }
     }
 }

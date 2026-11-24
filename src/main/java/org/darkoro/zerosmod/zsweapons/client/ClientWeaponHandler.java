@@ -88,7 +88,7 @@ public class ClientWeaponHandler {
     public void render(RenderGameOverlayEvent.Post event) {
         if(clientCombatState == null) return;
         if(event.type == RenderGameOverlayEvent.ElementType.ALL && clientCombatState.getRemainingAttackCooldown() > 0) {
-            updateOverlay(clientCombatState.getRemainingAttackCooldown(), clientCombatState.getItemStats().getCooldown());
+            updateOverlay(clientCombatState.getRemainingAttackCooldown(), clientCombatState.getAttackCooldownLength());
         }
     }
 
@@ -168,7 +168,7 @@ public class ClientWeaponHandler {
      * @param message .
      */
     public void handleCooldownPacket(CooldownToClientPacket message) {
-        clientCombatState.setRemainingAttackCooldown(message.cooldown);
+        clientCombatState.syncCooldown(message.cooldown, message.cooldownLength);
         this.currentTps = message.tps;
         calculateOverlayDimensions();
     }

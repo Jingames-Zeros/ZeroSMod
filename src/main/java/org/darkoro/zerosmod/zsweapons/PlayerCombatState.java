@@ -13,6 +13,8 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
     private ItemStack currentItem;
     private final CachedWeaponStats itemStats = new CachedWeaponStats();
     private double remainingAttackCooldown = 0;
+    private double attackCooldownLength = 0;
+    private boolean cooldownUnsent = false;
     private boolean waitingToAttack = false;
     private float distanceToTarget = 0.0F;
 
@@ -82,7 +84,7 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
      * Handles a combat-state attack with a cooldown chosen for this attack only.
      */
     public void handleAttack(float distanceToTarget, double cooldown) {
-        remainingAttackCooldown = Math.max(0.0D, cooldown);
+        startCooldown(cooldown);
         this.distanceToTarget = distanceToTarget;
         waitingToAttack = true;
     }
@@ -91,15 +93,29 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
      * Resets cooldown after blocking
      */
     public void blockEvent() {
-        remainingAttackCooldown = itemStats.getBlockCooldown();
+        startCooldown(itemStats.getBlockCooldown());
     }
 
     /**
      * Triggers an attack cooldown
      */
     public void resetCooldown() {
-        remainingAttackCooldown = itemStats.getCooldown();
+        startCooldown(itemStats.getCooldown());
     }
+
+    private void startCooldown(double ticks) {
+        remainingAttackCooldown = validCooldown(ticks);
+        attackCooldownLength = remainingAttackCooldown;
+        cooldownUnsent = true;
+    }
+
+    // NaN or infinite cooldowns from scripts would block attacks for good.
+    private static double validCooldown(double ticks) {
+        return Double.isFinite(ticks) ? Math.max(0.0D, ticks) : 0.0D;
+    }
+
+    public boolean isCooldownUnsent() { return cooldownUnsent; }
+    public void markCooldownSent() { cooldownUnsent = false; }
 
     /**
      * Resolves sweet spot of an attack returning the extra sweet spot multiplier
@@ -113,6 +129,7 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
 
     // Getters
     public double getRemainingAttackCooldown() { return remainingAttackCooldown; }
+    public double getAttackCooldownLength() { return attackCooldownLength; }
     public ScriptZSWeapon getCurrentZSWeapon() { return itemStats; }
     public CachedWeaponStats getItemStats() { return itemStats; }
     public ItemStack getCurrentItem() { return currentItem; }
@@ -120,5 +137,21 @@ public class PlayerCombatState implements ScriptPlayerCombatState {
 
 
     // Setters
-    public void setRemainingAttackCooldown(double remainingAttackCooldown) { this.remainingAttackCooldown = remainingAttackCooldown; }
+    public void setRemainingAttackCooldown(double remainingAttackCooldown) {
+        if(!Double.isFinite(remainingAttackCooldown)) return;
+        if(this.remainingAttackCooldown > 0 && remainingAttackCooldown <= attackCooldownLength) {
+            this.remainingAttackCooldown = Math.max(0.0D, remainingAttackCooldown);
+            cooldownUnsent = true;
+        } else {
+            startCooldown(remainingAttackCooldown);
+        }
+    }
+
+    /**
+     * Applies a cooldown received from the server
+     */
+    public void syncCooldown(double remaining, double length) {
+        remainingAttackCooldown = validCooldown(remaining);
+        attackCooldownLength = validCooldown(length);
+    }
 }
