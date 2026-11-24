@@ -2,7 +2,7 @@
  * Zero S Mod player script hooks.
  */
 declare namespace IZeroSEvent {
-  /** Fired once when normal transform input begins charging an NPCDBC custom form, before the form changes. */
+  /** Fired when a player starts charging an NPCDBC custom-form transformation. */
   function beginsTransforming(event: IZeroSEvent.BeginsTransformingEvent): void;
 
   /** Fired in player scripts when DBC successfully activates short-range Instant Transmission. */
@@ -22,7 +22,7 @@ declare namespace IZeroSEvent {
 }
 
 declare namespace IPlayerEvent {
-  /** Fired once when normal transform input begins charging an NPCDBC custom form, before the form changes. */
+  /** Fired when a player starts charging an NPCDBC custom-form transformation. */
   function beginsTransforming(event: IZeroSEvent.BeginsTransformingEvent): void;
 
   /** Fired in player scripts when DBC successfully activates short-range Instant Transmission. */

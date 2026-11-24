@@ -31,26 +31,20 @@ public interface ScriptKiAttackEntityMethods {
   boolean isDestroyerAttack();
 
   /**
-   * Sets a custom RGB color for this destroyer attack's purple accent.
-   * The override is synchronized to nearby clients and works in both DBC 2D and 3D render modes.
-   * It does not change the attack's regular DBC palette color.
-   * For example, {@code kiAttack.setDestroyerColor(0x6A0DAD)} changes the accent to purple.
-   *
-   * @param rgb color from {@code 0x000000} through {@code 0xFFFFFF}
-   * @return true when this is a destroyer ki attack and {@code rgb} is valid
+   * @param rgb accent color from {@code 0x000000} through {@code 0xFFFFFF}
+   * @return false when this is not a destroyer ki attack or {@code rgb} is out of range
    */
   boolean setDestroyerColor(int rgb);
 
   /**
-   * @return custom destroyer accent as {@code 0xRRGGBB}, or -1 when this is not a ki attack or
-   *     DBC's default destroyer colors are active
+   * @return accent color as {@code 0xRRGGBB}, or -1 for DBC's default or when this is not ki
    */
   int getDestroyerColor();
 
   /**
-   * Restores DBC's normal destroyer colors.
+   * Restores DBC's default destroyer colors.
    *
-   * @return true when this is a destroyer ki attack
+   * @return false when this is not a destroyer ki attack
    */
   boolean clearDestroyerColor();
 

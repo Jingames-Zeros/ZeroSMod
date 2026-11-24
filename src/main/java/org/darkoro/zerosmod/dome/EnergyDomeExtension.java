@@ -26,4 +26,6 @@ public interface EnergyDomeExtension {
   boolean zerosmod$isInside(Entity entity);
 
   void zerosmod$setTargetRadius(float radius, int ticks);
+
+  void zerosmod$releaseInsideEntities();
 }
