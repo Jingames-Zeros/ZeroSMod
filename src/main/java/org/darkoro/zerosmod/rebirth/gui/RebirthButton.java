@@ -4,10 +4,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 
 /** Flat controls drawn with Minecraft primitives; no texture pack dependency. */
-final class RebirthButton extends GuiButton {
+public final class RebirthButton extends GuiButton {
   private final int accent;
 
-  RebirthButton(int id, int x, int y, int width, String label, int accent) {
+  public RebirthButton(int id, int x, int y, int width, String label, int accent) {
     super(id, x, y, width, 20, label);
     this.accent = accent;
   }

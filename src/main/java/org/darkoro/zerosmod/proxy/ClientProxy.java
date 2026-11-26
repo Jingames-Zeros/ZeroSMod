@@ -32,6 +32,9 @@ import org.darkoro.zerosmod.rebirth.gui.RebirthMenuClient;
 import org.darkoro.zerosmod.rebirth.network.RebirthNetwork;
 import org.darkoro.zerosmod.rebirth.network.RebirthSnapshot;
 import org.darkoro.zerosmod.screen.PlayerScreenReporter;
+import org.darkoro.zerosmod.tpbank.gui.TpBankMenuClient;
+import org.darkoro.zerosmod.tpbank.network.TpBankAdminSnapshot;
+import org.darkoro.zerosmod.tpbank.network.TpBankSnapshot;
 import org.darkoro.zerosmod.world.WorldProviderPhylactery;
 import org.darkoro.zerosmod.zsweapons.client.ClientWeaponHandler;
 
@@ -50,6 +53,7 @@ public class ClientProxy extends CommonProxy {
     FMLCommonHandler.instance().bus().register(DBCAEditorClient.INSTANCE);
     FMLCommonHandler.instance().bus().register(RaceStatEditorClient.INSTANCE);
     FMLCommonHandler.instance().bus().register(RebirthMenuClient.INSTANCE);
+    FMLCommonHandler.instance().bus().register(TpBankMenuClient.INSTANCE);
     KeybindHandler.init();
     FMLCommonHandler.instance().bus().register(new KeyInputHandler());
     FMLCommonHandler.instance().bus().register(ClientWeaponHandler.INSTANCE);
@@ -83,6 +87,14 @@ public class ClientProxy extends CommonProxy {
 
   @Override public void receiveDBCAEditorSnapshot(DBCAEditorSnapshot packet, INetHandler connection) {
     DBCAEditorClient.INSTANCE.receive(packet, connection);
+  }
+
+  @Override public void receiveTpBankAdminSnapshot(TpBankAdminSnapshot packet, INetHandler connection) {
+    TpBankMenuClient.INSTANCE.receive(packet, connection);
+  }
+
+  @Override public void receiveTpBankSnapshot(TpBankSnapshot packet, INetHandler connection) {
+    TpBankMenuClient.INSTANCE.receive(packet, connection);
   }
 
   @Override

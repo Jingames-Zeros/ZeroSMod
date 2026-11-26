@@ -28,6 +28,9 @@ import org.darkoro.zerosmod.network.BiomeVisualSyncUtil;
 import org.darkoro.zerosmod.network.RaceStatEditorServer;
 import org.darkoro.zerosmod.network.SyncDimensionConfigPacket;
 import org.darkoro.zerosmod.scripted.ZeroSAPI;
+import org.darkoro.zerosmod.tpbank.TpBank;
+import org.darkoro.zerosmod.tpbank.TpBankAdminServer;
+import org.darkoro.zerosmod.tpbank.TpBankStats;
 import org.darkoro.zerosmod.zsweapons.ZSWeaponUtils;
 import org.darkoro.zerosmod.zsweapons.network.packets.ReloadToClientPacket;
 import org.darkoro.zerosmod.zsweapons.network.packets.WeaponTypesToClientPacket;
@@ -52,6 +55,7 @@ public class CommandZSMod extends CommandBase {
     registerSubCommand(new SaiyanMergeSubCommand());
     registerSubCommand(new MasteryDebugSubCommand());
     registerSubCommand(new SetItemTypeCommand());
+    registerSubCommand(new TpBankSubCommand());
   }
 
   @Override
@@ -282,6 +286,7 @@ public class CommandZSMod extends CommandBase {
       BiomeConfig.reload();
       DimensionConfig.reload();
       KiAttackConfig.reload();
+      TpBankConfig.reload();
       ServerWeaponConfig.reload();
 
       IMessage pkt = BiomeVisualSyncUtil.buildFullPacket();
@@ -456,6 +461,133 @@ public class CommandZSMod extends CommandBase {
           + "Saiyan Base=" + findMasteryValue(nbt.getString(saiyanKey), "Base")
           + ", Half-Saiyan Base=" + findMasteryValue(nbt.getString(halfSaiyanKey), "Base")
           + ", legacy racial key=" + findMasteryValue(nbt.getString("jrmcFormMasteryRacial"), "Base")));
+    }
+  }
+
+  private class TpBankSubCommand extends ZSSubCommand {
+
+    private TpBankSubCommand() {
+      super("tpbank", "/zsmod tpbank <gui|stats|top|info|set|add|lock|unlock> ...", "Shows TP Bank statistics and edits online players' banks.", 2);
+    }
+
+    @Override
+    protected List<String> addTabCompletionOptions(ICommandSender sender, String[] args) {
+      if (args.length == 1) {
+        return getListOfStringsMatchingLastWord(args, "gui", "stats", "top", "info", "set", "add", "lock", "unlock");
+      }
+      if (args.length == 2 && !"top".equalsIgnoreCase(args[0]) && !"stats".equalsIgnoreCase(args[0])) {
+        return getListOfStringsMatchingLastWord(args, MinecraftServer.getServer().getAllUsernames());
+      }
+
+      return Collections.emptyList();
+    }
+
+    @Override
+    protected boolean isUsernameIndex(String[] args, int index) {
+      return index == 1;
+    }
+
+    @Override
+    protected void process(ICommandSender sender, String[] args) {
+      if (args.length == 0) {
+        throw new WrongUsageException(getUsage());
+      }
+
+      switch (args[0].toLowerCase()) {
+        case "gui":
+          TpBankAdminServer.open(getCommandSenderAsPlayer(sender));
+          break;
+        case "stats":
+          sendStats(sender);
+          break;
+        case "top":
+          sendTop(sender, args.length > 1 ? parseIntBounded(sender, args[1], 1, 50) : 10);
+          break;
+        case "info":
+          if (args.length != 2) throw new WrongUsageException("/zsmod tpbank info <player>");
+          sendInfo(sender, args[1]);
+          break;
+        case "set":
+        case "add":
+          if (args.length != 3) throw new WrongUsageException("/zsmod tpbank " + args[0].toLowerCase() + " <player> <amount>");
+          editBalance(sender, args[0].equalsIgnoreCase("add"), getPlayer(sender, args[1]), args[2]);
+          break;
+        case "lock":
+        case "unlock":
+          if (args.length != 2) throw new WrongUsageException("/zsmod tpbank " + args[0].toLowerCase() + " <player>");
+          EntityPlayerMP player = getPlayer(sender, args[1]);
+          boolean unlock = args[0].equalsIgnoreCase("unlock");
+          TpBank.setUnlocked(player, unlock);
+          reportEdit(sender, player, (unlock ? "unlocked" : "locked") + " the bank");
+          break;
+        default:
+          throw new WrongUsageException(getUsage());
+      }
+    }
+
+    private void sendStats(ICommandSender sender) {
+      TpBankStats.Totals totals = TpBankStats.totals();
+      long banked = 0L;
+      List<TpBankStats.Row> rows = TpBankStats.rows();
+      for (TpBankStats.Row row : rows) {
+        banked += row.estimate;
+      }
+      line(sender, "TP Bank: " + rows.size() + " slot(s), about " + TpBank.format(banked) + " TP banked");
+      line(sender, "Deposited: " + TpBank.format(totals.deposited) + " | Withdrawn: " + TpBank.format(totals.withdrawn));
+      line(sender, "Eaten by the bank: " + TpBank.format(totals.eaten()) + " (deposit loss " + TpBank.format(totals.eatenByDepositLoss)
+          + ", withdraw fee " + TpBank.format(totals.eatenByWithdrawFee) + ", interest " + TpBank.format(totals.eatenByInterest) + ")");
+      line(sender, "Gained from interest: " + TpBank.format(totals.gainedFromInterest));
+    }
+
+    private void sendTop(ICommandSender sender, int count) {
+      List<TpBankStats.Row> rows = TpBankStats.rows();
+      line(sender, "Top TP Bank balances:");
+      for (int i = 0; i < Math.min(count, rows.size()); i++) {
+        TpBankStats.Row row = rows.get(i);
+        line(sender, (i + 1) + ". " + row.name + " (slot " + row.slot + "): " + TpBank.format(row.estimate) + " TP");
+      }
+    }
+
+    private void sendInfo(ICommandSender sender, String name) {
+      EntityPlayerMP online = MinecraftServer.getServer().getConfigurationManager().func_152612_a(name);
+      if (online != null) {
+        line(sender, online.getCommandSenderName() + " now: " + TpBank.format(TpBank.getBanked(online)) + " TP banked, "
+            + (TpBank.isUnlocked(online) ? "unlocked" : "locked") + ", " + TpBank.format(TpBank.getCurrentTP(online)) + " TP");
+      }
+      List<TpBankStats.Row> rows = TpBankStats.rowsOf(name);
+      for (TpBankStats.Row row : rows) {
+        line(sender, row.name + " slot " + row.slot + ": about " + TpBank.format(row.estimate) + " TP, "
+            + (row.entry.unlocked ? "unlocked" : "locked") + ", deposited " + TpBank.format(row.entry.deposited)
+            + ", withdrawn " + TpBank.format(row.entry.withdrawn));
+      }
+      if (online == null && rows.isEmpty()) {
+        line(sender, EnumChatFormatting.RED + "No TP Bank data for " + name);
+      }
+    }
+
+    private void editBalance(ICommandSender sender, boolean add, EntityPlayerMP player, String amountText) {
+      long amount;
+      try {
+        amount = Long.parseLong(amountText);
+      } catch (NumberFormatException e) {
+        throw new CommandException("Not a valid amount: " + amountText);
+      }
+      long before = TpBank.getBanked(player);
+      if (add) {
+        TpBank.addBanked(player, amount);
+      } else {
+        TpBank.setBanked(player, amount);
+      }
+      reportEdit(sender, player, "changed the balance from " + TpBank.format(before) + " to " + TpBank.format(TpBank.getBanked(player)) + " TP");
+    }
+
+    private void reportEdit(ICommandSender sender, EntityPlayerMP player, String change) {
+      ZeroSMod.LOGGER.info("[TP Bank] " + sender.getCommandSenderName() + " " + change + " for " + player.getCommandSenderName());
+      line(sender, player.getCommandSenderName() + ": " + change);
+    }
+
+    private void line(ICommandSender sender, String text) {
+      sender.addChatMessage(new ChatComponentText(PREFIX + EnumChatFormatting.GRAY + text));
     }
   }
 

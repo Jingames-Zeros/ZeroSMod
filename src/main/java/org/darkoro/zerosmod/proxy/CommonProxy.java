@@ -36,6 +36,13 @@ import org.darkoro.zerosmod.network.RaceStatResponse;
 import org.darkoro.zerosmod.network.ServerTaskScheduler;
 import org.darkoro.zerosmod.dbcarmor.editor.DBCAEditorSnapshot;
 import org.darkoro.zerosmod.rebirth.network.RebirthSnapshot;
+import org.darkoro.zerosmod.tpbank.TpBankCommandHandler;
+import org.darkoro.zerosmod.tpbank.TpBankEventHooks;
+import org.darkoro.zerosmod.tpbank.TpBankServer;
+import org.darkoro.zerosmod.tpbank.TpBankStats;
+import org.darkoro.zerosmod.tpbank.network.TpBankNetwork;
+import org.darkoro.zerosmod.tpbank.network.TpBankAdminSnapshot;
+import org.darkoro.zerosmod.tpbank.network.TpBankSnapshot;
 import org.darkoro.zerosmod.world.GenericZSBiome;
 import org.darkoro.zerosmod.world.ModDimensions;
 import org.darkoro.zerosmod.world.WorldProviderPhylactery;
@@ -60,6 +67,7 @@ public class CommonProxy {
     ModBlocks.registerAll();
     ModDimensions.registerAll();
     NetworkHandler.init();
+    TpBankNetwork.initialize();
   }
 
   public void init(FMLInitializationEvent event) {
@@ -67,6 +75,7 @@ public class CommonProxy {
     SaiyanMasteryMergeEvent saiyanMasteryMergeEvent = new SaiyanMasteryMergeEvent();
     FMLCommonHandler.instance().bus().register(saiyanMasteryMergeEvent);
     FMLCommonHandler.instance().bus().register(KiAttackGuard.INSTANCE);
+    FMLCommonHandler.instance().bus().register(TpBankServer.INSTANCE);
     FMLCommonHandler.instance().bus().register(EnergyDomeEventHooks.INSTANCE);
     if (Loader.isModLoaded("npcdbc")) {
       FMLCommonHandler.instance().bus().register(CustomFormTransformationEventHooks.INSTANCE);
@@ -76,6 +85,10 @@ public class CommonProxy {
     NpcAPI.Instance().addGlobalObject("WeaponAPI", WeaponAPI.INSTANCE);
     registerScriptHooks();
     MinecraftForge.EVENT_BUS.register(KiAttackGuard.INSTANCE);
+    if (Loader.isModLoaded("jinryuujrmcore") && Loader.isModLoaded("jinryuudragonblockc")) {
+      MinecraftForge.EVENT_BUS.register(TpBankCommandHandler.INSTANCE);
+      FMLCommonHandler.instance().bus().register(TpBankStats.INSTANCE);
+    }
     MinecraftForge.EVENT_BUS.register(EnergyDomeEventHooks.INSTANCE);
     if (ServerWeaponConfig.isEnabled()) {
       FMLCommonHandler.instance().bus().register(ServerWeaponHandler.INSTANCE);
@@ -103,6 +116,7 @@ public class CommonProxy {
   }
 
   public void serverStopping(FMLServerStoppingEvent event) {
+    TpBankStats.onServerStopping();
     EnergyDomeEventHooks.clear();
   }
 
@@ -119,6 +133,10 @@ public class CommonProxy {
   public void receiveRebirthSnapshot(RebirthSnapshot packet, INetHandler connection) {}
 
   public void receiveDBCAEditorSnapshot(DBCAEditorSnapshot packet, INetHandler connection) {}
+
+  public void receiveTpBankSnapshot(TpBankSnapshot packet, INetHandler connection) {}
+
+  public void receiveTpBankAdminSnapshot(TpBankAdminSnapshot packet, INetHandler connection) {}
 
   private void registerScriptHooks() {
     if (this.scriptHooksRegistered || ScriptHookController.Instance == null) {
@@ -171,6 +189,15 @@ public class CommonProxy {
           ScriptContext.PLAYER,
           HookDefinition.builder(CustomFormTransformationEventHooks.BEGINS_TRANSFORMING_HOOK)
               .eventClass(IZeroSEvent.BeginsTransformingEvent.class)
+              .paramNames("event")
+              .requiredImports("org.darkoro.zerosmod.api.event.IZeroSEvent")
+              .build());
+    }
+    if (Loader.isModLoaded("jinryuujrmcore") && Loader.isModLoaded("jinryuudragonblockc")) {
+      ScriptHookController.Instance.registerHook(
+          ScriptContext.PLAYER,
+          HookDefinition.builder(TpBankEventHooks.TP_OVERFLOW_HOOK)
+              .eventClass(IZeroSEvent.TpOverflowEvent.class)
               .paramNames("event")
               .requiredImports("org.darkoro.zerosmod.api.event.IZeroSEvent")
               .build());

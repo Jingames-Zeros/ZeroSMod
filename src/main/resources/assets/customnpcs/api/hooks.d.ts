@@ -11,6 +11,9 @@ declare namespace IZeroSEvent {
   /** Fired before NPCDBC applies a custom form's scheduled Ki drain. */
   function dbcFormDrain(event: IZeroSEvent.FormDrainEvent): void;
 
+  /** Fired when /jrmctp exceeds the TP cap and the TP Bank is unlocked, before the overflow is banked. */
+  function tpOverflow(event: IZeroSEvent.TpOverflowEvent): void;
+
   /** Fired when a player performs a valid Zero S weapon swing. */
   function zsWeaponSwing(event: IZeroSEvent.WeaponSwingEvent): void;
 
@@ -30,6 +33,9 @@ declare namespace IPlayerEvent {
 
   /** Fired before NPCDBC applies a custom form's scheduled Ki drain. */
   function dbcFormDrain(event: IZeroSEvent.FormDrainEvent): void;
+
+  /** Fired when /jrmctp exceeds the TP cap and the TP Bank is unlocked, before the overflow is banked. */
+  function tpOverflow(event: IZeroSEvent.TpOverflowEvent): void;
 
   /** Fired when a player performs a valid Zero S weapon swing. */
   function zsWeaponSwing(event: IZeroSEvent.WeaponSwingEvent): void;
